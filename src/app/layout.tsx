@@ -15,6 +15,7 @@ import Notistack from "@/components/Snackbar";
 import Snackbar from "@/components/Snackbar";
 import Footer from "@/components/Footer/Footer";
 import SliderPromotionalBanner from "@/components/Slider/SliderPromotionalBanner";
+import TopBar from "@/components/Header/TopBar/TopBar";
 // import Notistack from "@/components/Notistack/Notistack";
 // import Notistack from "@/components/Notistack/Notistack";
 
@@ -40,6 +41,7 @@ export default function RootLayout({
             <body className={instrument.className}>
               <Snackbar>
                 <SliderPromotionalBanner />
+                <TopBar />
                 {children}
                 <Footer />
 

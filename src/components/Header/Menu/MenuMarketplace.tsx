@@ -55,69 +55,12 @@ const MenuMarketplace = () => {
     return (
         <>
             <div className={`header-menu bg-white w-full top-0 z-10 duration-500`}>
-                <div className={`header-menu-main style-marketplace relative bg-[#263587] w-full md:h-[74px] h-[56px]`}>
-                    <div className="container mx-auto h-full">
-                        <div className="header-main flex items-center justify-between h-full">
-                            <div className="menu-mobile-icon lg:hidden flex items-center" onClick={handleMenuMobile}>
-                                <Icon.List className="text-white text-2xl" />
-                            </div>
-                            <Link href={'/'} className='flex items-center'>
-                                <div className="heading4 text-white">Anvogue</div>
-                            </Link>
-                            <div className="form-search w-2/3 pl-8 flex items-center h-[44px] max-lg:hidden">
-                                <div className='w-full flex items-center h-full'>
-                                    <input className="search-input h-full px-4 w-full border border-line rounded-l"
-                                        placeholder="What are you looking for today?"
-                                        value={searchKeyword}
-                                        onChange={(e) => setSearchKeyword(e.target.value)}
-                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchKeyword)}
-                                    />
-                                    <button
-                                        className="search-button button-main bg-red text-white h-full flex items-center px-7 rounded-none rounded-r"
-                                        onClick={() => {
-                                            handleSearch(searchKeyword)
-                                        }}
-                                    >
-                                        Search
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="right flex gap-12">
-                                <div className="list-action flex items-center gap-4">
-                                    <div className="user-icon flex items-center justify-center cursor-pointer">
-                                        <Icon.User weight='bold' size={24} color='white' onClick={handleLoginPopup} />
-                                        <div
-                                            className={`login-popup absolute top-[74px] w-[320px] p-7 rounded-xl bg-white box-shadow-sm 
-                                                ${openLoginPopup ? 'open' : ''}`}
-                                        >
-                                            <Link href={'/login'} className="button-main w-full text-center">Login</Link>
-                                            <div className="text-secondary text-center mt-3 pb-4">Don’t have an account?
-                                                <Link href={'/register'} className='text-black pl-1 hover:underline'>Register</Link>
-                                            </div>
-                                            <Link href={'/my-account'} className="button-main bg-white text-black border border-black w-full text-center">Dashboard</Link>
-                                            <div className="bottom mt-4 pt-4 border-t border-line"></div>
-                                            <Link href={'#!'} className='body1 hover:underline'>Support</Link>
-                                        </div>
-                                    </div>
-                                    <div className="max-md:hidden wishlist-icon flex items-center cursor-pointer" onClick={openModalWishlist}>
-                                        <Icon.Heart weight='bold' size={24} color='white' />
-                                    </div>
-                                    <div className="cart-icon flex items-center relative cursor-pointer" onClick={openModalCart}>
-                                        <Icon.Handbag weight='bold' size={24} color='white' />
-                                        <span className="quantity cart-quantity absolute -right-1.5 -top-1.5 text-xs text-white bg-red w-4 h-4 flex items-center justify-center rounded-full">{cartState.cartArray.length}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="top-nav-menu relative bg-white border-b border-line h-[44px] max-lg:hidden z-10">
+                <div className="top-nav-menu relative bg-white border-line  max-lg:hidden z-10">
                     <div className="container h-full">
                         <div className="top-nav-menu-main flex items-center justify-between h-full">
                             <div className="left flex items-center h-full">
                                 <div className="menu-department-block relative h-full">
-                                    <div
+                                    {/* <div
                                         className="menu-department-btn relative flex items-center sm:gap-24 gap-4 h-full w-fit cursor-pointer"
                                         onClick={handleSubMenuDepartment}
                                     >
@@ -126,9 +69,9 @@ const MenuMarketplace = () => {
                                             <div className="text-button whitespace-nowrap">Department</div>
                                         </div>
                                         <Icon.CaretDown className='text-xl max-sm:text-base' />
-                                    </div>
+                                    </div> */}
                                     <div
-                                        className={`sub-menu-department style-marketplace absolute top-[84px] left-0 right-0 px-[26px] py-[5px] bg-surface rounded-xl border border-line ${openSubMenuDepartment ? 'open' : ''}`}
+                                        className={`sub-menu-department style-marketplace absolute top-[40px] left-0 right-0 px-[26px] py-[5px] bg-surface rounded-xl border border-line open w-[230px]`}
                                     >
                                         {categories && categories.length > 0 ? (
                                             categories.map((category: any, index: any) => (
