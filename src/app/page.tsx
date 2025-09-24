@@ -29,16 +29,16 @@ export default function Home() {
         <MenuMarketplace />
         <SliderMarketplace />
       </div>
-      <BannerAbove />
+      {/* <BannerAbove /> */}
       <Deal />
-      <Collection />
-      <BestSeller data={productData} start={0} limit={5} />
-      <BannerBelow />
-      <TopProduct />
+      {/* <Collection /> */}
+      {/* <BestSeller data={productData} start={0} limit={5} /> */}
+      {/* <BannerBelow /> */}
+      {/* <TopProduct /> */}
       <Recommend />
-      <NewsInsight data={blogData} start={18} limit={21} />
-      <Benefit props='md:py-[60px] py-10 border-b border-line' />
-      <Anvogue />
+      {/* <NewsInsight data={blogData} start={18} limit={21} /> */}
+      {/* <Benefit props='md:py-[60px] py-10 border-b border-line' /> */}
+      {/* <Anvogue /> */}
       {/* <Footer /> */}
       {/* <ModalNewsletter /> */}
     </>

@@ -126,18 +126,6 @@ const Footer = () => {
                     >
                       Why Shop With Us
                     </Link>
-                    <Link
-                      className="caption1 has-line-before duration-300 w-fit pt-2  hover:text-gray-300"
-                      href={"/store"}
-                    >
-                      Store List
-                    </Link>
-                    <Link
-                      className="caption1 has-line-before duration-300 w-fit pt-2  hover:text-gray-300"
-                      href={"/blogs"}
-                    >
-                      Blogs
-                    </Link>
                   </div>
                   <div className="item flex flex-col basis-1/2 ">
                     <div className="text-button-uppercase pb-3 ">
@@ -286,7 +274,7 @@ const Footer = () => {
                 </div>
                 <div className="payment-img">
                   <Image
-                    src={"	https://www.pickaboo.com/_next/static/images/payment-five-a54fb86ef0189aa04ec25bba3b22351c.svg"}
+                    src={"https://www.pickaboo.com/_next/static/images/payment-six-1e3800be1f46e9a71f562c1587aa9fba.svg"}
                     width={500}
                     height={500}
                     alt={"payment"}

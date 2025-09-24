@@ -71,7 +71,7 @@ const MenuMarketplace = () => {
                                         <Icon.CaretDown className='text-xl max-sm:text-base' />
                                     </div> */}
                                     <div
-                                        className={`sub-menu-department style-marketplace absolute top-[40px] left-0 right-0 px-[26px] py-[5px] bg-surface rounded-xl border border-line open w-[230px]`}
+                                        className={`sub-menu-department style-marketplace absolute top-[40px] left-0 right-0 px-[26px] py-[5px] bg-surface rounded-xl border border-line open w-[240px]`}
                                     >
                                         {categories && categories.length > 0 ? (
                                             categories.map((category: any, index: any) => (

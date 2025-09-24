@@ -16,83 +16,61 @@ interface SlideData {
     heading: string;
     image: string;
     link: string;
-    product?: ProductType;
+    category?: any;
 }
 
 const SliderMarketplace = () => {
-    const { products, isLoading, error } = useSelector((state: any) => state.products)
-    const [featuredProducts, setFeaturedProducts] = useState<SlideData[]>([])
-    const dispatch = useDispatch()
+    const { categories, isLoading, error: errorCategories } = useSelector((state: any) => state.categories)
+    const [featuredCategories, setFeaturedCategories] = useState<SlideData[]>([])
+
 
     useEffect(() => {
-        ProductService.getAll(dispatch)
-    }, [dispatch]);
+        if (categories && categories.length > 0) {
+            const slides: SlideData[] = categories.slice(0, 6).map((category: any, index: number) => {
+                let title = "CATEGORY";
+                if (index < 2) title = "FEATURED";
+                else if (index < 4) title = "POPULAR";
+                else title = "TRENDING";
 
-    useEffect(() => {
-        if (products && products.length > 0) {
-            // Filter products for different categories
-            const bestSellers = products.filter((product: ProductType) => product.bestSeller).slice(0, 3)
-            const newArrivals = products.filter((product: ProductType) => product.newArrival).slice(0, 3)
-            const trending = products.slice(0, 3) // First 3 products as trending
+                return {
+                    id: `category-${category._id}`,
+                    title: title,
+                    heading: category.name,
+                    image: category.image?.Location || '/images/slider/marketplace.png',
+                    link: `/shop?category=${category._id}`,
+                    category: category
+                };
+            });
 
-            // Combine and create slides
-            const slides: SlideData[] = [
-                ...bestSellers.map((product: ProductType) => ({
-                    id: `best-${product._id}`,
-                    title: "BEST SELLING",
-                    heading: product.title,
-                    image: product.images[0]?.Location || '/images/slider/marketplace.png',
-                    link: `/product/${product._id}`,
-                    product: product
-                })),
-                ...newArrivals.map((product: ProductType) => ({
-                    id: `new-${product._id}`,
-                    title: "NEW ARRIVALS",
-                    heading: product.title,
-                    image: product.images[0]?.Location || '/images/slider/marketplace.png',
-                    link: `/product/${product._id}`,
-                    product: product
-                })),
-                ...trending.map((product: ProductType) => ({
-                    id: `trending-${product._id}`,
-                    title: "TRENDING NOW",
-                    heading: product.title,
-                    image: product.images[0]?.Location || '/images/slider/marketplace.png',
-                    link: `/product/${product._id}`,
-                    product: product
-                }))
-            ]
-
-            setFeaturedProducts(slides)
+            setFeaturedCategories(slides)
         }
-    }, [products]);
+    }, [categories]);
 
-    // Fallback slides if no products are available
     const fallbackSlides: SlideData[] = [
         {
             id: "1",
-            title: "BEST SELLING",
-            heading: "Step Into New Worlds",
+            title: "FEATURED",
+            heading: "Explore Categories",
             image: '/images/slider/marketplace.png',
-            link: '/shop/breadcrumb-img'
+            link: '/shop'
         },
         {
             id: "2",
-            title: "NEW ARRIVALS",
-            heading: "Discover Amazing Products",
+            title: "POPULAR",
+            heading: "Shop by Category",
             image: '/images/slider/marketplace.png',
-            link: '/shop/breadcrumb-img'
+            link: '/shop'
         },
         {
             id: "3",
-            title: "TRENDING NOW",
-            heading: "Shop the Latest Trends",
+            title: "TRENDING",
+            heading: "Browse Collections",
             image: '/images/slider/marketplace.png',
-            link: '/shop/breadcrumb-img'
+            link: '/shop'
         }
     ];
 
-    const marketplaceSlides = featuredProducts.length > 0 ? featuredProducts : fallbackSlides;
+    const marketplaceSlides = featuredCategories.length > 0 ? featuredCategories : fallbackSlides;
 
     if (isLoading) {
         return (
@@ -100,19 +78,19 @@ const SliderMarketplace = () => {
                 <div className="container pt-10 flex justify-center items-center h-full w-full">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green mx-auto"></div>
-                        <p className="mt-4 text-gray-600">Loading products...</p>
+                        <p className="mt-4 text-gray-600">Loading categories...</p>
                     </div>
                 </div>
             </div>
         )
     }
 
-    if (error) {
+    if (errorCategories) {
         return (
             <div className="slider-block style-marketplace lg:h-[500px] md:h-[400px] sm:h-[320px] h-[280px] w-full">
                 <div className="container pt-10 flex justify-center items-center h-full w-full">
                     <div className="text-center">
-                        <p className="text-red-600">Error loading products: {error}</p>
+                        <p className="text-red-600">Error loading categories: {errorCategories}</p>
                     </div>
                 </div>
             </div>
@@ -144,23 +122,17 @@ const SliderMarketplace = () => {
                                     <SwiperSlide key={slide.id}>
                                         <div className="slider-item h-full w-full flex items-center bg-surface relative">
                                             <div className="text-content md:pl-16 pl-5 basis-1/2 relative z-[1]">
-                                                <div className="text-sub-display text-white">{slide.title}</div>
-                                                <div className="heading2 text-white md:mt-5 mt-2">{slide.heading}</div>
-                                                {slide.product && (
-                                                    <div className="product-details text-white md:mt-3 mt-2">
-                                                        <p className="text-sm opacity-90">Brand: {slide.product.brand}</p>
-                                                        <p className="text-sm opacity-90">Type: {slide.product.type}</p>
-                                                        <div className="price-info md:mt-2 mt-1">
-                                                            <span className="text-lg font-semibold">${slide.product.discountPrice}</span>
-                                                            {slide.product.actualPrice > slide.product.discountPrice && (
-                                                                <span className="text-sm line-through opacity-75 ml-2">${slide.product.actualPrice}</span>
-                                                            )}
-                                                        </div>
+                                                {/* <div className="text-sub-display text-white">{slide.title}</div> */}
+                                                {/* <div className="heading2 text-white md:mt-5 mt-2">{slide.heading}</div> */}
+                                                {/* {slide.category && (
+                                                    <div className="category-details text-white md:mt-3 mt-2">
+                                                        <p className="text-sm opacity-90">Category: {slide.category.name}</p>
+                                                        <p className="text-sm opacity-90">Explore our collection</p>
                                                     </div>
-                                                )}
-                                                <a href={slide.link}
+                                                )} */}
+                                                {/* <a href={slide.link}
                                                     className="button-main bg-white text-black hover:bg-green md:mt-8 mt-3 inline-block">Shop Now
-                                                </a>
+                                                </a> */}
                                             </div>
                                             <div className="sub-img absolute top-0 left-0 w-full h-full">
                                                 <Image
