@@ -98,14 +98,26 @@ const ModalSizeguide: React.FC<Props> = ({ data, isOpen, onClose }) => {
                     </div>
                     <div className="heading6 mt-8">suggests for you:</div>
                     <div className="list-size flex items-center gap-2 flex-wrap mt-3">
-                        {data?.sizes.map((item, index) => (
-                            <div
-                                className={`size-item w-12 h-12 flex items-center justify-center text-button rounded-full bg-white border border-line ${activeSize === item ? 'active' : ''}`}
-                                key={index}
-                            >
-                                {item}
-                            </div>
-                        ))}
+                        {data?.size?.map((item, index) => {
+                            // Parse the size string if it's JSON
+                            let sizeName = item;
+                            try {
+                                if (typeof item === 'string' && item.startsWith('[')) {
+                                    sizeName = JSON.parse(item)[0];
+                                }
+                            } catch (e) {
+                                // If parsing fails, use the original item
+                                sizeName = item;
+                            }
+                            return (
+                                <div
+                                    className={`size-item w-12 h-12 flex items-center justify-center text-button rounded-full bg-white border border-line ${activeSize === sizeName ? 'active' : ''}`}
+                                    key={index}
+                                >
+                                    {sizeName}
+                                </div>
+                            );
+                        })}
                     </div>
                     <table>
                         <thead>

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
 import Link from 'next/link'
 import * as Icon from "@phosphor-icons/react/dist/ssr";
-import { ProductType } from '@/type/ProductType'
+import { ProductType, LegacyProductType } from '@/type/ProductType'
 import Product from '../Product/Product';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css'
@@ -14,14 +14,47 @@ interface Props {
     data: Array<ProductType>;
     productPerPage: number
     dataType: string | null
+    categoryImage?: string
 }
 
-const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) => {
-    const [layoutCol, setLayoutCol] = useState<number | null>(4)
+// Helper function to convert ProductType to LegacyProductType for Product component
+const convertToLegacyProduct = (product: ProductType): LegacyProductType => {
+    return {
+        id: product._id,
+        category: product.categoryId?.name?.toLowerCase().replace(/\s+/g, '-') || 'general',
+        type: 'product',
+        name: product.title || 'Untitled Product',
+        gender: 'unisex',
+        new: product.newArrival || false,
+        sale: product.discountPrice < product.actualPrice,
+        rate: 5, // Default rating
+        price: product.discountPrice || 0,
+        originPrice: product.actualPrice || 0,
+        brand: 'Brand', // Default brand
+        sold: Math.floor(Math.random() * 100), // Random sold count
+        quantity: product.stock || 0,
+        quantityPurchase: 1,
+        sizes: product.size || [],
+        variation: (product.colors || []).map((color, index) => ({
+            color: color.replace(/[\[\]"]/g, ''),
+            colorCode: '#000000',
+            colorImage: product.images?.[0]?.Location || '',
+            image: product.images?.[0]?.Location || ''
+        })),
+        thumbImage: (product.images || []).map(img => img.Location),
+        images: (product.images || []).map(img => img.Location),
+        description: product.detail || '',
+        action: 'add',
+        slug: (product.title || 'untitled').toLowerCase().replace(/\s+/g, '-')
+    };
+};
+
+const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, categoryImage }) => {
+    const [layoutCol, setLayoutCol] = useState<number | null>(null)
     const [showOnlySale, setShowOnlySale] = useState(false)
     const [sortOption, setSortOption] = useState('');
     const [openSidebar, setOpenSidebar] = useState(false)
-    const [type, setType] = useState<string | null>(dataType)
+    const [type, setType] = useState<string | null>(null)
     const [size, setSize] = useState<string | null>()
     const [color, setColor] = useState<string | null>()
     const [brand, setBrand] = useState<string | null>()
@@ -81,12 +114,20 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) 
     let filteredData = data.filter(product => {
         let isShowOnlySaleMatched = true;
         if (showOnlySale) {
-            isShowOnlySaleMatched = product.sale
+            isShowOnlySaleMatched = product.discountPrice < product.actualPrice
         }
 
-        let isDataTypeMatched = true;
+        let isCategoryMatched = true;
         if (dataType) {
-            isDataTypeMatched = product.type === dataType
+            // Handle special categories
+            if (dataType === 'New Arrival') {
+                isCategoryMatched = product.newArrival === true;
+            } else if (dataType === 'Best Seller') {
+                isCategoryMatched = product.bestSeller === true;
+            } else {
+                // Handle regular categories by name
+                isCategoryMatched = product.categoryId?.name === dataType;
+            }
         }
 
         let isTypeMatched = true;
@@ -97,17 +138,17 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) 
 
         let isSizeMatched = true;
         if (size) {
-            isSizeMatched = product.sizes.includes(size)
+            isSizeMatched = (product.size || []).includes(size)
         }
 
         let isPriceRangeMatched = true;
         if (priceRange.min !== 0 || priceRange.max !== 100) {
-            isPriceRangeMatched = product.price >= priceRange.min && product.price <= priceRange.max;
+            isPriceRangeMatched = (product.discountPrice || 0) >= priceRange.min && (product.discountPrice || 0) <= priceRange.max;
         }
 
         let isColorMatched = true;
         if (color) {
-            isColorMatched = product.variation.some(item => item.color === color)
+            isColorMatched = (product.colors || []).some(item => item.replace(/[\[\]"]/g, '') === color)
         }
 
         let isBrandMatched = true;
@@ -115,30 +156,31 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) 
             isBrandMatched = product.brand === brand;
         }
 
-        return isShowOnlySaleMatched && isDataTypeMatched && isTypeMatched && isSizeMatched && isColorMatched && isBrandMatched && isPriceRangeMatched && product.category === 'fashion'
+        return isShowOnlySaleMatched && isCategoryMatched && isTypeMatched && isSizeMatched && isColorMatched && isBrandMatched && isPriceRangeMatched
     })
 
     // Create a copy array filtered to sort
     let sortedData = [...filteredData];
 
     if (sortOption === 'soldQuantityHighToLow') {
-        filteredData = sortedData.sort((a, b) => b.sold - a.sold)
+        filteredData = sortedData.sort((a, b) => Math.floor(Math.random() * 100) - Math.floor(Math.random() * 100))
     }
 
     if (sortOption === 'discountHighToLow') {
         filteredData = sortedData
-            .sort((a, b) => (
-                (Math.floor(100 - ((b.price / b.originPrice) * 100))) - (Math.floor(100 - ((a.price / a.originPrice) * 100)))
-            ))
-
+            .sort((a, b) => {
+                const discountA = Math.floor(100 - (((a.discountPrice || 0) / (a.actualPrice || 1)) * 100))
+                const discountB = Math.floor(100 - (((b.discountPrice || 0) / (b.actualPrice || 1)) * 100))
+                return discountB - discountA
+            })
     }
 
     if (sortOption === 'priceHighToLow') {
-        filteredData = sortedData.sort((a, b) => b.price - a.price)
+        filteredData = sortedData.sort((a, b) => (b.discountPrice || 0) - (a.discountPrice || 0))
     }
 
     if (sortOption === 'priceLowToHigh') {
-        filteredData = sortedData.sort((a, b) => a.price - b.price)
+        filteredData = sortedData.sort((a, b) => (a.discountPrice || 0) - (b.discountPrice || 0))
     }
 
     const totalProducts = filteredData.length
@@ -150,27 +192,24 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) 
 
     if (filteredData.length === 0) {
         filteredData = [{
-            id: 'no-data',
-            category: 'no-data',
-            type: 'no-data',
-            name: 'no-data',
-            gender: 'no-data',
-            new: false,
-            sale: false,
-            rate: 0,
-            price: 0,
-            originPrice: 0,
-            brand: 'no-data',
-            sold: 0,
-            quantity: 0,
-            quantityPurchase: 0,
-            sizes: [],
-            variation: [],
-            thumbImage: [],
+            _id: 'no-data',
+            title: 'no-data',
+            detail: 'no-data',
+            actualPrice: 0,
+            discountPrice: 0,
             images: [],
-            description: 'no-data',
-            action: 'no-data',
-            slug: 'no-data'
+            colors: [],
+            size: [],
+            type: 'no-data',
+            brand: 'no-data',
+            material: 'no-data',
+            categoryId: { _id: 'no-data', name: 'no-data' },
+            createdAt: '',
+            updatedAt: '',
+            __v: 0,
+            bestSeller: false,
+            newArrival: false,
+            stock: 0
         }];
     }
 
@@ -204,15 +243,13 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) 
         setBrand(null);
         setPriceRange({ min: 0, max: 100 });
         setCurrentPage(0);
-        dataType = null
-        setType(dataType);
     };
 
     return (
         <>
             <div className="breadcrumb-block style-img">
                 <div className="breadcrumb-main bg-linear overflow-hidden">
-                    <div className="container lg:pt-[134px] pt-24 pb-10 relative">
+                    <div className="container lg:pt-[50px] pt-24 pb-10 relative">
                         <div className="main-content w-full h-full flex flex-col items-center justify-center relative z-[1]">
                             <div className="text-content">
                                 <div className="heading2 text-center">{dataType === null ? 'Shop' : dataType}</div>
@@ -222,7 +259,7 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) 
                                     <div className='text-secondary2 capitalize'>{dataType === null ? 'Shop' : dataType}</div>
                                 </div>
                             </div>
-                            <div className="list-tab flex flex-wrap items-center justify-center gap-y-5 gap-8 lg:mt-[70px] mt-12 overflow-hidden">
+                            {/* <div className="list-tab flex flex-wrap items-center justify-center gap-y-5 gap-8 lg:mt-[70px] mt-12 overflow-hidden">
                                 {['t-shirt', 'dress', 'top', 'swimwear', 'shirt'].map((item, index) => (
                                     <div
                                         key={index}
@@ -232,22 +269,22 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) 
                                         {item}
                                     </div>
                                 ))}
-                            </div>
+                            </div> */}
                         </div>
-                        <div className="bg-img absolute top-2 -right-6 max-lg:bottom-0 max-lg:top-auto w-1/3 max-lg:w-[26%] z-[0] max-sm:w-[45%]">
+                        {/* <div className="bg-img absolute top-2 -right-6 max-lg:bottom-0 max-lg:top-auto w-1/3 max-lg:w-[26%] z-[0] max-sm:w-[45%]">
                             <Image
-                                src={'/images/slider/bg1-1.png'}
+                                src={categoryImage || '/images/slider/bg1-1.png'}
                                 width={1000}
                                 height={1000}
-                                alt=''
-                                className=''
+                                alt={dataType || 'Category'}
+                                className='w-full h-full object-cover rounded-lg'
                             />
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
 
-            <div className="shop-product breadcrumb1 lg:py-20 md:py-14 py-10">
+            <div className="shop-product breadcrumb1 lg:py-5 md:py-14 py-10">
                 <div className="container">
                     <div className="list-product-block relative">
                         <div className="filter-heading flex items-center justify-between gap-5 flex-wrap">
@@ -323,9 +360,9 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) 
                                         name="select-filter"
                                         className='caption1 py-2 pl-3 md:pr-20 pr-10 rounded-lg border border-line'
                                         onChange={(e) => { handleSortChange(e.target.value) }}
-                                        defaultValue={'Sorting'}
+                                        value={sortOption}
                                     >
-                                        <option value="Sorting" disabled>Sorting</option>
+                                        <option value="" disabled>Sorting</option>
                                         <option value="soldQuantityHighToLow">Best Selling</option>
                                         <option value="discountHighToLow">Best Discount</option>
                                         <option value="priceHighToLow">Price High To Low</option>
@@ -350,7 +387,7 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) 
                                         >
                                             <div className='text-secondary has-line-before hover:text-black capitalize'>{item}</div>
                                             <div className='text-secondary2'>
-                                                ({data.filter(dataItem => dataItem.type === item && dataItem.category === 'fashion').length})
+                                                ({data.filter(dataItem => dataItem.type === item).length})
                                             </div>
                                         </div>
                                     ))}
@@ -392,13 +429,13 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) 
                                     <div className="price-block flex items-center justify-between flex-wrap mt-4">
                                         <div className="min flex items-center gap-1">
                                             <div>Min price:</div>
-                                            <div className='price-min'>$
+                                            <div className='price-min'><span className="currency-symbol">৳</span>
                                                 <span>{priceRange.min}</span>
                                             </div>
                                         </div>
                                         <div className="min flex items-center gap-1">
                                             <div>Max price:</div>
-                                            <div className='price-max'>$
+                                            <div className='price-max'><span className="currency-symbol">৳</span>
                                                 <span>{priceRange.max}</span>
                                             </div>
                                         </div>
@@ -477,7 +514,7 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) 
                                                 <label htmlFor={item} className="brand-name capitalize pl-2 cursor-pointer">{item}</label>
                                             </div>
                                             <div className='text-secondary2'>
-                                                ({data.filter(dataItem => dataItem.brand === item && dataItem.category === 'fashion').length})
+                                                ({data.filter(dataItem => dataItem.brand === item).length})
                                             </div>
                                         </div>
                                     ))}
@@ -532,12 +569,12 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType }) 
                             }
                         </div>
 
-                        <div className={`list-product hide-product-sold grid lg:grid-cols-${layoutCol} sm:grid-cols-3 grid-cols-2 sm:gap-[30px] gap-[20px] mt-7`}>
+                        <div className={`list-product hide-product-sold grid ${layoutCol ? `lg:grid-cols-${layoutCol}` : 'lg:grid-cols-4'} sm:grid-cols-3 grid-cols-2 sm:gap-[30px] gap-[20px] mt-7`}>
                             {currentProducts.map((item) => (
-                                item.id === 'no-data' ? (
-                                    <div key={item.id} className="no-data-product">No products match the selected criteria.</div>
+                                item._id === 'no-data' ? (
+                                    <div key={item._id} className="no-data-product">No products match the selected criteria.</div>
                                 ) : (
-                                    <Product key={item.id} data={item} type='grid' />
+                                    <Product key={item._id} data={convertToLegacyProduct(item)} type='grid' />
                                 )
                             ))}
                         </div>

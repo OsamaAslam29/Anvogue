@@ -27,7 +27,7 @@ const Cart = () => {
 
     const handleQuantityChange = (productId: string, newQuantity: number) => {
         // Tìm sản phẩm trong giỏ hàng
-        const itemToUpdate = cartState.cartArray.find((item) => item.id === productId);
+        const itemToUpdate = cartState.cartArray.find((item) => item._id === productId);
 
         // Kiểm tra xem sản phẩm có tồn tại không
         if (itemToUpdate) {
@@ -42,7 +42,7 @@ const Cart = () => {
     let [shipCart, setShipCart] = useState<number>(30)
     let [applyCode, setApplyCode] = useState<number>(0)
 
-    cartState.cartArray.map(item => totalCart += item.price * item.quantity)
+    cartState.cartArray.map(item => totalCart += item.discountPrice * item.quantity)
 
     const handleApplyCode = (minValue: number, discount: number) => {
         if (totalCart > minValue) {
@@ -124,52 +124,52 @@ const Cart = () => {
                                             <p className='text-button pt-3'>No product in cart</p>
                                         ) : (
                                             cartState.cartArray.map((product) => (
-                                                <div className="item flex md:mt-7 md:pb-7 mt-5 pb-5 border-b border-line w-full" key={product.id}>
+                                                <div className="item flex md:mt-7 md:pb-7 mt-5 pb-5 border-b border-line w-full" key={product._id}>
                                                     <div className="w-1/2">
                                                         <div className="flex items-center gap-6">
                                                             <div className="bg-img md:w-[100px] w-20 aspect-[3/4]">
                                                                 <Image
-                                                                    src={product.thumbImage[0]}
+                                                                    src={product.images[0]?.Location || '/images/product/1.png'}
                                                                     width={1000}
                                                                     height={1000}
-                                                                    alt={product.name}
+                                                                    alt={product.title}
                                                                     className='w-full h-full object-cover rounded-lg'
                                                                 />
                                                             </div>
                                                             <div>
-                                                                <div className="text-title">{product.name}</div>
+                                                                <div className="text-title">{product.title}</div>
                                                                 <div className="list-select mt-3"></div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div className="w-1/12 price flex items-center justify-center">
-                                                        <div className="text-title text-center">${product.price}.00</div>
+                                                        <div className="text-title text-center">${product.discountPrice}.00</div>
                                                     </div>
                                                     <div className="w-1/6 flex items-center justify-center">
                                                         <div className="quantity-block bg-surface md:p-3 p-2 flex items-center justify-between rounded-lg border border-line md:w-[100px] flex-shrink-0 w-20">
                                                             <Icon.Minus
                                                                 onClick={() => {
                                                                     if (product.quantity > 1) {
-                                                                        handleQuantityChange(product.id, product.quantity - 1)
+                                                                        handleQuantityChange(product._id, product.quantity - 1)
                                                                     }
                                                                 }}
                                                                 className={`text-base max-md:text-sm ${product.quantity === 1 ? 'disabled' : ''}`}
                                                             />
                                                             <div className="text-button quantity">{product.quantity}</div>
                                                             <Icon.Plus
-                                                                onClick={() => handleQuantityChange(product.id, product.quantity + 1)}
+                                                                onClick={() => handleQuantityChange(product._id, product.quantity + 1)}
                                                                 className='text-base max-md:text-sm'
                                                             />
                                                         </div>
                                                     </div>
                                                     <div className="w-1/6 flex total-price items-center justify-center">
-                                                        <div className="text-title text-center">${product.quantity * product.price}.00</div>
+                                                        <div className="text-title text-center">${product.quantity * product.discountPrice}.00</div>
                                                     </div>
                                                     <div className="w-1/12 flex items-center justify-center">
                                                         <Icon.XCircle
                                                             className='text-xl max-md:text-base text-red cursor-pointer hover:text-black duration-500'
                                                             onClick={() => {
-                                                                removeFromCart(product.id)
+                                                                removeFromCart(product._id)
                                                             }}
                                                         />
                                                     </div>

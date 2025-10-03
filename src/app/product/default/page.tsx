@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link'
 import TopNavOne from '@/components/Header/TopNav/TopNavOne'
@@ -9,24 +9,57 @@ import Default from '@/components/Product/Detail/Default';
 import Footer from '@/components/Footer/Footer'
 import { ProductType } from '@/type/ProductType'
 import productData from '@/data/Product.json'
+import ProductService from '@/services/product.service';
+import { useDispatch, useSelector } from 'react-redux';
 
 const ProductDefault = () => {
+    const dispatch = useDispatch()
+    const { selectedProduct, isLoading } = useSelector((state: any) => state.products)
     const searchParams = useSearchParams()
     let productId = searchParams.get('id')
+
+    useEffect(() => {
+        if (productId) {
+            ProductService.getById(productId, dispatch)
+        }
+    }, [productId, dispatch])
 
     if (productId === null) {
         productId = '1'
     }
 
+    console.log("selectedProduct", selectedProduct)
+
+    // Show loading state
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+            </div>
+        )
+    }
+
+    // Show error state if no product found
+    if (!selectedProduct) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h2>
+                    <p className="text-gray-600">The product you're looking for doesn't exist.</p>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <>
-            <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
+            {/* <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
             <div id="header" className='relative w-full'>
                 <MenuOne props="bg-white" />
                 <BreadcrumbProduct data={productData} productPage='default' productId={productId} />
-            </div>
-            <Default data={productData} productId={productId} />
-            <Footer />
+            </div> */}
+            <Default product={selectedProduct} productId={productId} />
+            {/* <Footer /> */}
         </>
     )
 }

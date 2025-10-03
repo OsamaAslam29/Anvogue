@@ -21,7 +21,11 @@ import TopBar from "@/components/Header/TopBar/TopBar";
 
 const serverTimeLeft: CountdownTimeType = countdownTime();
 
-const instrument = Instrument_Sans({ subsets: ["latin"] });
+const instrument = Instrument_Sans({
+  subsets: ["latin"],
+  display: 'swap',
+  fallback: ['system-ui', 'arial']
+});
 
 export const metadata: Metadata = {
   title: "Anvogue",

@@ -7,8 +7,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/css/bundle';
 
-import ProductService from '@/services/product.service';
-import { ProductType } from '@/type/ProductType';
 
 interface SlideData {
     id: string;
@@ -22,7 +20,7 @@ interface SlideData {
 const SliderMarketplace = () => {
     const { categories, isLoading, error: errorCategories } = useSelector((state: any) => state.categories)
     const [featuredCategories, setFeaturedCategories] = useState<SlideData[]>([])
-
+    const [swiperKey, setSwiperKey] = useState(0)
 
     useEffect(() => {
         if (categories && categories.length > 0) {
@@ -43,6 +41,7 @@ const SliderMarketplace = () => {
             });
 
             setFeaturedCategories(slides)
+            setSwiperKey(prev => prev + 1)
         }
     }, [categories]);
 
@@ -104,6 +103,7 @@ const SliderMarketplace = () => {
                     <div className="slider-main lg:pl-5 h-full w-full">
                         <div className="h-full relative rounded-2xl overflow-hidden">
                             <Swiper
+                                key={`marketplace-swiper-${swiperKey}`}
                                 spaceBetween={0}
                                 slidesPerView={1}
                                 loop={marketplaceSlides.length > 1}

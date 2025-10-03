@@ -29,6 +29,20 @@ export interface ProductType {
     bestSeller: boolean;
     newArrival: boolean;
     stock: number;
+    ratings: any[];
+    totalRatings: number;
+    meanRating: number;
+    avgRating: number;
+    starCounts: {
+        "1": number;
+        "2": number;
+        "3": number;
+        "4": number;
+        "5": number;
+    };
+    // Legacy properties for backward compatibility
+    category?: string;
+    gender?: string;
 }
 
 // Legacy interface for backward compatibility

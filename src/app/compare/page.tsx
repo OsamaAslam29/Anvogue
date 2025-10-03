@@ -21,11 +21,11 @@ const Compare = () => {
     const { openModalCart } = useModalCartContext();
 
     const handleAddToCart = (productItem: ProductType) => {
-        if (!cartState.cartArray.find(item => item.id === productItem.id)) {
+        if (!cartState.cartArray.find(item => item._id === productItem._id)) {
             addToCart({ ...productItem });
-            updateCart(productItem.id, productItem.quantityPurchase, '', '')
+            updateCart(productItem._id, 1, '', '')
         } else {
-            updateCart(productItem.id, productItem.quantityPurchase, '', '')
+            updateCart(productItem._id, 1, '', '')
         }
         openModalCart()
     };
@@ -45,17 +45,17 @@ const Compare = () => {
                                 <div className="left lg:w-[240px] w-[170px] flex-shrink-0"></div>
                                 <div className="right flex w-full border border-line rounded-t-2xl border-b-0">
                                     {compareState.compareArray.map(item => (
-                                        <div className="product-item px-10 pt-6 pb-5 border-r border-line" key={item.id}>
+                                        <div className="product-item px-10 pt-6 pb-5 border-r border-line" key={item._id}>
                                             <div className="bg-img w-full aspect-[3/4] rounded-lg overflow-hidden flex-shrink-0">
                                                 <Image
-                                                    src={item.images[0]}
+                                                    src={item.images[0]?.Location || '/images/product/1.png'}
                                                     width={1000}
                                                     height={1500}
-                                                    alt={item.images[0]}
+                                                    alt={item.title}
                                                     className='w-full h-full object-cover'
                                                 />
                                             </div>
-                                            <div className="text-title text-center mt-4">{item.name}</div>
+                                            <div className="text-title text-center mt-4">{item.title}</div>
                                             <div className="caption2 font-semibold text-secondary2 uppercase text-center mt-1">{item.brand}</div>
                                         </div>
                                     ))}
@@ -77,7 +77,7 @@ const Compare = () => {
                                         {compareState.compareArray.map((item, index) => (
                                             <td className="w-full border border-line h-[60px] border-t-0 border-r-0" key={index}>
                                                 <div className='h-full flex items-center justify-center'>
-                                                    <Rate currentRate={item.rate} size={12} />
+                                                    <Rate currentRate={4.5} size={12} />
                                                     <p className='pl-1'>(1.234)</p>
                                                 </div>
                                             </td>
@@ -87,7 +87,7 @@ const Compare = () => {
                                         {compareState.compareArray.map((item, index) => (
                                             <td className="w-full border border-line h-[60px] border-t-0 border-r-0" key={index}>
                                                 <div className='h-full flex items-center justify-center'>
-                                                    ${item.price}.00
+                                                    ${item.discountPrice}.00
                                                 </div>
                                             </td>
                                         ))}
@@ -114,7 +114,7 @@ const Compare = () => {
                                         {compareState.compareArray.map((item, index) => (
                                             <td className="w-full border border-line h-[60px] border-t-0 border-r-0 size" key={index}>
                                                 <div className='h-full flex items-center justify-center capitalize gap-1'>
-                                                    {item.sizes.map((size, i) => (
+                                                    {item.size.map((size, i) => (
                                                         <p key={i}>{size}
                                                             <span>,</span>
                                                         </p>
@@ -127,11 +127,11 @@ const Compare = () => {
                                         {compareState.compareArray.map((item, index) => (
                                             <td className="w-full border border-line h-[60px] border-t-0 border-r-0 size" key={index}>
                                                 <div className='h-full flex items-center justify-center capitalize gap-2'>
-                                                    {item.variation.map((colorItem, i) => (
+                                                    {item.colors.map((colorItem, i) => (
                                                         <span
                                                             key={i}
                                                             className={`w-6 h-6 rounded-full`}
-                                                            style={{backgroundColor: `${colorItem.colorCode}`}}
+                                                            style={{ backgroundColor: `${colorItem}` }}
                                                         ></span>
                                                     ))}
                                                 </div>

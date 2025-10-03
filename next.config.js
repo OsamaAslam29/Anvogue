@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  onDemandEntries: {
+    overlay: false,
+  },
   images: {
     remotePatterns: [
       {
@@ -10,6 +13,25 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
+  },
+  webpack: (config, { dev, isServer }) => {
+    // Add error handling for development
+    if (dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: "all",
+        cacheGroups: {
+          default: false,
+          vendors: false,
+          swiper: {
+            name: "swiper",
+            chunks: "all",
+            test: /[\\/]node_modules[\\/](swiper|swiper-react)[\\/]/,
+            priority: 20,
+          },
+        },
+      };
+    }
+    return config;
   },
 };
 

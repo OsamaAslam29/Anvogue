@@ -47,13 +47,13 @@ const Footer = () => {
                     <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
                       <Icon.Envelope size={14} color="#1F1F1F" />
                     </div>
-                    <span className="">mtayyabmalik99@gmail.com</span>
+                    <span className="">example@gmail.com</span>
                   </div>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
                       <Icon.Phone size={14} color="#1F1F1F" />
                     </div>
-                    <span className="">+923407119300</span>
+                    <span className="">+923400000000</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">

@@ -1,4 +1,6 @@
-import React from 'react'
+"use client"
+
+import React, { useEffect } from 'react'
 import TopNavOne from '@/components/Header/TopNav/TopNavOne'
 import MenuMarketplace from '@/components/Header/Menu/MenuMarketplace'
 import SliderMarketplace from '@/components/Slider/SliderMarketplace'
@@ -17,8 +19,24 @@ import BannerBelow from '@/components/Marketplace/BannerBelow'
 import TopProduct from '@/components/Marketplace/TopProduct'
 import Recommend from '@/components/Marketplace/Recommend'
 import NewsInsight from '@/components/Home3/NewsInsight'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@reduxjs/toolkit/query'
+import ProductService from '@/services/product.service'
+import CategoryService from '@/services/category.service'
+
+// Data loading is now handled by GlobalDataLoader
 
 export default function Home() {
+  const dispatch = useDispatch()
+  const { products } = useSelector((state: any) => state.products)
+  const { categories } = useSelector((state: any) => state.categories)
+
+  useEffect(() => {
+    ProductService.getAll(dispatch)
+    CategoryService.getAll(dispatch)
+
+  }, [dispatch])
+
   return (
     <>
       {/* Promotional Banner Carousel */}
@@ -29,13 +47,13 @@ export default function Home() {
         <MenuMarketplace />
         <SliderMarketplace />
       </div>
+      <Deal categories={categories} products={products} />
       {/* <BannerAbove /> */}
-      <Deal />
       {/* <Collection /> */}
       {/* <BestSeller data={productData} start={0} limit={5} /> */}
       {/* <BannerBelow /> */}
       {/* <TopProduct /> */}
-      <Recommend />
+      {/* <Recommend /> */}
       {/* <NewsInsight data={blogData} start={18} limit={21} /> */}
       {/* <Benefit props='md:py-[60px] py-10 border-b border-line' /> */}
       {/* <Anvogue /> */}

@@ -22,7 +22,7 @@ const Checkout = () => {
     let [totalCart, setTotalCart] = useState<number>(0)
     const [activePayment, setActivePayment] = useState<string>('credit-card')
 
-    cartState.cartArray.map(item => totalCart += item.price * item.quantity)
+    cartState.cartArray.map(item => totalCart += item.discountPrice * item.quantity)
 
     const handlePayment = (item: string) => {
         setActivePayment(item)
@@ -233,7 +233,7 @@ const Checkout = () => {
                                                 <div className="item flex items-center justify-between w-full pb-5 border-b border-line gap-6 mt-5">
                                                     <div className="bg-img w-[100px] aspect-square flex-shrink-0 rounded-lg overflow-hidden">
                                                         <Image
-                                                            src={product.thumbImage[0]}
+                                                            src={product.images[0]?.Location || '/images/product/1.png'}
                                                             width={500}
                                                             height={500}
                                                             alt='img'
@@ -242,18 +242,18 @@ const Checkout = () => {
                                                     </div>
                                                     <div className="flex items-center justify-between w-full">
                                                         <div>
-                                                            <div className="name text-title">{product.name}</div>
+                                                            <div className="name text-title">{product.title}</div>
                                                             <div className="caption1 text-secondary mt-2">
-                                                                <span className='size capitalize'>{product.selectedSize || product.sizes[0]}</span>
+                                                                <span className='size capitalize'>{product.selectedSize || product.size[0]}</span>
                                                                 <span>/</span>
-                                                                <span className='color capitalize'>{product.selectedColor || product.variation[0].color}</span>
+                                                                <span className='color capitalize'>{product.selectedColor || product.colors[0]}</span>
                                                             </div>
                                                         </div>
                                                         <div className="text-title">
                                                             <span className='quantity'>{product.quantity}</span>
                                                             <span className='px-1'>x</span>
                                                             <span>
-                                                                ${product.price}.00
+                                                                ${product.discountPrice}.00
                                                             </span>
                                                         </div>
                                                     </div>

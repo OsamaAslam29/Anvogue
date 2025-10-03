@@ -27,6 +27,20 @@ const ProductService = {
 
     return [success, error];
   },
+  getById: async (id, dispatch) => {
+    dispatch(productActions.setLoading(true));
+    const [success, error] = await Promisable.asPromise(
+      http.get(`product/${id}`)
+    );
+
+    if (success) {
+      const { result } = success.data;
+      dispatch(productActions.setSelectedProduct(result));
+    }
+    dispatch(productActions.setLoading(false));
+
+    return [success, error];
+  },
 };
 
 export default ProductService;

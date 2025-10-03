@@ -52,7 +52,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                     className={`modal-cart-main flex ${isModalOpen ? 'open' : ''}`}
                     onClick={(e) => { e.stopPropagation() }}
                 >
-                    <div className="left w-1/2 border-r border-line py-6 max-md:hidden">
+                    {/* <div className="left w-1/2 border-r border-line py-6 max-md:hidden">
                         <div className="heading5 px-6 pb-3">You May Also Like</div>
                         <div className="list px-6">
                             {productData.slice(0, 4).map((product) => (
@@ -70,7 +70,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                         <div className=''>
                                             <div className="name text-button">{product.name}</div>
                                             <div className="flex items-center gap-2 mt-2">
-                                                <div className="product-price text-title">${product.price}.00</div>
+                                                <div className="product-price text-title"><span className="currency-symbol">৳</span>{product.price}.00</div>
                                                 <div className="product-origin-price text-title text-secondary2"><del>${product.originPrice}.00</del></div>
                                             </div>
                                         </div>
@@ -87,8 +87,8 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                 </div>
                             ))}
                         </div>
-                    </div>
-                    <div className="right cart-block md:w-1/2 w-full py-6 relative overflow-hidden">
+                    </div> */}
+                    <div className="right cart-block md:w-full w-full py-6 relative overflow-hidden">
                         <div className="heading px-6 pb-3 flex items-center justify-between relative">
                             <div className="heading5">Shopping Cart</div>
                             <div
@@ -144,7 +144,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                                 <div className="flex items-center text-secondary2 capitalize">
                                                     {product.selectedSize || product.sizes[0]}/{product.selectedColor || product.variation[0].color}
                                                 </div>
-                                                <div className="product-price text-title">${product.price}.00</div>
+                                                <div className="product-price text-title"><span className="currency-symbol">৳</span>{product.price}.00</div>
                                             </div>
                                         </div>
                                     </div>

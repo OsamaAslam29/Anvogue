@@ -32,9 +32,7 @@ const MenuMarketplace = () => {
     const [searchKeyword, setSearchKeyword] = useState('');
     const router = useRouter()
 
-    useEffect(() => {
-        CategoryService.getAll(dispatch)
-    }, [])
+
 
     const handleSearch = (value: string) => {
         router.push(`/search-result?query=${value}`)
@@ -46,7 +44,7 @@ const MenuMarketplace = () => {
     }
 
     const handleCategoryClick = (category: string) => {
-        router.push(`/shop/breadcrumb1?category=${category}`);
+        router.push(`/shop/breadcrumb1?category=${encodeURIComponent(category)}`);
     };
 
     const handleTypeClick = (type: string) => {
@@ -77,7 +75,7 @@ const MenuMarketplace = () => {
                                             categories.map((category: any, index: any) => (
                                                 <Link
                                                     key={category._id || index}
-                                                    href={`/shop/breadcrumb-img?category=${category.name}`}
+                                                    href={`/shop/breadcrumb-img?category=${encodeURIComponent(category.name)}`}
                                                     className={`item py-3 whitespace-nowrap ${index < categories.length - 1 ? 'border-b border-line' : ''} w-full flex items-center justify-between`}
                                                     onClick={() => handleCategoryClick(category.name)}
                                                 >
