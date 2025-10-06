@@ -3,7 +3,7 @@ import Product from '../Product/Product'
 import { ProductType } from '@/type/ProductType'
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
     start: number;
     limit: number;
 }

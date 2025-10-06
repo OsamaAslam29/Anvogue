@@ -24,7 +24,7 @@ export default function HomeFive() {
                 <SliderFive />
             </div>
             <Banner />
-            <TabFeatures data={productData} start={0} limit={8} />
+            {/* <TabFeatures data={productData} start={0} limit={8} /> */}
             <FlashSale />
             <Benefit props="md:pt-20 pt-10" />
             <Newsletter props="bg-green md:mt-20 mt-10" />

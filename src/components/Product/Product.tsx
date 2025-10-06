@@ -17,7 +17,7 @@ import Marquee from 'react-fast-marquee'
 import Rate from '../Other/Rate'
 
 interface ProductProps {
-    data: LegacyProductType
+    data: any
     type: string
     style?: string
 }

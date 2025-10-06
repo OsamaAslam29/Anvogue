@@ -20,7 +20,7 @@ export default function HomeTen() {
                 <MenuEight />
                 <SliderTen />
             </div>
-            <TabFeatures data={productData} start={0} limit={8} />
+            {/* <TabFeatures data={productData} start={0} limit={8} /> */}
             <Collection />
             <Benefit props="md:mt-20 mt-10 py-10 px-2.5 bg-surface rounded-[32px]" />
             <NewsInsight data={blogData} start={0} limit={3} />

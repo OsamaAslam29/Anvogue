@@ -26,9 +26,9 @@ export default function HomeMarketplace() {
                 <SliderMarketplace />
             </div>
             <BannerAbove />
-            <Deal />
+            {/* <Deal /> */}
             <Collection />
-            <BestSeller data={productData} start={0} limit={5} />
+            {/* <BestSeller data={productData} start={0} limit={5} /> */}
             <BannerBelow />
             <TopProduct />
             <Recommend />

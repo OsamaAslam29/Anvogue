@@ -10,7 +10,7 @@ import 'rc-slider/assets/index.css'
 import HandlePagination from '../Other/HandlePagination';
 
 interface Props {
-    data: Array<ProductType>
+    data: Array<any>
     productPerPage: number
     dataType: string | null | undefined
     gender: string | null

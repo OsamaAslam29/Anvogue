@@ -12,7 +12,7 @@ import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useRouter } from 'next/navigation'
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
 }
 
 const LookBook: React.FC<Props> = ({ data }) => {

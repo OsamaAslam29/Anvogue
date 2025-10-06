@@ -27,11 +27,11 @@ export default function HomeSix() {
                 <SliderSix />
             </div>
             <Collection />
-            <TabFeatures data={productData} start={0} limit={8} />
+            {/* <TabFeatures data={productData} start={0} limit={8} /> */}
             <PopularProduct />
             <FlashSale />
             <Testimonial data={testimonialData} limit={5} />
-            <BestSaleProduct data={productData} />
+            {/* <BestSaleProduct data={productData} /> */}
             <Benefit props="md:pt-20 pt-10" />
             <Instagram />
             <Anvogue />

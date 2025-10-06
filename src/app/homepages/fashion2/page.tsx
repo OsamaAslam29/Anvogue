@@ -22,9 +22,9 @@ export default function HomeTwo() {
                 <SliderTwo />
             </div>
             <Collection props="pt-5" />
-            <WhatNewOne data={productData} start={0} limit={4} />
+            {/* <WhatNewOne data={productData} start={0} limit={4} /> */}
             <Banner />
-            <TabFeatures data={productData} start={8} limit={16} />
+            {/* <TabFeatures data={productData} start={8} limit={16} /> */}
             <Benefit props="md:mt-20 mt-10 py-10 px-2.5 bg-surface rounded-3xl" />
             <Instagram />
             <Anvogue />

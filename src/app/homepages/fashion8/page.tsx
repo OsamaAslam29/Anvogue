@@ -24,9 +24,9 @@ export default function HomeEight() {
             </div>
             <Benefit props="md:pt-20 pt-10" />
             <Collection />
-            <Deal data={productData} start={0} limit={4} />
+            {/* <Deal data={productData} start={0} limit={4} /> */}
             <Banner />
-            <TabFeatures data={productData} start={0} limit={4} />
+            {/* <TabFeatures data={productData} start={0} limit={4} /> */}
             <NewsInsight data={blogData} start={0} limit={3} />
             <Anvogue />
             <Footer />

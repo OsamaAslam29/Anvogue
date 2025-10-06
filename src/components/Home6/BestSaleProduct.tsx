@@ -15,7 +15,7 @@ import ModalSizeguide from '../Modal/ModalSizeguide'
 import { useSwiper } from 'swiper/react';
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
 }
 
 const BestSaleProduct: React.FC<Props> = ({ data }) => {

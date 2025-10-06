@@ -29,13 +29,13 @@ interface Category {
 
 interface DealProps {
     categories: Category[];
-    products: ProductType[];
+    products: any[];
 }
 
-const convertToLegacyProduct = (product: ProductType): LegacyProductType => {
+const convertToLegacyProduct = (product: any): LegacyProductType => {
     return {
         id: product._id,
-        category: product.categoryId?.name?.toLowerCase().replace(/\s+/g, '-') || 'general',
+        category: product?.categoryId?.name?.toLowerCase().replace(/\s+/g, '-') || 'general',
         type: 'product',
         name: product.title || 'Untitled Product',
         gender: 'unisex',

@@ -15,7 +15,7 @@ import { useModalCartContext } from '@/context/ModalCartContext'
 SwiperCore.use([Navigation, Thumbs]);
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
 }
 
 const FeaturedProduct: React.FC<Props> = ({ data }) => {

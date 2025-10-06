@@ -20,7 +20,7 @@ const Compare = () => {
     const { cartState, addToCart, updateCart } = useCart();
     const { openModalCart } = useModalCartContext();
 
-    const handleAddToCart = (productItem: ProductType) => {
+    const handleAddToCart = (productItem: any) => {
         if (!cartState.cartArray.find(item => item._id === productItem._id)) {
             addToCart({ ...productItem });
             updateCart(productItem._id, 1, '', '')

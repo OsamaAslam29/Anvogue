@@ -20,7 +20,7 @@ import { useModalCompareContext } from '@/context/ModalCompareContext'
 import ModalSizeguide from '@/components/Modal/ModalSizeguide'
 
 interface Props {
-    data: Array<ProductType>
+    data: any
     productId: string | number | null
 }
 
@@ -38,7 +38,7 @@ const CountdownTimer: React.FC<Props> = ({ data, productId }) => {
     const { openModalWishlist } = useModalWishlistContext()
     const { addToCompare, removeFromCompare, compareState } = useCompare();
     const { openModalCompare } = useModalCompareContext()
-    let productMain = data.find(product => product.id === productId) as ProductType
+    let productMain:any = data.find(product => product.id === productId) as ProductType
     if (productMain === undefined) {
         productMain = data[0]
     }

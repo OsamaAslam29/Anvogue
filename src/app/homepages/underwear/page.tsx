@@ -29,10 +29,10 @@ export default function HomeUnderwear() {
                 <SliderUnderwear />
             </div>
             <Collection />
-            <TabFeatures data={productData} start={0} limit={4} />
-            <FeaturedProduct data={productData} />
-            <LookBook data={productData} />
-            <TrendingProduct data={productData} start={0} limit={8} />
+            {/* <TabFeatures data={productData} start={0} limit={4} /> */}
+            {/* <FeaturedProduct data={productData} /> */}
+            {/* <LookBook data={productData} /> */}
+            {/* <TrendingProduct data={productData} start={0} limit={8} /> */}
             <Testimonial data={testimonialData} limit={6} />
             <OurBlog data={blogData} start={3} limit={6} />
             <Anvogue />

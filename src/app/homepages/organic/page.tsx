@@ -25,7 +25,7 @@ export default function HomeOrganic() {
             </div>
             <Category />
             <Banner />
-            <PopularProduct data={productData} start={0} limit={8} />
+            {/* <PopularProduct data={productData} start={0} limit={8} /> */}
             <BuyPack />
             <FlashSale />
             <NewsInsight data={blogData} start={15} limit={18} />

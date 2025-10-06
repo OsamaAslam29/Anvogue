@@ -9,7 +9,7 @@ import { motion } from 'framer-motion'
 import 'swiper/css/bundle';
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
     start: number;
     limit: number;
 }

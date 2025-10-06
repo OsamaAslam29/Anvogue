@@ -25,9 +25,9 @@ export default function HomeSeven() {
                 <SliderSeven />
             </div>
             <TrendingNow />
-            <Deal data={productData} start={4} limit={8} />
+            {/* <Deal data={productData} start={4} limit={8} /> */}
             <PopularProduct />
-            <TrendingProduct data={productData} start={12} limit={20} />
+            {/* <TrendingProduct data={productData} start={12} limit={20} /> */}
             <Banner />
             <Testimonial data={testimonialData} limit={5} />
             <Benefit props="md:pt-20 pt-10" />

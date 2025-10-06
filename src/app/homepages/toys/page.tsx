@@ -27,9 +27,9 @@ export default function HomeToys() {
             </div>
             <Benefit props="md:py-20 py-10" />
             <Banner />
-            <WeekProduct data={productData} start={0} limit={8} />
-            <FeaturedProduct data={productData} start={1} limit={6} />
-            <TabFeatures data={productData} start={0} limit={4} />
+            {/* <WeekProduct data={productData} start={0} limit={8} /> */}
+            {/* <FeaturedProduct data={productData} start={1} limit={6} /> */}
+            {/* <TabFeatures data={productData} start={0} limit={4} /> */}
             <Testimonial data={dataTestimonial} limit={4} />
             <NewsInsight data={blogData} start={9} limit={12} />
             <Footer />

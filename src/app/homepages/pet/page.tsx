@@ -25,10 +25,10 @@ export default function HomePet() {
             </div>
             <Banner />
             <Collection />
-            <TabFeatures data={productData} start={0} limit={4} />
+            {/* <TabFeatures data={productData} start={0} limit={4} /> */}
             <ChooseUs />
             <Banner2 />
-            <FeatureProduct data={productData} start={0} limit={4} />
+            {/* <FeatureProduct data={productData} start={0} limit={4} /> */}
             <Benefit props="md:mt-20 mt-10 md:pt-20 pt-10 border-t border-line" />
             <Instagram />
             <Anvogue />

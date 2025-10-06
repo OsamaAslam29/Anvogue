@@ -7,7 +7,7 @@ interface RateProps {
 }
 
 const Rate: React.FC<RateProps> = ({ currentRate, size }) => {
-    let arrOfStar = [];
+    let arrOfStar:any = [];
     for (let i = 0; i < 5; i++) {
         if (currentRate) {
             if (i >= currentRate) {

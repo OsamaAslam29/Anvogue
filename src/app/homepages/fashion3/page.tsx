@@ -25,7 +25,7 @@ export default function HomeThree() {
                 <BannerTop props="bg-black py-3" textColor='text-white' bgLine='bg-white' />
                 <SliderThree />
             </div>
-            <TrendingProduct data={productData} start={10} limit={18} />
+            {/* <TrendingProduct data={productData} start={10} limit={18} /> */}
             <Collection props="md:pt-20 pt-10" />
             <FlashSale />
             <NewsInsight data={blogData} start={0} limit={3} />

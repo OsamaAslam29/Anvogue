@@ -29,9 +29,9 @@ export default function HomeCosmeticTwo() {
             </div>
             <Banner />
             <CommunityStory />
-            <TabFeatures data={productData} start={0} limit={5} />
+            {/* <TabFeatures data={productData} start={0} limit={5} /> */}
             <VideoTutorial />
-            <FeaturedProduct data={productData} />
+            {/* <FeaturedProduct data={productData} /> */}
             <FlashSale />
             <Benefit props="md:py-20 py-10" />
             <NewsInsight data={blogData} start={6} limit={9} />

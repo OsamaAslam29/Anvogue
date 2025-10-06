@@ -8,7 +8,7 @@ import { Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css/bundle';
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
     start: number;
     limit: number;
 }

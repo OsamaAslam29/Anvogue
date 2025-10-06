@@ -16,7 +16,7 @@ import ModalSizeguide from '../Modal/ModalSizeguide'
 SwiperCore.use([Navigation, Thumbs]);
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
 }
 
 const FeaturedProduct: React.FC<Props> = ({ data }) => {

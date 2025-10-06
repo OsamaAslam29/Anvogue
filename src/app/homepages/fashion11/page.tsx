@@ -24,9 +24,9 @@ export default function HomeEleven() {
                 <SliderEleven />
             </div>
             <TrendingNow />
-            <MenFashion data={productData} start={0} limit={3} />
+            {/* <MenFashion data={productData} start={0} limit={3} /> */}
             <Banner />
-            <WomenFashion data={productData} start={0} limit={3} />
+            {/* <WomenFashion data={productData} start={0} limit={3} /> */}
             <Benefit props="md:mt-20 mt-10 py-10 px-2.5 bg-surface rounded-[32px]" />
             <NewsInsight data={blogData} start={0} limit={3} />
             <Anvogue />

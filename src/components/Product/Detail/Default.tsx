@@ -18,15 +18,16 @@ import { useModalWishlistContext } from '@/context/ModalWishlistContext'
 import { useCompare } from '@/context/CompareContext'
 import { useModalCompareContext } from '@/context/ModalCompareContext'
 import ModalSizeguide from '@/components/Modal/ModalSizeguide'
+import { AnyAaaaRecord } from 'dns'
 
 SwiperCore.use([Navigation, Thumbs]);
 
 interface Props {
-    product: ProductType
+    product: any
     productId: string | number | null
 }
 
-const Default: React.FC<Props> = ({ product, productId }) => {
+const Default: React.FC<any> = ({ product, productId }) => {
     const swiperRef: any = useRef();
     const [photoIndex, setPhotoIndex] = useState(0)
     const [openPopupImg, setOpenPopupImg] = useState(false)

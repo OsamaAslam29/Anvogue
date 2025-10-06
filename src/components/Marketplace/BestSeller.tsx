@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import Product from '../Product/Product';
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
     start: number;
     limit: number;
 }

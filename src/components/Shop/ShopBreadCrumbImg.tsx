@@ -11,14 +11,14 @@ import 'rc-slider/assets/index.css'
 import HandlePagination from '../Other/HandlePagination';
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
     productPerPage: number
     dataType: string | null
     categoryImage?: string
 }
 
 // Helper function to convert ProductType to LegacyProductType for Product component
-const convertToLegacyProduct = (product: ProductType): LegacyProductType => {
+const convertToLegacyProduct = (product: any): any => {
     return {
         id: product._id,
         category: product.categoryId?.name?.toLowerCase().replace(/\s+/g, '-') || 'general',

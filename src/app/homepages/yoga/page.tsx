@@ -26,9 +26,9 @@ export default function HomeYoga() {
                 <MenuYoga />
                 <SliderYoga />
             </div>
-            <BestSeller data={productData} start={0} limit={6} />
+            {/* <BestSeller data={productData} start={0} limit={6} /> */}
             <Banner />
-            <TabFeatures data={productData} start={0} limit={4} />
+            {/* <TabFeatures data={productData} start={0} limit={4} /> */}
             <Benefit props="py-10 bg-surface md:mt-20 mt-10" />
             <WhyChooseUs />
             <FlashSale />

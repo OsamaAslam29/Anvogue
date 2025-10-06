@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
     start: number;
     limit: number;
 }

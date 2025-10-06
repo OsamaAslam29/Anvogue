@@ -3,13 +3,13 @@ import { useState } from 'react';
 import { ProductType } from '@/type/ProductType';
 
 interface WishlistItem {
-    product: Array<ProductType>
+    product: Array<any>
 }
 
 const useWishlist = () => {
     const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
 
-    const addToWishlist = (product: Array<ProductType>) => {
+    const addToWishlist = (product: Array<any>) => {
         const newItem: WishlistItem = {
             product,
         };

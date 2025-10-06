@@ -28,8 +28,8 @@ export default function HomeJewelry() {
             <Quote />
             <Collection />
             <Lookbook />
-            <TabFeatures data={productData} start={0} limit={4} />
-            <FeaturedProduct data={productData} />
+            {/* <TabFeatures data={productData} start={0} limit={4} /> */}
+            {/* <FeaturedProduct data={productData} /> */}
             <Newsletter props="bg-transparent" />
             <Benefit props="py-[60px] bg-linear" />
             <Instagram />

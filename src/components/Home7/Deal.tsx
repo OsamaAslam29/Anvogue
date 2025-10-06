@@ -7,7 +7,7 @@ import { ProductType } from '@/type/ProductType'
 import { countdownTime } from '@/store/countdownTime'
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
     start: number;
     limit: number;
 }

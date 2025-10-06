@@ -5,7 +5,7 @@ import { ProductType } from '@/type/ProductType'
 import Product from '../Product/Product';
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
 }
 
 const ShopCollection: React.FC<Props> = ({ data }) => {

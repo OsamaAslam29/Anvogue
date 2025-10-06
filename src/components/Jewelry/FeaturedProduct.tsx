@@ -9,7 +9,7 @@ import { useCart } from '@/context/CartContext'
 import { useModalCartContext } from '@/context/ModalCartContext'
 
 interface Props {
-    data: Array<ProductType>;
+    data: Array<any>;
 }
 
 const FeaturedProduct: React.FC<Props> = ({ data }) => {

@@ -28,9 +28,9 @@ export default function HomeFurniture() {
                 <SliderFurniture />
             </div>
             <Banner />
-            <FeatureProduct data={productData} start={0} limit={4} />
+            {/* <FeatureProduct data={productData} start={0} limit={4} /> */}
             <FlashSale />
-            <TabFeatures data={productData} start={0} limit={8} />
+            {/* <TabFeatures data={productData} start={0} limit={8} /> */}
             <Benefit props="md:pt-20 pt-10" />
             <Testimonial data={dataTestimonial} limit={4} />
             <Instagram />
