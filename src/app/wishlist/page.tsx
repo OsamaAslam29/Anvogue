@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TopNavOne from "@/components/Header/TopNav/TopNavOne";
 import MenuOne from "@/components/Header/Menu/MenuOne";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
@@ -41,60 +41,59 @@ const Wishlist = () => {
     return isTypeMatched;
   });
 
-  const totalProducts = filteredData.length;
   const selectedType = type;
 
-//   if (filteredData.length === 0) {
-//     filteredData = [
-//       {
-//         _id: "no-data",
-//         id: "no-data",
-//         category: "no-data",
-//         categoryId: "no-data",
-//         type: "no-data",
-//         name: "no-data",
-//         title: "no-data",
-//         detail: "no-data",
-//         actualPrice: 0,
-//         price: 0,
-//         originPrice: 0,
-//         discountPrice: 0,
-//         brand: "no-data",
-//         sold: 0,
-//         quantity: 0,
-//         quantityPurchase: 0,
-//         sizes: [],
-//         size: ["no-data"],
-//         variation: [],
-//         thumbImage: [],
-//         images: [],
-//         description: "no-data",
-//         action: "no-data",
-//         slug: "no-data",
-//         gender: "no-data",
-//         new: false,
-//         sale: false,
-//         rate: 0,
-//         colors: ["no-data"],
-//         createdAt: "",
-//         updatedAt: "",
-//         __v: 0,
-//         productId: "no-data",
-//         userId: "no-data",
-//         material: "no-data",
-//       },
-//     ];
-//   }
+  //   if (filteredData.length === 0) {
+  //     filteredData = [
+  //       {
+  //         _id: "no-data",
+  //         id: "no-data",
+  //         category: "no-data",
+  //         categoryId: "no-data",
+  //         type: "no-data",
+  //         name: "no-data",
+  //         title: "no-data",
+  //         detail: "no-data",
+  //         actualPrice: 0,
+  //         price: 0,
+  //         originPrice: 0,
+  //         discountPrice: 0,
+  //         brand: "no-data",
+  //         sold: 0,
+  //         quantity: 0,
+  //         quantityPurchase: 0,
+  //         sizes: [],
+  //         size: ["no-data"],
+  //         variation: [],
+  //         thumbImage: [],
+  //         images: [],
+  //         description: "no-data",
+  //         action: "no-data",
+  //         slug: "no-data",
+  //         gender: "no-data",
+  //         new: false,
+  //         sale: false,
+  //         rate: 0,
+  //         colors: ["no-data"],
+  //         createdAt: "",
+  //         updatedAt: "",
+  //         __v: 0,
+  //         productId: "no-data",
+  //         userId: "no-data",
+  //         material: "no-data",
+  //       },
+  //     ];
+  //   }
 
   // Tạo một bản sao của mảng đã lọc để sắp xếp
   let sortedData: any = [...filteredData];
 
   if (sortOption === "soldQuantityHighToLow") {
-    filteredData = sortedData.sort((a: any, b: any) => b.sold - a.sold);
+    sortedData = sortedData.sort((a: any, b: any) => b.sold - a.sold);
   }
 
   if (sortOption === "discountHighToLow") {
-    filteredData = sortedData.sort(
+    sortedData = sortedData.sort(
       (a: any, b: any) =>
         Math.floor(100 - (b.price / b.originPrice) * 100) -
         Math.floor(100 - (a.price / a.originPrice) * 100)
@@ -102,26 +101,32 @@ const Wishlist = () => {
   }
 
   if (sortOption === "priceHighToLow") {
-    filteredData = sortedData.sort((a: any, b: any) => b.price - a.price);
+    sortedData = sortedData.sort((a: any, b: any) => b.price - a.price);
   }
 
   if (sortOption === "priceLowToHigh") {
-    filteredData = sortedData.sort((a: any, b: any) => a.price - b.price);
+    sortedData = sortedData.sort((a: any, b: any) => a.price - b.price);
   }
 
-  // Find page number base on filteredData
-  const pageCount = Math.ceil(filteredData.length / productsPerPage);
+  // Use sortedData for pagination calculations
+  const finalFilteredData = sortedData;
+  const totalProducts = finalFilteredData.length;
+
+  // Find page number base on finalFilteredData
+  const pageCount = Math.ceil(finalFilteredData.length / productsPerPage);
 
   // If page number 0, set current page = 0
-  if (pageCount === 0) {
-    setCurrentPage(0);
-  }
+  useEffect(() => {
+    if (pageCount === 0) {
+      setCurrentPage(0);
+    }
+  }, [pageCount]);
 
   // Get product data for current page
   let currentProducts: any;
 
-  if (filteredData.length > 0) {
-    currentProducts = filteredData.slice(offset, offset + productsPerPage);
+  if (finalFilteredData.length > 0) {
+    currentProducts = finalFilteredData.slice(offset, offset + productsPerPage);
   } else {
     currentProducts = [];
   }
@@ -147,9 +152,8 @@ const Wishlist = () => {
               <div className="left flex has-line items-center flex-wrap gap-5">
                 <div className="choose-layout flex items-center gap-2">
                   <div
-                    className={`item three-col p-2 border border-line rounded flex items-center justify-center cursor-pointer ${
-                      layoutCol === 3 ? "active" : ""
-                    }`}
+                    className={`item three-col p-2 border border-line rounded flex items-center justify-center cursor-pointer ${layoutCol === 3 ? "active" : ""
+                      }`}
                     onClick={() => handleLayoutCol(3)}
                   >
                     <div className="flex items-center gap-0.5">
@@ -159,9 +163,8 @@ const Wishlist = () => {
                     </div>
                   </div>
                   <div
-                    className={`item four-col p-2 border border-line rounded flex items-center justify-center cursor-pointer ${
-                      layoutCol === 4 ? "active" : ""
-                    }`}
+                    className={`item four-col p-2 border border-line rounded flex items-center justify-center cursor-pointer ${layoutCol === 4 ? "active" : ""
+                      }`}
                     onClick={() => handleLayoutCol(4)}
                   >
                     <div className="flex items-center gap-0.5">
@@ -172,9 +175,8 @@ const Wishlist = () => {
                     </div>
                   </div>
                   <div
-                    className={`item five-col p-2 border border-line rounded flex items-center justify-center cursor-pointer ${
-                      layoutCol === 5 ? "active" : ""
-                    }`}
+                    className={`item five-col p-2 border border-line rounded flex items-center justify-center cursor-pointer ${layoutCol === 5 ? "active" : ""
+                      }`}
                     onClick={() => handleLayoutCol(5)}
                   >
                     <div className="flex items-center gap-0.5">
@@ -211,9 +213,8 @@ const Wishlist = () => {
                     ].map((item, index) => (
                       <option
                         key={index}
-                        className={`item cursor-pointer ${
-                          type === item ? "active" : ""
-                        }`}
+                        className={`item cursor-pointer ${type === item ? "active" : ""
+                          }`}
                       >
                         {item}
                       </option>
