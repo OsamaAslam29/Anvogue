@@ -156,25 +156,25 @@ const ModalCart = ({
             <div className="list-product px-6">
               {cartState.cartArray.map((product: any) => (
                 <div
-                  key={product.id}
+                  key={product._id}
                   className="item py-5 flex items-center justify-between gap-3 border-b border-line"
                 >
                   <div className="infor flex items-center gap-3 w-full">
                     <div className="bg-img w-[100px] aspect-square flex-shrink-0 rounded-lg overflow-hidden">
                       <Image
-                        src={product.images[0]}
+                        src={product.images[0]?.Location}
                         width={300}
                         height={300}
-                        alt={product?.name}
+                        alt={product?.title}
                         className="w-full h-full"
                       />
                     </div>
                     <div className="w-full">
                       <div className="flex items-center justify-between w-full">
-                        <div className="name text-button">{product.name}</div>
+                        <div className="name text-button">{product.title}</div>
                         <div
                           className="remove-cart-btn caption1 font-semibold text-red underline cursor-pointer"
-                          onClick={() => removeFromCart(product?.id)}
+                          onClick={() => removeFromCart(product?._id)}
                         >
                           Remove
                         </div>
@@ -186,7 +186,7 @@ const ModalCart = ({
                         </div>
                         <div className="product-price text-title">
                           <span className="currency-symbol">৳</span>
-                          {product.price}.00
+                          {product.discountPrice}.00
                         </div>
                       </div>
                     </div>

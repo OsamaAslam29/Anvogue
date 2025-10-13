@@ -44,19 +44,19 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
     }
 
     const handleAddToCart = () => {
-        if (!cartState.cartArray.find(item => item.id === data.id)) {
+        if (!cartState.cartArray.find(item => item._id === data._id)) {
             addToCart({ ...data });
-            updateCart(data.id, data.quantityPurchase, activeSize, activeColor)
+            updateCart(data._id, data.quantityPurchase, activeSize, activeColor)
         } else {
-            updateCart(data.id, data.quantityPurchase, activeSize, activeColor)
+            updateCart(data._id, data.quantityPurchase, activeSize, activeColor)
         }
         openModalCart()
     };
 
     const handleAddToWishlist = () => {
         // if product existed in wishlit, remove from wishlist and set state to false
-        if (wishlistState.wishlistArray.some(item => item.id === data.id)) {
-            removeFromWishlist(data.id);
+        if (wishlistState.wishlistArray.some(item => item._id === data._id)) {
+            removeFromWishlist(data._id);
         } else {
             // else, add to wishlist and set state to true
             addToWishlist(data);
@@ -67,8 +67,8 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
     const handleAddToCompare = () => {
         // if product existed in wishlit, remove from wishlist and set state to false
         if (compareState.compareArray.length < 3) {
-            if (compareState.compareArray.some(item => item.id === data.id)) {
-                removeFromCompare(data.id);
+            if (compareState.compareArray.some(item => item._id === data._id)) {
+                removeFromCompare(data._id);
             } else {
                 // else, add to wishlist and set state to true
                 addToCompare(data);
@@ -89,30 +89,32 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
         router.push(`/product/default?id=${productId}`);
     };
 
-    let percentSale = Math.floor(100 - ((data.price / data.originPrice) * 100))
-    let percentSold = Math.floor((data.sold / data.quantity) * 100)
+    let percentSale = data.discountPrice && data.actualPrice ? 
+        Math.floor(100 - ((data.discountPrice / data.actualPrice) * 100)) : 0
+    let percentSold = data.sold && data.quantity ? 
+        Math.floor((data.sold / data.quantity) * 100) : 0
 
     return (
         <>
             {type === "grid" ? (
                 <div className={`product-item grid-type ${style}`}>
-                    <div onClick={() => handleDetailProduct(data.id)} className="product-main cursor-pointer block">
+                    <div onClick={() => handleDetailProduct(data._id)} className="product-main cursor-pointer block">
                         <div className="product-thumb bg-white relative overflow-hidden rounded-2xl">
-                            {data.new && (
+                            {(data.new || data.newArrival) && (
                                 <div className="product-tag text-button-uppercase bg-green px-3 py-0.5 inline-block rounded-full absolute top-3 left-3 z-[1]">
                                     New
                                 </div>
                             )}
-                            {data.sale && (
+                            {(data.sale || data.bestSeller) && (
                                 <div className="product-tag text-button-uppercase text-white bg-red px-3 py-0.5 inline-block rounded-full absolute top-3 left-3 z-[1]">
-                                    Sale
+                                    {data.bestSeller ? 'Best Seller' : 'Sale'}
                                 </div>
                             )}
                             {style === 'style-1' || style === 'style-3' || style === 'style-4' ? (
                                 <div className="list-action-right absolute top-3 right-3 max-lg:hidden">
                                     {style === 'style-4' && (
                                         <div
-                                            className={`add-cart-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative mb-2 ${compareState.compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                            className={`add-cart-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative mb-2 ${compareState.compareArray.some(item => item._id === data.id) ? 'active' : ''}`}
                                             onClick={e => {
                                                 e.stopPropagation();
                                                 handleAddToCart()
@@ -123,14 +125,14 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                         </div>
                                     )}
                                     <div
-                                        className={`add-wishlist-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistState.wishlistArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                        className={`add-wishlist-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistState.wishlistArray.some(item => item.id === data._id) ? 'active' : ''}`}
                                         onClick={(e) => {
                                             e.stopPropagation()
                                             handleAddToWishlist()
                                         }}
                                     >
                                         <div className="tag-action bg-black text-white caption2 px-1.5 py-0.5 rounded-sm">Add To Wishlist</div>
-                                        {wishlistState.wishlistArray.some(item => item.id === data.id) ? (
+                                        {wishlistState.wishlistArray.some(item => item._id === data._id) ? (
                                             <>
                                                 <Icon.Heart size={18} weight='fill' className='text-white' />
                                             </>
@@ -153,7 +155,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                     </div>
                                     {style === 'style-3' || style === 'style-4' ? (
                                         <div
-                                            className={`quick-view-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative mt-2 ${compareState.compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                            className={`quick-view-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative mt-2 ${compareState.compareArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 handleQuickviewOpen()
@@ -170,10 +172,10 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                     <>
                                         {
                                             <Image
-                                                src={data.variation.find(item => item.color === activeColor)?.image ?? ''}
+                                                src={data.colors.find(item => item === activeColor)?.image ?? ''}
                                                 width={500}
                                                 height={500}
-                                                alt={data.name}
+                                                alt={data.title}
                                                 priority={true}
                                                 className='w-full h-full object-cover duration-700'
                                             />
@@ -182,14 +184,14 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                 ) : (
                                     <>
                                         {
-                                            data.thumbImage.map((img, index) => (
+                                            data?.images?.map((img, index) => (
                                                 <Image
                                                     key={index}
-                                                    src={img}
+                                                    src={img?.Location}
                                                     width={500}
                                                     height={500}
                                                     priority={true}
-                                                    alt={data.name}
+                                                    alt={data.title}
                                                     className='w-full h-full object-cover duration-700'
                                                 />
                                             ))
@@ -302,14 +304,14 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                             </div>
                                         )}
                                         <div
-                                            className={`add-wishlist-btn w-9 h-9 flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistState.wishlistArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                            className={`add-wishlist-btn w-9 h-9 flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistState.wishlistArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 handleAddToWishlist()
                                             }}
                                         >
                                             <div className="tag-action bg-black text-white caption2 px-1.5 py-0.5 rounded-sm">Add To Wishlist</div>
-                                            {wishlistState.wishlistArray.some(item => item.id === data.id) ? (
+                                            {wishlistState.wishlistArray.some(item => item._id === data._id) ? (
                                                 <>
                                                     <Icon.Heart size={18} weight='fill' className='text-white' />
                                                 </>
@@ -331,7 +333,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                             <Icon.CheckCircle size={20} className='checked-icon' />
                                         </div>
                                         <div
-                                            className={`quick-view-btn w-9 h-9 flex items-center justify-center rounded-full bg-white duration-300 relative ${compareState.compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                            className={`quick-view-btn w-9 h-9 flex items-center justify-center rounded-full bg-white duration-300 relative ${compareState.compareArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 handleQuickviewOpen()
@@ -414,10 +416,10 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="product-name text-title duration-300">{data.name}</div>
-                            {data.variation.length > 0 && data.action === 'add to cart' && (
+                            <div className="product-name text-title duration-300">{data.title}</div>
+                            {data.length > 0 && data.action === 'add to cart' && (
                                 <div className="list-color py-2 max-md:hidden flex items-center gap-2 flex-wrap duration-500">
-                                    {data.variation.map((item, index) => (
+                                    {data.map((item, index) => (
                                         <div
                                             key={index}
                                             className={`color-item w-6 h-6 rounded-full duration-300 relative ${activeColor === item.color ? 'active' : ''}`}
@@ -431,11 +433,11 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                     ))}
                                 </div>
                             )}
-                            {data.variation.length > 0 && data.action === 'quick shop' && (
+                            {data.length > 0 && data.action === 'quick shop' && (
                                 <div className="list-color-image max-md:hidden flex items-center gap-2 flex-wrap duration-500">
-                                    {data.variation.map((item, index) => (
+                                    {data.map((item, index) => (
                                         <div
-                                            className={`color-item w-8 h-8 rounded-lg duration-300 relative ${activeColor === item.color ? 'active' : ''}`}
+                                            className={`color-item w-8 h-8 rounded-lg duration-300 relative ${activeColor === item.colors ? 'active' : ''}`}
                                             key={index}
                                             onClick={(e) => {
                                                 e.stopPropagation()
@@ -456,10 +458,10 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                 </div>
                             )}
                             <div className="product-price-block flex items-center gap-2 flex-wrap mt-1 duration-300 relative z-[1]">
-                                <div className="product-price text-title"><span className="currency-symbol">৳</span>{data.price}.00</div>
+                                <div className="product-price text-title"><span className="currency-symbol">৳</span>{data.discountPrice}.00</div>
                                 {percentSale > 0 && (
                                     <>
-                                        <div className="product-origin-price caption1 text-secondary2"><del><span className="currency-symbol">৳</span>{data.originPrice}.00</del></div>
+                                        <div className="product-origin-price caption1 text-secondary2"><del><span className="currency-symbol">৳</span>{data.actualPrice}.00</del></div>
                                         <div className="product-sale caption1 font-medium bg-green px-3 py-0.5 inline-block rounded-full">
                                             -{percentSale}%
                                         </div>
@@ -501,7 +503,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                         <>
                             <div className="product-item list-type">
                                 <div className="product-main cursor-pointer flex lg:items-center sm:justify-between gap-7 max-lg:gap-5">
-                                    <div onClick={() => handleDetailProduct(data.id)} className="product-thumb bg-white relative overflow-hidden rounded-2xl block max-sm:w-1/2">
+                                    <div onClick={() => handleDetailProduct(data._id)} className="product-thumb bg-white relative overflow-hidden rounded-2xl block max-sm:w-1/2">
                                         {data.new && (
                                             <div className="product-tag text-button-uppercase bg-green px-3 py-0.5 inline-block rounded-full absolute top-3 left-3 z-[1]">
                                                 New
@@ -513,14 +515,14 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                             </div>
                                         )}
                                         <div className="product-img w-full aspect-[3/4] rounded-2xl overflow-hidden">
-                                            {data.thumbImage.map((img, index) => (
+                                            {data.images.map((img, index) => (
                                                 <Image
                                                     key={index}
-                                                    src={img}
+                                                    src={img?.Location}
                                                     width={500}
                                                     height={500}
                                                     priority={true}
-                                                    alt={data.name}
+                                                    alt={data.title}
                                                     className='w-full h-full object-cover duration-700'
                                                 />
                                             ))}
@@ -557,19 +559,19 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                     </div>
                                     <div className='flex sm:items-center gap-7 max-lg:gap-4 max-lg:flex-wrap max-lg:w-full max-sm:flex-col max-sm:w-1/2'>
                                         <div className="product-infor max-sm:w-full">
-                                            <div onClick={() => handleDetailProduct(data.id)} className="product-name heading6 inline-block duration-300">{data.name}</div>
+                                            <div onClick={() => handleDetailProduct(data._id)} className="product-name heading6 inline-block duration-300">{data.title}</div>
                                             <div className="product-price-block flex items-center gap-2 flex-wrap mt-2 duration-300 relative z-[1]">
-                                                <div className="product-price text-title"><span className="currency-symbol">৳</span>{data.price}.00</div>
-                                                <div className="product-origin-price caption1 text-secondary2"><del><span className="currency-symbol">৳</span>{data.originPrice}.00</del></div>
-                                                {data.originPrice && (
+                                                <div className="product-price text-title"><span className="currency-symbol">৳</span>{data.discountPrice}.00</div>
+                                                <div className="product-origin-price caption1 text-secondary2"><del><span className="currency-symbol">৳</span>{data.actualPrice}.00</del></div>
+                                                {data.discountPrice && (
                                                     <div className="product-sale caption1 font-medium bg-green px-3 py-0.5 inline-block rounded-full">
                                                         -{percentSale}%
                                                     </div>
                                                 )}
                                             </div>
-                                            {data.variation.length > 0 && data.action === 'add to cart' ? (
+                                            {data.length > 0 && data.action === 'add to cart' ? (
                                                 <div className="list-color max-md:hidden py-2 mt-5 mb-1 flex items-center gap-3 flex-wrap duration-300">
-                                                    {data.variation.map((item, index) => (
+                                                    {data.map((item, index) => (
                                                         <div
                                                             key={index}
                                                             className={`color-item w-8 h-8 rounded-full duration-300 relative`}
@@ -581,10 +583,10 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    {data.variation.length > 0 && data.action === 'quick shop' ? (
+                                                    {data.length > 0 && data.action === 'quick shop' ? (
                                                         <>
                                                             <div className="list-color flex items-center gap-2 flex-wrap mt-5">
-                                                                {data.variation.map((item, index) => (
+                                                                {data.map((item, index) => (
                                                                     <div
                                                                         className={`color-item w-12 h-12 rounded-xl duration-300 relative ${activeColor === item.color ? 'active' : ''}`}
                                                                         key={index}
@@ -613,7 +615,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                                     )}
                                                 </>
                                             )}
-                                            <div className='text-secondary desc mt-5 max-sm:hidden'>{data.description}</div>
+                                            <div className='text-secondary desc mt-5 max-sm:hidden'>{data?.description}</div>
                                         </div>
                                         <div className="action w-fit flex flex-col items-center justify-center">
                                             <div
@@ -627,14 +629,14 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                             </div>
                                             <div className="list-action-right flex items-center justify-center gap-3 mt-4">
                                                 <div
-                                                    className={`add-wishlist-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistState.wishlistArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                                    className={`add-wishlist-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistState.wishlistArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         handleAddToWishlist()
                                                     }}
                                                 >
                                                     <div className="tag-action bg-black text-white caption2 px-1.5 py-0.5 rounded-sm">Add To Wishlist</div>
-                                                    {wishlistState.wishlistArray.some(item => item.id === data.id) ? (
+                                                    {wishlistState.wishlistArray.some(item => item._id === data._id) ? (
                                                         <>
                                                             <Icon.Heart size={18} weight='fill' className='text-white' />
                                                         </>
@@ -645,7 +647,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                                     )}
                                                 </div>
                                                 <div
-                                                    className={`compare-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${compareState.compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                                    className={`compare-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${compareState.compareArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         handleAddToCompare()
@@ -679,18 +681,18 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
             }
 
             {type === 'marketplace' ? (
-                <div className="product-item style-marketplace p-4 border border-line rounded-2xl" onClick={() => handleDetailProduct(data.id)}>
+                <div className="product-item style-marketplace p-4 border border-line rounded-2xl" onClick={() => handleDetailProduct(data._id)}>
                     <div className="bg-img relative w-full">
-                        <Image className='w-full aspect-square' width={5000} height={5000} src={data.thumbImage[0]} alt="img" />
+                        <Image className='w-full aspect-square' width={5000} height={5000} src={data.images[0]?.Location} alt="img" />
                         <div className="list-action flex flex-col gap-1 absolute top-0 right-0">
                             <span
-                                className={`add-wishlist-btn w-8 h-8 bg-white flex items-center justify-center rounded-full box-shadow-sm duration-300 ${wishlistState.wishlistArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                className={`add-wishlist-btn w-8 h-8 bg-white flex items-center justify-center rounded-full box-shadow-sm duration-300 ${wishlistState.wishlistArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     handleAddToWishlist()
                                 }}
                             >
-                                {wishlistState.wishlistArray.some(item => item.id === data.id) ? (
+                                {wishlistState.wishlistArray.some(item => item._id === data._id) ? (
                                     <>
                                         <Icon.Heart size={18} weight='fill' className='text-white' />
                                     </>
@@ -701,7 +703,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                 )}
                             </span>
                             <span
-                                className={`compare-btn w-8 h-8 bg-white flex items-center justify-center rounded-full box-shadow-sm duration-300 ${compareState.compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                className={`compare-btn w-8 h-8 bg-white flex items-center justify-center rounded-full box-shadow-sm duration-300 ${compareState.compareArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     handleAddToCompare()
@@ -731,11 +733,12 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                         </div>
                     </div>
                     <div className="product-infor mt-4">
-                        <span className="text-title" style={{ height: '48px' }}>{data.name}</span>
+                        <span className="text-title" style={{ height: '48px' }}>{data.title}</span>
                         <div className="flex gap-0.5 mt-1">
-                            <Rate currentRate={data.rate} size={16} />
+                            <Rate currentRate={data.discountPrice} size={16} />
                         </div>
-                        <span className="text-title inline-block mt-1"><span className="currency-symbol">৳</span>{data.price}.00</span>
+                        <span className="text-title inline-block mt-1"><span className="currency-symbol">৳</span>{data.discountPrice}.00</span>
+                        <div className="product-origin-price caption1 text-secondary2"><del><span className="currency-symbol">৳</span>{data.actualPrice}.00</del></div>
                     </div>
                 </div>
             ) : (

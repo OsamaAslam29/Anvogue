@@ -38,7 +38,7 @@ const ModalWishlist = () => {
                 <div className="infor flex items-center gap-5">
                   <div className="bg-img">
                     <Image
-                      src={product.images[0]}
+                      src={product.images[0]?.Location}
                       width={300}
                       height={300}
                       alt={product.name}
@@ -46,16 +46,16 @@ const ModalWishlist = () => {
                     />
                   </div>
                   <div className="">
-                    <div className="name text-button">{product.name}</div>
+                    <div className="name text-button">{product.title}</div>
                     <div className="flex items-center gap-2 mt-2">
                       <div className="product-price text-title">
                         <span className="currency-symbol">৳</span>
-                        {product.price}.00
+                        {product.discountPrice}.00
                       </div>
                       <div className="product-origin-price text-title text-secondary2">
                         <del>
                           <span className="currency-symbol">৳</span>
-                          {product.originPrice}.00
+                          {product.actualPrice}.00
                         </del>
                       </div>
                     </div>
@@ -63,7 +63,7 @@ const ModalWishlist = () => {
                 </div>
                 <div
                   className="remove-wishlist-btn caption1 font-semibold text-red underline cursor-pointer"
-                  onClick={() => removeFromWishlist(product.id)}
+                  onClick={() => removeFromWishlist(product._id)}
                 >
                   Remove
                 </div>

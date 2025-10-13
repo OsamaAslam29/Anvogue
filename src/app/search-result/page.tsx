@@ -2,22 +2,23 @@
 import React, { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import TopNavOne from "@/components/Header/TopNav/TopNavOne";
-import MenuOne from "@/components/Header/Menu/MenuOne";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
-import Footer from "@/components/Footer/Footer";
 import { ProductType } from "@/type/ProductType";
 import productData from "@/data/Product.json";
 import Product from "@/components/Product/Product";
 import HandlePagination from "@/components/Other/HandlePagination";
 import * as Icon from "@phosphor-icons/react/dist/ssr";
+import { useSelector } from "react-redux";
 
 const SearchResult = () => {
   const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(0);
   const productsPerPage = 8;
   const offset = currentPage * productsPerPage;
-  let filteredData = productData;
+  // let filteredData = productData;
+  const { products } = useSelector((state: any) => state.products)
+  const { categories } = useSelector((state: any) => state.categories)
+  let filteredData = products;
 
   const router = useRouter();
 
@@ -32,10 +33,21 @@ const SearchResult = () => {
   if (query === null) {
     query = "dress";
   } else {
-    filteredData = productData.filter(
-      (product) =>
-        product.name.toLowerCase().includes(query.toLowerCase()) ||
-        product.type.toLowerCase().includes(query.toLowerCase())
+    console.log('this is the products', products)
+    filteredData = products.filter(
+      (product) => {
+        const searchQuery = query.toLowerCase();
+        return (
+          product.title?.toLowerCase().includes(searchQuery) ||
+          product.name?.toLowerCase().includes(searchQuery) ||
+          product.typeId?.name?.toLowerCase().includes(searchQuery) ||
+          product.type?.toLowerCase().includes(searchQuery) ||
+          product.brandId?.name?.toLowerCase().includes(searchQuery) ||
+          product.brand?.toLowerCase().includes(searchQuery) ||
+          product.categoryId?.name?.toLowerCase().includes(searchQuery) ||
+          product.category?.toLowerCase().includes(searchQuery)
+        );
+      }
     );
   }
 
@@ -90,12 +102,7 @@ const SearchResult = () => {
 
   return (
     <>
-      <TopNavOne
-        props="style-one bg-black"
-        slogan="New customers save 10% with the code GET10"
-      />
       <div id="header" className="relative w-full">
-        <MenuOne props="bg-transparent" />
         <Breadcrumb heading="Search Result" subHeading="Search Result" />
       </div>
       <div className="shop-product breadcrumb1 lg:py-20 md:py-14 py-10">
@@ -154,7 +161,6 @@ const SearchResult = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };

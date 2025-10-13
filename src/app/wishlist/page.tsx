@@ -1,9 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import TopNavOne from "@/components/Header/TopNav/TopNavOne";
-import MenuOne from "@/components/Header/Menu/MenuOne";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
-import Footer from "@/components/Footer/Footer";
 import { ProductType } from "@/type/ProductType";
 import Product from "@/components/Product/Product";
 import { useWishlist } from "@/context/WishlistContext";
@@ -35,7 +32,8 @@ const Wishlist = () => {
   let filteredData = wishlistState.wishlistArray.filter((product) => {
     let isTypeMatched = true;
     if (type) {
-      isTypeMatched = product.type === type;
+      // Support both new backend structure (typeId.name) and legacy structure (type)
+      isTypeMatched = product.typeId?.name === type || product.type === type;
     }
 
     return isTypeMatched;
@@ -94,18 +92,33 @@ const Wishlist = () => {
 
   if (sortOption === "discountHighToLow") {
     sortedData = sortedData.sort(
-      (a: any, b: any) =>
-        Math.floor(100 - (b.price / b.originPrice) * 100) -
-        Math.floor(100 - (a.price / a.originPrice) * 100)
+      (a: any, b: any) => {
+        // Use actualPrice and discountPrice for new backend structure
+        const discountA = a.actualPrice && a.discountPrice ? 
+          Math.floor(100 - (a.discountPrice / a.actualPrice) * 100) : 0;
+        const discountB = b.actualPrice && b.discountPrice ? 
+          Math.floor(100 - (b.discountPrice / b.actualPrice) * 100) : 0;
+        return discountB - discountA;
+      }
     );
   }
 
   if (sortOption === "priceHighToLow") {
-    sortedData = sortedData.sort((a: any, b: any) => b.price - a.price);
+    sortedData = sortedData.sort((a: any, b: any) => {
+      // Use actualPrice for new backend structure, fallback to price for legacy
+      const priceA = a.actualPrice || a.price || 0;
+      const priceB = b.actualPrice || b.price || 0;
+      return priceB - priceA;
+    });
   }
 
   if (sortOption === "priceLowToHigh") {
-    sortedData = sortedData.sort((a: any, b: any) => a.price - b.price);
+    sortedData = sortedData.sort((a: any, b: any) => {
+      // Use actualPrice for new backend structure, fallback to price for legacy
+      const priceA = a.actualPrice || a.price || 0;
+      const priceB = b.discountPrice || b.price || 0;
+      return priceA - priceB;
+    });
   }
 
   // Use sortedData for pagination calculations
@@ -137,12 +150,7 @@ const Wishlist = () => {
 
   return (
     <>
-      <TopNavOne
-        props="style-one bg-black"
-        slogan="New customers save 10% with the code GET10"
-      />
       <div id="header" className="relative w-full">
-        <MenuOne props="bg-transparent" />
         <Breadcrumb heading="Wish list" subHeading="Wish list" />
       </div>
       <div className="shop-product breadcrumb1 lg:py-20 md:py-14 py-10">
@@ -315,7 +323,6 @@ const Wishlist = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };

@@ -32,21 +32,21 @@ interface DealProps {
     products: any[];
 }
 
-const convertToLegacyProduct = (product: any): LegacyProductType => {
+const convertToLegacyProduct = (product: any) => {
     return {
-        id: product._id,
+        _id: product._id,
         category: product?.categoryId?.name?.toLowerCase().replace(/\s+/g, '-') || 'general',
         type: 'product',
-        name: product.title || 'Untitled Product',
+        title: product?.title || 'Untitled Product',
         gender: 'unisex',
-        new: product.newArrival || false,
-        sale: product.discountPrice < product.actualPrice,
+        new: product?.newArrival || false,
+        sale: product?.discountPrice < product?.actualPrice,
         rate: 5, // Default rating
-        price: product.discountPrice || 0,
-        originPrice: product.actualPrice || 0,
+        discountPrice: product?.discountPrice || 0,
+        actualPrice: product?.actualPrice || 0,
         brand: 'Brand', // Default brand
         sold: Math.floor(Math.random() * 100), // Random sold count
-        quantity: product.stock || 0,
+        quantity: product?.stock || 0,
         quantityPurchase: 1,
         sizes: product.size || [],
         variation: (product.colors || []).map((color, index) => ({
@@ -55,9 +55,9 @@ const convertToLegacyProduct = (product: any): LegacyProductType => {
             colorImage: product.images?.[0]?.Location || '',
             image: product.images?.[0]?.Location || ''
         })),
-        thumbImage: (product.images || []).map(img => img.Location),
-        images: (product.images || []).map(img => img.Location),
-        description: product.detail || '',
+        thumbImage: (product.images || []),
+        images: (product?.images || []),
+        description: product?.detail || '',
         action: 'add',
         slug: (product.title || 'untitled').toLowerCase().replace(/\s+/g, '-')
     };
@@ -162,15 +162,15 @@ const Deal = ({ categories, products }: DealProps) => {
                             <div key={category._id} className={categoryIndex > 0 ? "md:pt-[60px] pt-10" : ""}>
                                 <div className="heading flex items-center justify-between gap-5 flex-wrap">
                                     <div className="left flex items-center gap-6 gap-y-3 flex-wrap">
-                                        <div className="heading3">{category.name}</div>
+                                        <div className="heading3">{category?.name}</div>
                                     </div>
-                                    <a href={`/shop/breadcrumb-img?category=${encodeURIComponent(category.name)}`} className='text-button pb-1 border-b-2 border-black'>
-                                        View All {category.name}
+                                    <a href={`/shop/breadcrumb-img?category=${encodeURIComponent(category?.name)}`} className='text-button pb-1 border-b-2 border-black'>
+                                        View All {category?.name}
                                     </a>
                                 </div>
                                 <div className="list-product section-swiper-navigation style-outline deal-carousel md:mt-10 mt-6">
                                     <Swiper
-                                        key={`category-${category._id}-${swiperKey}`}
+                                        key={`category-${category?._id}-${swiperKey}`}
                                         spaceBetween={20}
                                         slidesPerView={2}
                                         navigation

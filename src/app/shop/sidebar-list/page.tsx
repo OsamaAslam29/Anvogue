@@ -6,8 +6,6 @@ import TopNavOne from '@/components/Header/TopNav/TopNavOne'
 import MenuOne from '@/components/Header/Menu/MenuOne'
 import ShopSidebarList from '@/components/Shop/ShopSidebarList'
 import productData from '@/data/Product.json'
-import Footer from '@/components/Footer/Footer'
-
 export default function SidebarList() {
     const searchParams = useSearchParams()
     const type = searchParams.get('type')
@@ -20,7 +18,6 @@ export default function SidebarList() {
                 <MenuOne props="bg-transparent" />
             </div>
             <ShopSidebarList data={productData} productPerPage={4} dataType={type} />
-            <Footer />
         </>
     )
 }

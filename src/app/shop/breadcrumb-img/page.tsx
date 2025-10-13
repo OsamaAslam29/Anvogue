@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import TopNavOne from '@/components/Header/TopNav/TopNavOne'
 import MenuOne from '@/components/Header/Menu/MenuOne'
 import ShopBreadCrumbImg from '@/components/Shop/ShopBreadCrumbImg';
-import Footer from '@/components/Footer/Footer'
 
 export default function BreadcrumbImg() {
     const dispatch = useDispatch()
@@ -27,7 +26,6 @@ export default function BreadcrumbImg() {
                 <MenuOne props="bg-transparent" />
             </div> */}
             <ShopBreadCrumbImg data={products} productPerPage={12} dataType={decodedCategory} categoryImage={categoryData?.image?.Location} />
-            <Footer />
         </>
     )
 }

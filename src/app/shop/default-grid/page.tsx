@@ -6,8 +6,6 @@ import TopNavOne from '@/components/Header/TopNav/TopNavOne'
 import MenuOne from '@/components/Header/Menu/MenuOne'
 import ShopBreadCrumb1 from '@/components/Shop/ShopBreadCrumb1'
 import productData from '@/data/Product.json'
-import Footer from '@/components/Footer/Footer'
-
 export default function DefaultGrid() {
     const searchParams = useSearchParams()
     let type = searchParams.get('type')
@@ -21,7 +19,6 @@ export default function DefaultGrid() {
                 <MenuOne props="bg-transparent" />
             </div>
             <ShopBreadCrumb1 data={productData} productPerPage={9} dataType={type} gender={gender} category={category} />
-            <Footer />      
         </>
     )
 }

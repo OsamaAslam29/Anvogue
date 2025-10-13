@@ -6,7 +6,6 @@ import MenuOne from '@/components/Header/Menu/MenuOne'
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb'
 import productData from '@/data/Product.json'
 import ShopCollection from '@/components/Shop/ShopCollection'
-import Footer from '@/components/Footer/Footer'
 
 export default function Collection() {
 
@@ -18,7 +17,6 @@ export default function Collection() {
                 <Breadcrumb heading='Shop Collection' subHeading='Collection' />
             </div>
             <ShopCollection data={productData} />
-            <Footer />
         </>
     )
 }

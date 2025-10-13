@@ -6,7 +6,6 @@ import TopNavOne from '@/components/Header/TopNav/TopNavOne'
 import MenuOne from '@/components/Header/Menu/MenuOne'
 import ShopFilterOptions from '@/components/Shop/ShopFilterOptions'
 import productData from '@/data/Product.json'
-import Footer from '@/components/Footer/Footer'
 
 export default function FilterOptions() {
     const searchParams = useSearchParams()
@@ -20,7 +19,6 @@ export default function FilterOptions() {
                 <MenuOne props="bg-transparent" />
             </div>
             <ShopFilterOptions data={productData} productPerPage={12} />
-            <Footer />
         </>
     )
 }

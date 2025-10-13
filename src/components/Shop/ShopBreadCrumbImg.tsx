@@ -20,29 +20,29 @@ interface Props {
 // Helper function to convert ProductType to LegacyProductType for Product component
 const convertToLegacyProduct = (product: any): any => {
     return {
-        id: product._id,
+        _id: product._id,
         category: product.categoryId?.name?.toLowerCase().replace(/\s+/g, '-') || 'general',
         type: 'product',
-        name: product.title || 'Untitled Product',
+        title: product.title || 'Untitled Product',
         gender: 'unisex',
         new: product.newArrival || false,
         sale: product.discountPrice < product.actualPrice,
         rate: 5, // Default rating
-        price: product.discountPrice || 0,
-        originPrice: product.actualPrice || 0,
+        discountPrice: product.discountPrice || 0,
+        actualPrice: product.actualPrice || 0,
         brand: 'Brand', // Default brand
         sold: Math.floor(Math.random() * 100), // Random sold count
         quantity: product.stock || 0,
         quantityPurchase: 1,
         sizes: product.size || [],
-        variation: (product.colors || []).map((color, index) => ({
-            color: color.replace(/[\[\]"]/g, ''),
-            colorCode: '#000000',
-            colorImage: product.images?.[0]?.Location || '',
-            image: product.images?.[0]?.Location || ''
-        })),
-        thumbImage: (product.images || []).map(img => img.Location),
-        images: (product.images || []).map(img => img.Location),
+        // variation: (product.colors || []).map((color, index) => ({
+        //     color: color.replace(/[\[\]"]/g, ''),
+        //     colorCode: '#000000',
+        //     colorImage: product.images?.[0]?.Location || '',
+        //     image: product.images?.[0]?.Location || ''
+        // })),
+        thumbImage: (product.images || []),
+        images: (product.images || []),
         description: product.detail || '',
         action: 'add',
         slug: (product.title || 'untitled').toLowerCase().replace(/\s+/g, '-')
@@ -223,7 +223,8 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, ca
     }
 
     // Get product data for current page
-    let currentProducts: ProductType[];
+    let currentProducts: any;
+    console.log('these are the current products', currentProducts)
 
     if (filteredData.length > 0) {
         currentProducts = filteredData.slice(offset, offset + productsPerPage);

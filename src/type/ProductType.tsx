@@ -8,6 +8,58 @@ interface ProductImage {
 interface Category {
     _id: string;
     name: string;
+    image?: {
+        Location: string;
+        Key: string;
+        _id: string;
+    };
+}
+
+interface Type {
+    _id: string;
+    name: string;
+    image?: {
+        Location: string;
+        Key: string;
+        _id: string;
+    };
+}
+
+interface Brand {
+    _id: string;
+    name: string;
+    image?: {
+        Location: string;
+        Key: string;
+        _id: string;
+    };
+}
+
+interface Material {
+    _id: string;
+    name: string;
+}
+
+interface EMIDetail {
+    noOfEMIs: number;
+    convenienceFeeInPercentage: number;
+    pricePerMonth: number;
+    price: number;
+    convenienceFeeInPrice: number;
+    totalPrice: number;
+    _id: string;
+}
+
+interface EMI {
+    bankName: string;
+    EMIDetails: EMIDetail[];
+    _id: string;
+}
+
+interface Specification {
+    name: string;
+    detail: any[];
+    _id: string;
 }
 
 // export interface ProductType {
@@ -60,7 +112,7 @@ export interface ProductType {
   discountPrice: number;
   price?: number; // added for compatibility
   originPrice?: number; // added from sample data
-  images: any; // support both object-based and string array
+  images: any; // updated to use proper interface
   thumbImage?: string[]; // added from sample data
   variation?: {
     color: string;
@@ -71,11 +123,14 @@ export interface ProductType {
   colors: string[];
   size: string[];
   sizes?: string[]; // alias for size
-  type: string;
+  type?: string; // legacy field
+  typeId?: Type; // new backend field
   productId?: string;
   userId?: string;
-  brand: string;
-  material: string;
+  brand?: string; // legacy field
+  brandId?: Brand; // new backend field
+  material?: string; // legacy field
+  materialId?: Material; // new backend field
   categoryId?: Category | string;
   category?: string; // for legacy and sample data compatibility
   gender?: string;
@@ -90,12 +145,12 @@ export interface ProductType {
   quantity?: number; // added from sample data
   quantityPurchase?: number; // added from sample data
   sold?: number; // added from sample data
-  ratings: any[];
-  totalRatings: number;
-  meanRating: number;
-  avgRating: number;
+  ratings?: any[];
+  totalRatings?: number;
+  meanRating?: number;
+  avgRating?: number;
   rate?: number; // added from sample data
-  starCounts: {
+  starCounts?: {
     "1": number;
     "2": number;
     "3": number;
@@ -104,6 +159,8 @@ export interface ProductType {
   };
   action?: string; // added from sample data
   slug?: string; // added from sample data
+  EMIs?: EMI[]; // new backend field
+  specifications?: Specification[]; // new backend field
 }
 
 interface Variation {

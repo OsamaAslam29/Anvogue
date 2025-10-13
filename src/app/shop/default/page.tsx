@@ -6,8 +6,6 @@ import TopNavOne from '@/components/Header/TopNav/TopNavOne'
 import MenuOne from '@/components/Header/Menu/MenuOne'
 import ShopBreadCrumbImg from '@/components/Shop/ShopBreadCrumbImg';
 import productData from '@/data/Product.json'
-import Footer from '@/components/Footer/Footer'
-
 export default function Default() {
     const searchParams = useSearchParams()
     const type = searchParams.get('type')
@@ -20,7 +18,6 @@ export default function Default() {
                 <MenuOne props="bg-transparent" />
             </div>
             <ShopBreadCrumbImg data={productData} productPerPage={12} dataType={type} />
-            <Footer />
         </>
     )
 }
