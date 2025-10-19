@@ -5,6 +5,8 @@ import Image from "next/image";
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useRouter } from "next/navigation";
 import SubscriptionService from "@/services/subscription";
+import logo from "../../../public/logo.png";
+import "./Footer.scss";
 
 const Footer = () => {
   const navigate = useRouter();
@@ -40,26 +42,33 @@ const Footer = () => {
             <div className="content-footer py-[60px] flex justify-between flex-wrap gap-y-8">
               <div className="company-info basis-1/4 max-lg:basis-full pr-7">
                 <Link href={"/"} className="logo">
-                  <div className="heading4 ">Anvogue</div>
+                  {/* <div className="heading4 ">Foxybd</div> */}
+                  <Image
+                    src={logo}
+                    alt={"Foxybd Logo"}
+                    width={3000}
+                    height={2000}
+                    className="footerLogo"
+                  />
                 </Link>
                 <div className="mt-4">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
                       <Icon.Envelope size={14} color="#1F1F1F" />
                     </div>
-                    <span className="">example@gmail.com</span>
+                    <span className="">support@foxybd.com</span>
                   </div>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
                       <Icon.Phone size={14} color="#1F1F1F" />
                     </div>
-                    <span className="">+923400000000</span>
+                    <span className="">01342688851</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
                       <Icon.MapPin size={14} color="#1F1F1F" />
                     </div>
-                    <span className="">Madina Town Kasur, Pakistan</span>
+                    <span className="">Dhaka Bangladesh</span>
                   </div>
                 </div>
                 <div className="list-social flex items-center gap-4 mt-4">
@@ -128,9 +137,7 @@ const Footer = () => {
                     </Link>
                   </div>
                   <div className="item flex flex-col basis-1/2 ">
-                    <div className="text-button-uppercase pb-3 ">
-                      Help
-                    </div>
+                    <div className="text-button-uppercase pb-3 ">Help</div>
                     <Link
                       className="caption1 has-line-before duration-300 w-fit  hover:text-gray-300"
                       href={"/payment"}
@@ -166,8 +173,7 @@ const Footer = () => {
                 <div className="newsletter basis-1/3 pl-7 max-md:basis-full max-md:pl-0">
                   <div className="text-button-uppercase ">Newletter</div>
                   <div className="caption1 mt-3 ">
-                    Sign up for our newsletter and get 10% off your first
-                    purchase
+                    Join our newsletter to stay informed and up to date.
                   </div>
                   <div className="input-block w-full h-[52px] mt-4">
                     <form
@@ -189,14 +195,13 @@ const Footer = () => {
                       </button>
                     </form>
                   </div>
-
                 </div>
               </div>
             </div>
             <div className="footer-bottom py-3 flex items-center justify-between gap-5 max-lg:justify-center max-lg:flex-col border-t border-line">
               <div className="left flex items-center gap-8">
-                <div className="copyright caption1 text-secondary">
-                  ©2025 Anvogue. All Rights Reserved.
+                <div className="copyright caption1 flex item-center justify-center text-secondary w-screen">
+                  ©2025 Foxybd. All Rights Reserved.
                 </div>
                 <div className="select-block flex items-center gap-5 max-md:hidden">
                   {/* <div className="choose-language flex items-center gap-1.5">
@@ -225,11 +230,13 @@ const Footer = () => {
                   </div> */}
                 </div>
               </div>
-              <div className="right flex items-center gap-2">
+              {/* <div className="right flex items-center gap-2">
                 <div className="caption1 text-secondary">Payment Methods:</div>
                 <div className="payment-img">
                   <Image
-                    src={"https://www.pickaboo.com/_next/static/images/payment-one-2e8773dc92684e5198a1dcf36c1aa6cb.svg"}
+                    src={
+                      "https://www.pickaboo.com/_next/static/images/payment-one-2e8773dc92684e5198a1dcf36c1aa6cb.svg"
+                    }
                     width={500}
                     height={500}
                     alt={"payment"}
@@ -238,7 +245,9 @@ const Footer = () => {
                 </div>
                 <div className="payment-img">
                   <Image
-                    src={"https://www.pickaboo.com/_next/static/images/payment-two-c20a337c77c62894a976fb408a2fa824.svg"}
+                    src={
+                      "https://www.pickaboo.com/_next/static/images/payment-two-c20a337c77c62894a976fb408a2fa824.svg"
+                    }
                     width={500}
                     height={500}
                     alt={"payment"}
@@ -247,7 +256,9 @@ const Footer = () => {
                 </div>
                 <div className="payment-img">
                   <Image
-                    src={"https://www.pickaboo.com/_next/static/images/payment-three-df6fd7212b390a3c3b4d7b8e9277bddf.svg"}
+                    src={
+                      "https://www.pickaboo.com/_next/static/images/payment-three-df6fd7212b390a3c3b4d7b8e9277bddf.svg"
+                    }
                     width={500}
                     height={500}
                     alt={"payment"}
@@ -256,7 +267,9 @@ const Footer = () => {
                 </div>
                 <div className="payment-img">
                   <Image
-                    src={"https://www.pickaboo.com/_next/static/images/payment-four-53216205610941b83b5017625ce2878e.svg"}
+                    src={
+                      "https://www.pickaboo.com/_next/static/images/payment-four-53216205610941b83b5017625ce2878e.svg"
+                    }
                     width={500}
                     height={500}
                     alt={"payment"}
@@ -265,7 +278,9 @@ const Footer = () => {
                 </div>
                 <div className="payment-img">
                   <Image
-                    src={"https://www.pickaboo.com/_next/static/images/payment-five-a54fb86ef0189aa04ec25bba3b22351c.svg"}
+                    src={
+                      "https://www.pickaboo.com/_next/static/images/payment-five-a54fb86ef0189aa04ec25bba3b22351c.svg"
+                    }
                     width={500}
                     height={500}
                     alt={"payment"}
@@ -274,18 +289,20 @@ const Footer = () => {
                 </div>
                 <div className="payment-img">
                   <Image
-                    src={"https://www.pickaboo.com/_next/static/images/payment-six-1e3800be1f46e9a71f562c1587aa9fba.svg"}
+                    src={
+                      "https://www.pickaboo.com/_next/static/images/payment-six-1e3800be1f46e9a71f562c1587aa9fba.svg"
+                    }
                     width={500}
                     height={500}
                     alt={"payment"}
                     className="w-9"
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
-        </div >
-      </div >
+        </div>
+      </div>
     </>
   );
 };

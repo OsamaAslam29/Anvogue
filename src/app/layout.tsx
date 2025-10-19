@@ -23,13 +23,16 @@ const serverTimeLeft: CountdownTimeType = countdownTime();
 
 const instrument = Instrument_Sans({
   subsets: ["latin"],
-  display: 'swap',
-  fallback: ['system-ui', 'arial']
+  display: "swap",
+  fallback: ["system-ui", "arial"],
 });
 
 export const metadata: Metadata = {
-  title: "Anvogue",
-  description: "Multipurpose eCommerce Template",
+  title: "Foxybd",
+  description: "Foxybd E-commerce Website",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -48,7 +51,6 @@ export default function RootLayout({
                 <TopBar />
                 {children}
                 <Footer />
-
               </Snackbar>
               <ModalCart serverTimeLeft={serverTimeLeft} />
               <ModalWishlist />

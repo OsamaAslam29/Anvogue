@@ -34,6 +34,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
     const { openModalCompare } = useModalCompareContext()
     const { openQuickview } = useModalQuickviewContext()
     const router = useRouter()
+    console.log('this is the compare state', compareState)
 
     const handleActiveColor = (item: string) => {
         setActiveColor(item)

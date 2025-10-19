@@ -14,6 +14,7 @@ import { useModalWishlistContext } from '@/context/ModalWishlistContext';
 import { useModalSearchContext } from '@/context/ModalSearchContext';
 import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/navigation'
+import logo from '../../../../public/logo.png'
 
 interface Props {
     props: string
@@ -80,7 +81,7 @@ const MenuCosmeticOne: React.FC<Props> = ({ props }) => {
                             <i className="icon-category text-2xl"></i>
                         </div>
                         <Link href={'/'} className='flex items-center lg:hidden'>
-                            <div className="heading4">Tayyab</div>
+                            <div className="heading4">Foxybd</div>
                         </Link>
                         <div className="form-search relative max-lg:hidden z-[1]">
                             <Icon.MagnifyingGlass
@@ -683,7 +684,12 @@ const MenuCosmeticOne: React.FC<Props> = ({ props }) => {
                                 </li>
                                 <li className='h-full flex items-center justify-center logo'>
                                     <Link href={'/'} className='heading4'>
-                                        Anvogue
+                                        <Image
+                                            src={logo}
+                                            alt='logo'
+                                            width={100}
+                                            height={100}
+                                        />
                                     </Link>
                                 </li>
                                 <li className='h-full'>
@@ -987,7 +993,7 @@ const MenuCosmeticOne: React.FC<Props> = ({ props }) => {
                                 >
                                     <Icon.X size={14} />
                                 </div>
-                                <Link href={'/'} className='logo text-3xl font-semibold text-center'>Anvogue</Link>
+                                <Link href={'/'} className='logo text-3xl font-semibold text-center'>Foxybd</Link>
                             </div>
                             <div className="form-search relative mt-2">
                                 <Icon.MagnifyingGlass size={20} className='absolute left-3 top-1/2 -translate-y-1/2 cursor-pointer' />
