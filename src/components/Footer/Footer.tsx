@@ -40,14 +40,12 @@ const Footer = () => {
           <div className="container">
             <div className="content-footer py-[60px] flex justify-between flex-wrap gap-y-8">
               <div className="company-info basis-1/4 max-lg:basis-full pr-7">
-                <Link href={"/"} className="logo">
+                <Link href={"/"} className="logo ">
                   {/* <div className="heading4 ">Foxybd</div> */}
                   <Image
                     src={logo}
                     alt={"Foxybd Logo"}
-                    width={3000}
-                    height={2000}
-                    className="w-20 h-20 rounded-[50%] flex items-center justify-center"
+                    className="w-[4rem] h-[4rem] rounded-[50%] flex items-center justify-center"
                   />
                 </Link>
                 <div className="mt-4">
@@ -234,7 +232,7 @@ const Footer = () => {
                 <div className="payment-img">
                   <Image
                     src={
-                      "https://www.pickaboo.com/_next/static/images/payment-one-2e8773dc92684e5198a1dcf36c1aa6cb.svg"
+                      "https://www.Foxybd.com/_next/static/images/payment-one-2e8773dc92684e5198a1dcf36c1aa6cb.svg"
                     }
                     width={500}
                     height={500}
@@ -245,7 +243,7 @@ const Footer = () => {
                 <div className="payment-img">
                   <Image
                     src={
-                      "https://www.pickaboo.com/_next/static/images/payment-two-c20a337c77c62894a976fb408a2fa824.svg"
+                      "https://www.Foxybd.com/_next/static/images/payment-two-c20a337c77c62894a976fb408a2fa824.svg"
                     }
                     width={500}
                     height={500}
@@ -256,7 +254,7 @@ const Footer = () => {
                 <div className="payment-img">
                   <Image
                     src={
-                      "https://www.pickaboo.com/_next/static/images/payment-three-df6fd7212b390a3c3b4d7b8e9277bddf.svg"
+                      "https://www.Foxybd.com/_next/static/images/payment-three-df6fd7212b390a3c3b4d7b8e9277bddf.svg"
                     }
                     width={500}
                     height={500}
@@ -267,7 +265,7 @@ const Footer = () => {
                 <div className="payment-img">
                   <Image
                     src={
-                      "https://www.pickaboo.com/_next/static/images/payment-four-53216205610941b83b5017625ce2878e.svg"
+                      "https://www.Foxybd.com/_next/static/images/payment-four-53216205610941b83b5017625ce2878e.svg"
                     }
                     width={500}
                     height={500}
@@ -278,7 +276,7 @@ const Footer = () => {
                 <div className="payment-img">
                   <Image
                     src={
-                      "https://www.pickaboo.com/_next/static/images/payment-five-a54fb86ef0189aa04ec25bba3b22351c.svg"
+                      "https://www.Foxybd.com/_next/static/images/payment-five-a54fb86ef0189aa04ec25bba3b22351c.svg"
                     }
                     width={500}
                     height={500}
@@ -289,7 +287,7 @@ const Footer = () => {
                 <div className="payment-img">
                   <Image
                     src={
-                      "https://www.pickaboo.com/_next/static/images/payment-six-1e3800be1f46e9a71f562c1587aa9fba.svg"
+                      "https://www.Foxybd.com/_next/static/images/payment-six-1e3800be1f46e9a71f562c1587aa9fba.svg"
                     }
                     width={500}
                     height={500}

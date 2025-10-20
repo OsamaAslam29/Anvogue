@@ -15,7 +15,7 @@ const useShopDepartmentPopup = () => {
         if (openShopDepartmentPopup && !targetElement.closest('.shop-department-popup')) {
             setOpenShopDepartmentPopup(false)
         }
-    }, [openShopDepartmentPopup])
+    }, [])
 
     useEffect(() => {
         // Add a global click event to track clicks outside the ShopDepartmentPopup.
@@ -25,7 +25,7 @@ const useShopDepartmentPopup = () => {
         return () => {
             document.removeEventListener('click', handleClickOutsideShopDepartmentPopup);
         };
-    }, [handleClickOutsideShopDepartmentPopup, openShopDepartmentPopup])
+    }, [])
 
     return {
         openShopDepartmentPopup,

@@ -28,7 +28,7 @@ const ResetPassword = () => {
     }
     console.log("Email inside useEffect:", email);
     console.log("Email inside useEffect:", formData);
-  }, [email]);
+  }, []);
 
   const [errors, setErrors] = useState<any>(null);
 

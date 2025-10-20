@@ -32,7 +32,7 @@ const page = () => {
 						<li>
 							<b>Affiliate</b> means an entity that controls, is controlled by or is under common control with a party, where "control" means ownership of 50% or more of the shares, equity interest or other securities entitled to vote for election of directors or other managing authority.
 						</li>
-						<li> <b>Application</b> means the software program provided by the Company downloaded by You on any electronic device, named Pickaboo</li>
+						<li> <b>Application</b> means the software program provided by the Company downloaded by You on any electronic device, named Foxybd</li>
 						<li> <b>Company</b> (referred to as either "the Company", "We", "Us" or "Our" in this Agreement) refers to Silver Water Technologies Bangladesh Limited, 9 KA/KHA, Level 5, Tejgaon Industrial Area, Tejgaon, Dhaka - 1215, Bangladesh</li>
 						<li> <b>Country</b> refers to: Bangladesh</li>
 						<li><b>Device</b> means any device that can access the Service such as a computer, a cellphone or a digital tablet.</li>
@@ -124,7 +124,7 @@ const page = () => {
 				<p className='leading-relaxed text-sm text-justify mb-4'>
 					Our Service may give You the ability to delete certain information about You from within the Service.</p>
 				<p className='leading-relaxed text-sm text-justify mb-4'>
-					You may update or delete Your information at any time by signing in to Your Account, if you have one, and visiting the Account Information section that allows you to manage Your personal information. If you would like us to remove your information from our records, please create a request at the Support Tickets section ("Subject: Deletion Request") in my account or email your request to support@pickaboo.com. Once your request is received, we follow an internal deletion process to make sure that your data is safely removed in the next fifteen (15) working days. You'll be contacted for verification and your account will be deleted after successful verification. You may also contact Us to request access to, correct, or delete any personal information that You have provided to Us.</p>
+					You may update or delete Your information at any time by signing in to Your Account, if you have one, and visiting the Account Information section that allows you to manage Your personal information. If you would like us to remove your information from our records, please create a request at the Support Tickets section ("Subject: Deletion Request") in my account or email your request to support@Foxybd.com. Once your request is received, we follow an internal deletion process to make sure that your data is safely removed in the next fifteen (15) working days. You'll be contacted for verification and your account will be deleted after successful verification. You may also contact Us to request access to, correct, or delete any personal information that You have provided to Us.</p>
 				<p className='leading-relaxed text-sm text-justify mb-4'>
 					Please note, however, that We may need to retain certain information when we have a legal obligation or lawful basis to do so.
 				</p>
@@ -185,7 +185,7 @@ const page = () => {
 					If you have any questions about this Privacy Policy, You can contact us:
 				</p>
 				<ul className="space-y-2 text-sm list-disc list-inside mx-auto mt-4 mb-4">
-					<li>By email: support@pickaboo.comn</li>
+					<li>By email: support@Foxybd.comn</li>
 				</ul>
 			</section>
 		</div >

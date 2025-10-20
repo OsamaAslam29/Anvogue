@@ -5,7 +5,7 @@ const page = () => {
 		<div className="px-6 md:px-20 lg:px-32 py-16 space-y-10 text-gray-800">
 			<h1 className="text-[25px] font-semibold text-center mb-6">Cookie Policy</h1>
 			<p className="leading-relaxed text-sm text-justify">
-				This website uses Cookies. By using this website, you are agreeing to this policy and consenting to Pickaboo.com for the use of Cookies in accordance with the terms of this Cookie policy.
+				This website uses Cookies. By using this website, you are agreeing to this policy and consenting to Foxybd.com for the use of Cookies in accordance with the terms of this Cookie policy.
 			</p>
 			<h1 className="text-[25px] font-semibold">What are Cookies?</h1>
 			<p className="leading-relaxed text-sm text-justify">
@@ -29,13 +29,13 @@ const page = () => {
 			</p>
 			<h1 className="text-[25px] font-semibold  mb-4">Google Cookies & How we use it</h1>
 			<p className="leading-relaxed text-sm text-justify">
-				Pickaboo.com uses Google Analytics to analyse the use of this website.  Google Analytics generates statistical and other information about website use by means of Cookies, which are stored on the user’s computer.  The generated information relating to our website is used to create reports about the use of the website. Google will store and use this information.
+				Foxybd.com uses Google Analytics to analyse the use of this website.  Google Analytics generates statistical and other information about website use by means of Cookies, which are stored on the user’s computer.  The generated information relating to our website is used to create reports about the use of the website. Google will store and use this information.
 			</p>
 			<p className="leading-relaxed text-sm text-justify">
 				For more information, Google's privacy policy is available at: http://www.google.com/privacypolicy.html
 			</p>
 			<p className="leading-relaxed text-sm text-justify">
-				Pickaboo.com publishes interest-based advertisements by Google for the Pickaboo website. These are tailored by Google to reflect your search interests based on your browsing history. Google will track the user’s web activity in order to determine your interests and behaviour across the web using these Cookies.
+				Foxybd.com publishes interest-based advertisements by Google for the Foxybd website. These are tailored by Google to reflect your search interests based on your browsing history. Google will track the user’s web activity in order to determine your interests and behaviour across the web using these Cookies.
 			</p>
 			<p className="leading-relaxed text-sm text-justify">
 				We may use the information we obtain from your use of our Cookies for the following purposes:
@@ -53,7 +53,7 @@ const page = () => {
 			</p>
 			<h1 className="text-[25px] font-semibold  mb-4">Facebook & Other Cookies</h1>
 			<p className="leading-relaxed text-sm text-justify">
-				Pickaboo.com also uses various social media and advertising platforms. Renowned platforms like Facebook, Twitter & many other sites use Cookies if the user has an account or uses those Services, including their website, android/iOS apps (whether or not you are registered or logged in), or visit other websites and apps that use their Services (including the Like/Call to Action button or their advertising tools).
+				Foxybd.com also uses various social media and advertising platforms. Renowned platforms like Facebook, Twitter & many other sites use Cookies if the user has an account or uses those Services, including their website, android/iOS apps (whether or not you are registered or logged in), or visit other websites and apps that use their Services (including the Like/Call to Action button or their advertising tools).
 			</p>
 			<p className="leading-relaxed text-sm text-justify">
 				Cookies help those platforms to provide, protect and improve their services, such as, personalizing the content, tailoring and measuring advertisements, and providing a safer and user friendly experience.

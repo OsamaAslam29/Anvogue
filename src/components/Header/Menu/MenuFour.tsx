@@ -57,7 +57,7 @@ const MenuFour: React.FC<Props> = ({ props }) => {
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
-    }, [lastScrollPosition]);
+    }, []);
 
     const handleGenderClick = (gender: string) => {
         router.push(`/shop/breadcrumb1?gender=${gender}`);

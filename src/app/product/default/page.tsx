@@ -22,7 +22,7 @@ const ProductDefault = () => {
         if (productId) {
             ProductService.getById(productId, dispatch)
         }
-    }, [productId, dispatch])
+    }, [])
 
     if (productId === null) {
         productId = '1'

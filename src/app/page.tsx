@@ -35,7 +35,7 @@ export default function Home() {
     ProductService.getAll(dispatch)
     CategoryService.getAll(dispatch)
 
-  }, [dispatch])
+  }, [])
 
   return (
     <>

@@ -47,7 +47,7 @@ export default function RootLayout({
           <html lang="en">
             <body className={instrument.className}>
               <Snackbar>
-                <SliderPromotionalBanner />
+                {/* <SliderPromotionalBanner /> */}
                 <TopBar />
                 {children}
                 <Footer />

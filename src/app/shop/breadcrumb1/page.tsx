@@ -16,7 +16,7 @@ export default function BreadCrumb1() {
 
     useEffect(() => {
         setType(datatype);
-    }, [datatype]);
+    }, []);
     
 
     return (

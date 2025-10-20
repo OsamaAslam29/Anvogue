@@ -43,7 +43,7 @@ const SliderMarketplace = () => {
             setFeaturedCategories(slides)
             setSwiperKey(prev => prev + 1)
         }
-    }, [categories]);
+    }, []);
 
     const fallbackSlides: SlideData[] = [
         {

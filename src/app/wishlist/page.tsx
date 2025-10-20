@@ -133,7 +133,7 @@ const Wishlist = () => {
     if (pageCount === 0) {
       setCurrentPage(0);
     }
-  }, [pageCount]);
+  }, []);
 
   // Get product data for current page
   let currentProducts: any;

@@ -13,7 +13,7 @@ const useMenuMobile = () => {
         if (openMenuMobile && !targetElement.closest('#menu-mobile')) {
             setOpenMenuMobile(false)
         }
-    }, [openMenuMobile]);
+    }, []);
 
     useEffect(() => {
         document.addEventListener('click', handleClickOutsideMenuMobile);
@@ -21,7 +21,7 @@ const useMenuMobile = () => {
         return () => {
             document.removeEventListener('click', handleClickOutsideMenuMobile);
         };
-    }, [handleClickOutsideMenuMobile, openMenuMobile])
+    }, [])
 
     return {
         openMenuMobile,

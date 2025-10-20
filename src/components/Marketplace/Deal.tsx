@@ -70,7 +70,7 @@ const Deal = ({ categories, products }: DealProps) => {
     // Force re-render of Swiper components to prevent DOM errors
     useEffect(() => {
         setSwiperKey(prev => prev + 1)
-    }, [categories, products])
+    }, [])
 
     const handleDetailProduct = (productId: string) => {
         router.push(`/product/default?id=${productId}`);

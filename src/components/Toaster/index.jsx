@@ -15,7 +15,7 @@ const Toaster = () => {
     const error = (msg) => msg && enqueueSnackbar(msg, { variant: 'error' });
 
     ToasterService.subscribe(success, error);
-  }, [enqueueSnackbar]);
+  }, []);
 
   return null;
 };
