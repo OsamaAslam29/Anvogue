@@ -6,7 +6,6 @@ import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useRouter } from "next/navigation";
 import SubscriptionService from "@/services/subscription";
 import logo from "../../../public/logo.png";
-import "./Footer.scss";
 
 const Footer = () => {
   const navigate = useRouter();
@@ -48,7 +47,7 @@ const Footer = () => {
                     alt={"Foxybd Logo"}
                     width={3000}
                     height={2000}
-                    className="footerLogo"
+                    className="w-20 h-20 rounded-[50%] flex items-center justify-center"
                   />
                 </Link>
                 <div className="mt-4">

@@ -9,7 +9,7 @@ import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import useLoginPopup from "@/store/useLoginPopup";
 import Image from "next/image";
-import logo from '../../../../public/logo.png'
+import logo from "../../../../public/logo.png";
 
 const TopBar = () => {
   const router = useRouter();
@@ -45,7 +45,7 @@ const TopBar = () => {
                 alt="logo"
                 width={100}
                 height={100}
-                className="w-30 h-30"
+                className="w-20 h-20 rounded-[50%]"
               />
             </div>
           </Link>
@@ -118,7 +118,7 @@ const TopBar = () => {
               >
                 <Icon.Heart weight="bold" size={24} color="white" />
               </div>
-              <div 
+              <div
                 className="cart-icon flex items-center relative cursor-pointer"
                 onClick={openModalCart}
               >
