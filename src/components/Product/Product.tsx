@@ -5,11 +5,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ProductType, LegacyProductType } from '@/type/ProductType'
 import * as Icon from "@phosphor-icons/react/dist/ssr";
-import { useCart } from '@/context/CartContext'
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/redux/store.d';
+import { cartActions } from '@/redux/slices/cartSlice';
+import { wishlistActions } from '@/redux/slices/wishlistSlice';
+import { compareActions } from '@/redux/slices/compareSlice';
 import { useModalCartContext } from '@/context/ModalCartContext'
-import { useWishlist } from '@/context/WishlistContext'
 import { useModalWishlistContext } from '@/context/ModalWishlistContext'
-import { useCompare } from '@/context/CompareContext'
 import { useModalCompareContext } from '@/context/ModalCompareContext'
 import { useModalQuickviewContext } from '@/context/ModalQuickviewContext'
 import { useRouter } from 'next/navigation'
@@ -26,15 +28,15 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
     const [activeColor, setActiveColor] = useState<string>('')
     const [activeSize, setActiveSize] = useState<string>('')
     const [openQuickShop, setOpenQuickShop] = useState<boolean>(false)
-    const { addToCart, updateCart, cartState } = useCart();
+    const dispatch = useDispatch();
+    const cartArray = useSelector((state: RootState) => state.cart.cartArray);
+    const wishlistArray = useSelector((state: RootState) => state.wishlist.wishlistArray);
+    const compareArray = useSelector((state: RootState) => state.compare.compareArray);
     const { openModalCart } = useModalCartContext()
-    const { addToWishlist, removeFromWishlist, wishlistState } = useWishlist();
     const { openModalWishlist } = useModalWishlistContext()
-    const { addToCompare, removeFromCompare, compareState } = useCompare();
     const { openModalCompare } = useModalCompareContext()
     const { openQuickview } = useModalQuickviewContext()
     const router = useRouter()
-    console.log('this is the compare state', compareState)
 
     const handleActiveColor = (item: string) => {
         setActiveColor(item)
@@ -45,34 +47,34 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
     }
 
     const handleAddToCart = () => {
-        if (!cartState.cartArray.find(item => item._id === data._id)) {
-            addToCart({ ...data });
-            updateCart(data._id, data.quantityPurchase, activeSize, activeColor)
+        if (!cartArray.find(item => item._id === data._id)) {
+            dispatch(cartActions.addToCart({ ...data }));
+            dispatch(cartActions.updateCart({ itemId: data._id, quantity: data.quantityPurchase, selectedSize: activeSize, selectedColor: activeColor }));
         } else {
-            updateCart(data._id, data.quantityPurchase, activeSize, activeColor)
+            dispatch(cartActions.updateCart({ itemId: data._id, quantity: data.quantityPurchase, selectedSize: activeSize, selectedColor: activeColor }));
         }
         openModalCart()
     };
 
     const handleAddToWishlist = () => {
-        // if product existed in wishlit, remove from wishlist and set state to false
-        if (wishlistState.wishlistArray.some(item => item._id === data._id)) {
-            removeFromWishlist(data._id);
+        // if product existed in wishlist, remove from wishlist and set state to false
+        if (wishlistArray.some(item => item._id === data._id)) {
+            dispatch(wishlistActions.removeFromWishlist(data._id));
         } else {
             // else, add to wishlist and set state to true
-            addToWishlist(data);
+            dispatch(wishlistActions.addToWishlist(data));
         }
         openModalWishlist();
     };
 
     const handleAddToCompare = () => {
-        // if product existed in wishlit, remove from wishlist and set state to false
-        if (compareState.compareArray.length < 3) {
-            if (compareState.compareArray.some(item => item._id === data._id)) {
-                removeFromCompare(data._id);
+        // if product existed in compare, remove from compare and set state to false
+        if (compareArray.length < 3) {
+            if (compareArray.some(item => item._id === data._id)) {
+                dispatch(compareActions.removeFromCompare(data._id));
             } else {
-                // else, add to wishlist and set state to true
-                addToCompare(data);
+                // else, add to compare and set state to true
+                dispatch(compareActions.addToCompare(data));
             }
         } else {
             alert('Compare up to 3 products')
@@ -115,7 +117,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                 <div className="list-action-right absolute top-3 right-3 max-lg:hidden">
                                     {style === 'style-4' && (
                                         <div
-                                            className={`add-cart-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative mb-2 ${compareState.compareArray.some(item => item._id === data.id) ? 'active' : ''}`}
+                                            className={`add-cart-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative mb-2 ${compareArray.some(item => item._id === data.id) ? 'active' : ''}`}
                                             onClick={e => {
                                                 e.stopPropagation();
                                                 handleAddToCart()
@@ -126,14 +128,14 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                         </div>
                                     )}
                                     <div
-                                        className={`add-wishlist-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistState.wishlistArray.some(item => item.id === data._id) ? 'active' : ''}`}
+                                        className={`add-wishlist-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistArray.some(item => item.id === data._id) ? 'active' : ''}`}
                                         onClick={(e) => {
                                             e.stopPropagation()
                                             handleAddToWishlist()
                                         }}
                                     >
                                         <div className="tag-action bg-black text-white caption2 px-1.5 py-0.5 rounded-sm">Add To Wishlist</div>
-                                        {wishlistState.wishlistArray.some(item => item._id === data._id) ? (
+                                        {wishlistArray.some(item => item._id === data._id) ? (
                                             <>
                                                 <Icon.Heart size={18} weight='fill' className='text-white' />
                                             </>
@@ -144,7 +146,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                         )}
                                     </div>
                                     <div
-                                        className={`compare-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative mt-2 ${compareState.compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                        className={`compare-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative mt-2 ${compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
                                         onClick={(e) => {
                                             e.stopPropagation()
                                             handleAddToCompare()
@@ -156,7 +158,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                     </div>
                                     {style === 'style-3' || style === 'style-4' ? (
                                         <div
-                                            className={`quick-view-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative mt-2 ${compareState.compareArray.some(item => item._id === data._id) ? 'active' : ''}`}
+                                            className={`quick-view-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative mt-2 ${compareArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 handleQuickviewOpen()
@@ -294,7 +296,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                     <div className={`list-action flex items-center justify-center gap-3 px-5 absolute w-full ${style === 'style-2' ? 'bottom-12' : 'bottom-5'} max-lg:hidden`}>
                                         {style === 'style-2' && (
                                             <div
-                                                className={`add-cart-btn w-9 h-9 flex items-center justify-center rounded-full bg-white duration-300 relative ${compareState.compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                                className={`add-cart-btn w-9 h-9 flex items-center justify-center rounded-full bg-white duration-300 relative ${compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
                                                 onClick={e => {
                                                     e.stopPropagation();
                                                     handleAddToCart()
@@ -305,14 +307,14 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                             </div>
                                         )}
                                         <div
-                                            className={`add-wishlist-btn w-9 h-9 flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistState.wishlistArray.some(item => item._id === data._id) ? 'active' : ''}`}
+                                            className={`add-wishlist-btn w-9 h-9 flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 handleAddToWishlist()
                                             }}
                                         >
                                             <div className="tag-action bg-black text-white caption2 px-1.5 py-0.5 rounded-sm">Add To Wishlist</div>
-                                            {wishlistState.wishlistArray.some(item => item._id === data._id) ? (
+                                            {wishlistArray.some(item => item._id === data._id) ? (
                                                 <>
                                                     <Icon.Heart size={18} weight='fill' className='text-white' />
                                                 </>
@@ -323,7 +325,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                             )}
                                         </div>
                                         <div
-                                            className={`compare-btn w-9 h-9 flex items-center justify-center rounded-full bg-white duration-300 relative ${compareState.compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                            className={`compare-btn w-9 h-9 flex items-center justify-center rounded-full bg-white duration-300 relative ${compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 handleAddToCompare()
@@ -334,7 +336,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                             <Icon.CheckCircle size={20} className='checked-icon' />
                                         </div>
                                         <div
-                                            className={`quick-view-btn w-9 h-9 flex items-center justify-center rounded-full bg-white duration-300 relative ${compareState.compareArray.some(item => item._id === data._id) ? 'active' : ''}`}
+                                            className={`quick-view-btn w-9 h-9 flex items-center justify-center rounded-full bg-white duration-300 relative ${compareArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 handleQuickviewOpen()
@@ -630,14 +632,14 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                             </div>
                                             <div className="list-action-right flex items-center justify-center gap-3 mt-4">
                                                 <div
-                                                    className={`add-wishlist-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistState.wishlistArray.some(item => item._id === data._id) ? 'active' : ''}`}
+                                                    className={`add-wishlist-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         handleAddToWishlist()
                                                     }}
                                                 >
                                                     <div className="tag-action bg-black text-white caption2 px-1.5 py-0.5 rounded-sm">Add To Wishlist</div>
-                                                    {wishlistState.wishlistArray.some(item => item._id === data._id) ? (
+                                                    {wishlistArray.some(item => item._id === data._id) ? (
                                                         <>
                                                             <Icon.Heart size={18} weight='fill' className='text-white' />
                                                         </>
@@ -648,7 +650,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                                     )}
                                                 </div>
                                                 <div
-                                                    className={`compare-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${compareState.compareArray.some(item => item._id === data._id) ? 'active' : ''}`}
+                                                    className={`compare-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${compareArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         handleAddToCompare()
@@ -687,13 +689,13 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                         <Image className='w-full aspect-square' width={5000} height={5000} src={data.images[0]?.Location} alt="img" />
                         <div className="list-action flex flex-col gap-1 absolute top-0 right-0">
                             <span
-                                className={`add-wishlist-btn w-8 h-8 bg-white flex items-center justify-center rounded-full box-shadow-sm duration-300 ${wishlistState.wishlistArray.some(item => item._id === data._id) ? 'active' : ''}`}
+                                className={`add-wishlist-btn w-8 h-8 bg-white flex items-center justify-center rounded-full box-shadow-sm duration-300 ${wishlistArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     handleAddToWishlist()
                                 }}
                             >
-                                {wishlistState.wishlistArray.some(item => item._id === data._id) ? (
+                                {wishlistArray.some(item => item._id === data._id) ? (
                                     <>
                                         <Icon.Heart size={18} weight='fill' className='text-white' />
                                     </>
@@ -704,7 +706,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                 )}
                             </span>
                             <span
-                                className={`compare-btn w-8 h-8 bg-white flex items-center justify-center rounded-full box-shadow-sm duration-300 ${compareState.compareArray.some(item => item._id === data._id) ? 'active' : ''}`}
+                                className={`compare-btn w-8 h-8 bg-white flex items-center justify-center rounded-full box-shadow-sm duration-300 ${compareArray.some(item => item._id === data._id) ? 'active' : ''}`}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     handleAddToCompare()

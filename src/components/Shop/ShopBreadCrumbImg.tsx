@@ -88,7 +88,7 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, ca
         const newRange = calculatePriceRange();
         setPriceRange(newRange);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data]);
+    }, []);
 
     const handleLayoutCol = (col: number) => {
         setLayoutCol(col)

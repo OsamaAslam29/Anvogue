@@ -51,7 +51,7 @@ const SearchResult = () => {
     const newRange = calculatePriceRange();
     setPriceRange(newRange);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [products]);
+  }, []);
 
   const router = useRouter();
 

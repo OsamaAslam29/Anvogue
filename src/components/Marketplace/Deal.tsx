@@ -50,13 +50,13 @@ const convertToLegacyProduct = (product: any) => {
         quantityPurchase: 1,
         size: product.size || [],
         materialId: product.materialId || [],
-        colors: product.colors || [],
-        variation: (product.colors || []).map((color, index) => ({
-            color: color.replace(/[\[\]"]/g, ''),
-            colorCode: '#000000',
-            colorImage: product.images?.[0]?.Location || '',
-            image: product.images?.[0]?.Location || ''
-        })),
+        colors: product.colors,
+        // variation: (product.colors || []).map((color, index) => ({
+        //     color: color.replace(/[\[\]"]/g, ''),
+        //     colorCode: '#000000',
+        //     colorImage: product.images?.[0]?.Location || '',
+        //     image: product.images?.[0]?.Location || ''
+        // })),
         thumbImage: (product.images || []),
         images: (product?.images || []),
         description: product?.detail || '',

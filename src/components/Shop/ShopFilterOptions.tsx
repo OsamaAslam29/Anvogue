@@ -49,7 +49,7 @@ const ShopFilterOptions: React.FC<Props> = ({ data, productPerPage }) => {
         const newRange = calculatePriceRange();
         setPriceRange(newRange);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data]);
+    }, []);
 
     const handleLayoutCol = (col: number) => {
         setLayoutCol(col)
@@ -188,10 +188,12 @@ const ShopFilterOptions: React.FC<Props> = ({ data, productPerPage }) => {
     // Find page number base on filteredData
     const pageCount = Math.ceil(filteredData.length / productsPerPage);
 
-    // If page number 0, set current page = 0
-    if (pageCount === 0) {
-        setCurrentPage(0);
-    }
+    // When page count shrinks to 0 after filters, reset current page safely
+    useEffect(() => {
+        if (pageCount === 0 && currentPage !== 0) {
+            setCurrentPage(0);
+        }
+    }, [pageCount]);
 
     // Get product data for current page
     let currentProducts: ProductType[];

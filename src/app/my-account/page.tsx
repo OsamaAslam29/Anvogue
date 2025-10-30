@@ -25,9 +25,7 @@ const MyAccount = () => {
 
     return (
         <>
-            <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
             <div id="header" className='relative w-full'>
-                <MenuOne props="bg-transparent" />
                 <Breadcrumb heading='My Account' subHeading='My Account' />
             </div>
             <div className="profile-block md:py-20 py-10">

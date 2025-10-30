@@ -35,9 +35,7 @@ const BlogDetailTwo = () => {
 
     return (
         <>
-            <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
             <div id="header" className='relative w-full'>
-                <MenuOne props="bg-white" />
             </div>
             <div className='blog detail2 md:mt-[74px] mt-[56px] border-t border-line'>
                 <div className="container lg:pt-20 md:pt-14 pt-10">

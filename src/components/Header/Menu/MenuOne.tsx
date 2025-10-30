@@ -12,7 +12,8 @@ import useMenuMobile from '@/store/useMenuMobile';
 import { useModalCartContext } from '@/context/ModalCartContext';
 import { useModalWishlistContext } from '@/context/ModalWishlistContext';
 import { useModalSearchContext } from '@/context/ModalSearchContext';
-import { useCart } from '@/context/CartContext';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store.d';
 import { useRouter } from 'next/navigation';
 
 interface Props {
@@ -27,7 +28,7 @@ const MenuOne: React.FC<Props> = ({ props }) => {
     const { openMenuMobile, handleMenuMobile } = useMenuMobile()
     const [openSubNavMobile, setOpenSubNavMobile] = useState<number | null>(null)
     const { openModalCart } = useModalCartContext()
-    const { cartState } = useCart()
+    const cartArray = useSelector((state: RootState) => state.cart.cartArray);
     const { openModalWishlist } = useModalWishlistContext()
     const { openModalSearch } = useModalSearchContext()
 
@@ -40,9 +41,11 @@ const MenuOne: React.FC<Props> = ({ props }) => {
 
     useEffect(() => {
         const handleScroll = () => {
-            const scrollPosition = window.scrollY;
-            setFixedHeader(scrollPosition > 0 && scrollPosition < lastScrollPosition);
-            setLastScrollPosition(scrollPosition);
+            setLastScrollPosition((prevScrollPosition) => {
+                const scrollPosition = window.scrollY;
+                setFixedHeader(scrollPosition > 0 && scrollPosition < prevScrollPosition);
+                return scrollPosition;
+            });
         };
 
         // Gắn sự kiện cuộn khi component được mount
@@ -1114,7 +1117,7 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                         </div>
                                         <Link href={'/my-account'} className="button-main bg-white text-black border border-black w-full text-center">Dashboard</Link>
                                         <div className="bottom mt-4 pt-4 border-t border-line"></div>
-                                        <Link href={'#!'} className='body1 hover:underline'>Support</Link>
+                                        {/* <Link href={'#!'} className='body1 hover:underline'>Support</Link> */}
                                     </div>
                                 </div>
                                 <div className="max-md:hidden wishlist-icon flex items-center cursor-pointer" onClick={openModalWishlist}>
@@ -1122,7 +1125,7 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                 </div>
                                 <div className="cart-icon flex items-center relative cursor-pointer" onClick={openModalCart}>
                                     <Icon.Handbag size={24} color='black' />
-                                    <span className="quantity cart-quantity absolute -right-1.5 -top-1.5 text-xs text-white bg-black w-4 h-4 flex items-center justify-center rounded-full">{cartState.cartArray.length}</span>
+                                    <span className="quantity cart-quantity absolute -right-1.5 -top-1.5 text-xs text-white bg-black w-4 h-4 flex items-center justify-center rounded-full">{cartArray.length}</span>
                                 </div>
                             </div>
                         </div>
@@ -2167,7 +2170,7 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                     <Link href={'/cart'} className='menu_bar-link flex flex-col items-center gap-1'>
                         <div className="icon relative">
                             <Icon.Handbag weight='bold' className='text-2xl' />
-                            <span className="quantity cart-quantity absolute -right-1.5 -top-1.5 text-xs text-white bg-black w-4 h-4 flex items-center justify-center rounded-full">{cartState.cartArray.length}</span>
+                            <span className="quantity cart-quantity absolute -right-1.5 -top-1.5 text-xs text-white bg-black w-4 h-4 flex items-center justify-center rounded-full">{cartArray.length}</span>
                         </div>
                         <span className="menu_bar-title caption2 font-semibold">Cart</span>
                     </Link>

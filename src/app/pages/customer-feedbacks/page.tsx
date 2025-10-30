@@ -10,9 +10,7 @@ import Footer from '@/components/Footer/Footer'
 const CustomerFeedbacks = () => {
     return (
         <>
-            <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
             <div id="header" className='relative w-full'>
-                <MenuOne props="bg-transparent" />
                 <Breadcrumb heading='Customer Feedbacks' subHeading='Customer Feedbacks' />
             </div>
             <div className='customer-feedbacks md:py-20 py-10'>

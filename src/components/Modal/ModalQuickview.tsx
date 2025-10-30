@@ -6,11 +6,13 @@ import Image from "next/image";
 import { ProductType } from "@/type/ProductType";
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useModalQuickviewContext } from "@/context/ModalQuickviewContext";
-import { useCart } from "@/context/CartContext";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/redux/store.d';
+import { cartActions } from '@/redux/slices/cartSlice';
+import { wishlistActions } from '@/redux/slices/wishlistSlice';
+import { compareActions } from '@/redux/slices/compareSlice';
 import { useModalCartContext } from "@/context/ModalCartContext";
-import { useWishlist } from "@/context/WishlistContext";
 import { useModalWishlistContext } from "@/context/ModalWishlistContext";
-import { useCompare } from "@/context/CompareContext";
 import { useModalCompareContext } from "@/context/ModalCompareContext";
 import ModalSizeguide from "./ModalSizeguide";
 
@@ -22,12 +24,37 @@ const ModalQuickview = () => {
   };
   const [activeColor, setActiveColor] = useState<string>("");
   const [activeSize, setActiveSize] = useState<string>("");
-  const { addToCart, updateCart, cartState } = useCart();
+  const dispatch = useDispatch();
+  const cartArray = useSelector((state: RootState) => state.cart.cartArray);
+  const wishlistArray = useSelector((state: RootState) => state.wishlist.wishlistArray);
+  const compareArray = useSelector((state: RootState) => state.compare.compareArray);
   const { openModalCart } = useModalCartContext();
-  const { addToWishlist, removeFromWishlist, wishlistState } = useWishlist();
   const { openModalWishlist } = useModalWishlistContext();
-  const { addToCompare, removeFromCompare, compareState } = useCompare();
   const { openModalCompare } = useModalCompareContext();
+  
+  const addToCart = (item: any) => {
+    dispatch(cartActions.addToCart(item));
+  };
+  
+  const updateCart = (itemId: string, quantity: number, selectedSize: string, selectedColor: string) => {
+    dispatch(cartActions.updateCart({ itemId, quantity, selectedSize, selectedColor }));
+  };
+  
+  const addToWishlist = (item: any) => {
+    dispatch(wishlistActions.addToWishlist(item));
+  };
+  
+  const removeFromWishlist = (itemId: string) => {
+    dispatch(wishlistActions.removeFromWishlist(itemId));
+  };
+  
+  const addToCompare = (item: any) => {
+    dispatch(compareActions.addToCompare(item));
+  };
+  
+  const removeFromCompare = (itemId: string) => {
+    dispatch(compareActions.removeFromCompare(itemId));
+  };
   const percentSale =
     selectedProduct &&
     typeof selectedProduct.actualPrice === "number" &&
@@ -84,7 +111,7 @@ const ModalQuickview = () => {
 
   const handleAddToCart = () => {
     if (selectedProduct) {
-      if (!cartState.cartArray.find((item) => item._id === selectedProduct._id)) {
+      if (!cartArray.find((item) => item._id === selectedProduct._id)) {
         addToCart({ ...selectedProduct });
         updateCart(
           selectedProduct._id,
@@ -109,7 +136,7 @@ const ModalQuickview = () => {
     // if product existed in wishlit, remove from wishlist and set state to false
     if (selectedProduct) {
       if (
-        wishlistState.wishlistArray.some(
+        wishlistArray.some(
           (item) => item._id === selectedProduct._id
         )
       ) {
@@ -125,9 +152,9 @@ const ModalQuickview = () => {
   const handleAddToCompare = () => {
     // if product existed in wishlit, remove from wishlist and set state to false
     if (selectedProduct) {
-      if (compareState.compareArray.length < 3) {
+      if (compareArray.length < 3) {
         if (
-          compareState.compareArray.some(
+          compareArray.some(
             (item) => item._id === selectedProduct._id
           )
         ) {
@@ -194,7 +221,7 @@ const ModalQuickview = () => {
                   </div>
                   <div
                     className={`add-wishlist-btn w-10 h-10 flex items-center justify-center border border-line cursor-pointer rounded-lg duration-300 flex-shrink-0 hover:bg-black hover:text-white ${
-                      wishlistState.wishlistArray.some(
+                      wishlistArray.some(
                         (item) => item._id === selectedProduct?._id
                       )
                         ? "active"
@@ -202,7 +229,7 @@ const ModalQuickview = () => {
                     }`}
                     onClick={handleAddToWishlist}
                   >
-                    {wishlistState.wishlistArray.some(
+                    {wishlistArray.some(
                       (item) => item._id === selectedProduct?._id
                     ) ? (
                       <>
@@ -258,18 +285,7 @@ const ModalQuickview = () => {
                         <span className="text-title color">{activeColor || 'Select a color'}</span>
                       </div>
                       <div className="list-color flex items-center gap-2 flex-wrap mt-3">
-                        {selectedProduct.colors.map((color: any, index: number) => {
-                          // Parse the color string if it's JSON
-                          let colorName = color;
-                          try {
-                            if (typeof color === 'string' && color.startsWith('[')) {
-                              colorName = JSON.parse(color)[0];
-                            }
-                          } catch (e) {
-                            // If parsing fails, use the original color
-                            colorName = color;
-                          }
-                          return (
+                        {selectedProduct.colors.map((colorName: string, index: number) => (
                             <div
                               className={`color-item w-12 h-12 rounded-xl duration-300 relative border border-line ${
                                 activeColor === colorName ? "active" : ""
@@ -281,14 +297,13 @@ const ModalQuickview = () => {
                             >
                               <div
                                 className="w-full h-full rounded-xl"
-                                style={{ backgroundColor: colorName.toLowerCase() }}
+                                style={{ backgroundColor: colorName?.toLowerCase() }}
                               />
                               <div className="tag-action bg-black text-white caption2 capitalize px-1.5 py-0.5 rounded-sm">
                                 {colorName}
                               </div>
                             </div>
-                          );
-                        })}
+                        ))}
                       </div>
                     </div>
                   )}
@@ -299,12 +314,12 @@ const ModalQuickview = () => {
                           Size:{" "}
                           <span className="text-title size">{activeSize || 'Select a size'}</span>
                         </div>
-                        <div
+                        {/* <div
                           className="caption1 size-guide text-red underline cursor-pointer"
                           onClick={handleOpenSizeGuide}
                         >
                           Size Guide
-                        </div>
+                        </div> */}
                         <ModalSizeguide
                           data={selectedProduct}
                           isOpen={openSizeGuide}
@@ -312,18 +327,7 @@ const ModalQuickview = () => {
                         />
                       </div>
                       <div className="list-size flex items-center gap-2 flex-wrap mt-3">
-                        {selectedProduct.size.map((item: any, index: number) => {
-                          // Parse the size string if it's JSON
-                          let sizeName = item;
-                          try {
-                            if (typeof item === 'string' && item.startsWith('[')) {
-                              sizeName = JSON.parse(item)[0];
-                            }
-                          } catch (e) {
-                            // If parsing fails, use the original item
-                            sizeName = item;
-                          }
-                          return (
+                        {selectedProduct.size.map((sizeName: string, index: number) => (
                             <div
                               className={`size-item ${
                                 sizeName === "freesize" ? "px-3 py-2" : "w-12 h-12"
@@ -335,8 +339,7 @@ const ModalQuickview = () => {
                             >
                               {sizeName}
                             </div>
-                          );
-                        })}
+                        ))}
                       </div>
                     </div>
                   )}

@@ -11,11 +11,13 @@ import { Navigation, Thumbs, Scrollbar } from 'swiper/modules';
 import 'swiper/css/bundle';
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 import SwiperCore from 'swiper/core';
-import { useCart } from '@/context/CartContext'
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/redux/store.d';
+import { cartActions } from '@/redux/slices/cartSlice';
+import { wishlistActions } from '@/redux/slices/wishlistSlice';
+import { compareActions } from '@/redux/slices/compareSlice';
 import { useModalCartContext } from '@/context/ModalCartContext'
-import { useWishlist } from '@/context/WishlistContext'
 import { useModalWishlistContext } from '@/context/ModalWishlistContext'
-import { useCompare } from '@/context/CompareContext'
 import { useModalCompareContext } from '@/context/ModalCompareContext'
 import ModalSizeguide from '@/components/Modal/ModalSizeguide'
 
@@ -35,12 +37,38 @@ const Default: React.FC<any> = ({ product, productId }) => {
     const [activeColor, setActiveColor] = useState<string>('')
     const [activeSize, setActiveSize] = useState<string>('')
     const [activeTab, setActiveTab] = useState<string | undefined>('description')
-    const { addToCart, updateCart, cartState } = useCart()
+    const dispatch = useDispatch();
+    const cartArray = useSelector((state: RootState) => state.cart.cartArray);
+    const wishlistArray = useSelector((state: RootState) => state.wishlist.wishlistArray);
+    const compareArray = useSelector((state: RootState) => state.compare.compareArray);
     const { openModalCart } = useModalCartContext()
-    const { addToWishlist, removeFromWishlist, wishlistState } = useWishlist()
     const { openModalWishlist } = useModalWishlistContext()
-    const { addToCompare, removeFromCompare, compareState } = useCompare();
     const { openModalCompare } = useModalCompareContext()
+    
+    const addToCart = (item: any) => {
+        dispatch(cartActions.addToCart(item));
+    };
+    
+    const updateCart = (itemId: string, quantity: number, selectedSize: string, selectedColor: string) => {
+        dispatch(cartActions.updateCart({ itemId, quantity, selectedSize, selectedColor }));
+    };
+    
+    const addToWishlist = (item: any) => {
+        dispatch(wishlistActions.addToWishlist(item));
+    };
+    
+    const removeFromWishlist = (itemId: string) => {
+        dispatch(wishlistActions.removeFromWishlist(itemId));
+    };
+    
+    const addToCompare = (item: any) => {
+        dispatch(compareActions.addToCompare(item));
+    };
+    
+    const removeFromCompare = (itemId: string) => {
+        dispatch(compareActions.removeFromCompare(itemId));
+    };
+    
     // Use the product passed as prop
     const productMain = product
     console.log('this is teh product', productMain)
@@ -97,7 +125,7 @@ const Default: React.FC<any> = ({ product, productId }) => {
     };
 
     const handleAddToCart = () => {
-        if (!cartState.cartArray.find(item => item._id === productMain._id)) {
+        if (!cartArray.find(item => item._id === productMain._id)) {
             addToCart({ ...productMain });
             updateCart(productMain._id, quantity, activeSize, activeColor)
         } else {
@@ -108,7 +136,7 @@ const Default: React.FC<any> = ({ product, productId }) => {
 
     const handleAddToWishlist = () => {
         // if product existed in wishlit, remove from wishlist and set state to false
-        if (wishlistState.wishlistArray.some(item => item._id === productMain._id)) {
+        if (wishlistArray.some(item => item._id === productMain._id)) {
             removeFromWishlist(productMain._id);
         } else {
             // else, add to wishlist and set state to true
@@ -119,8 +147,8 @@ const Default: React.FC<any> = ({ product, productId }) => {
 
     const handleAddToCompare = () => {
         // if product existed in wishlit, remove from wishlist and set state to false
-        if (compareState.compareArray.length < 3) {
-            if (compareState.compareArray.some(item => item._id === productMain._id)) {
+        if (compareArray.length < 3) {
+            if (compareArray.some(item => item._id === productMain._id)) {
                 removeFromCompare(productMain._id);
             } else {
                 // else, add to wishlist and set state to true
@@ -243,10 +271,10 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                     <div className="heading4 mt-1">{productMain.title}</div>
                                 </div>
                                 <div
-                                    className={`add-wishlist-btn w-12 h-12 flex items-center justify-center border border-line cursor-pointer rounded-xl duration-300 hover:bg-black hover:text-white ${wishlistState.wishlistArray.some(item => item._id === productMain._id) ? 'active' : ''}`}
+                                    className={`add-wishlist-btn w-12 h-12 flex items-center justify-center border border-line cursor-pointer rounded-xl duration-300 hover:bg-black hover:text-white ${wishlistArray.some(item => item._id === productMain._id) ? 'active' : ''}`}
                                     onClick={handleAddToWishlist}
                                 >
-                                    {wishlistState.wishlistArray.some(item => item._id === productMain._id) ? (
+                                    {wishlistArray.some(item => item._id === productMain._id) ? (
                                         <>
                                             <Icon.Heart size={24} weight='fill' className='text-white' />
                                         </>
@@ -294,35 +322,23 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                     <div className="choose-color">
                                         <div className="text-title">Colors: <span className='text-title color'>{activeColor || 'Select a color'}</span></div>
                                         <div className="list-color flex items-center gap-2 flex-wrap mt-3">
-                                            {productMain.colors.map((color, index) => {
-                                                // Parse the color string if it's JSON
-                                                let colorName = color;
-                                                try {
-                                                    if (typeof color === 'string' && color.startsWith('[')) {
-                                                        colorName = JSON.parse(color)[0];
-                                                    }
-                                                } catch (e) {
-                                                    // If parsing fails, use the original color
-                                                    colorName = color;
-                                                }
-                                                return (
+                                            {productMain.colors.map((colorName: string, index: number) => (
+                                                <div
+                                                    className={`color-item w-12 h-12 rounded-xl duration-300 relative  ${activeColor === colorName ? 'active' : ''}`}
+                                                    key={index}
+                                                    onClick={() => {
+                                                        handleActiveColor(colorName)
+                                                    }}
+                                                >
                                                     <div
-                                                        className={`color-item w-12 h-12 rounded-xl duration-300 relative  ${activeColor === colorName ? 'active' : ''}`}
-                                                        key={index}
-                                                        onClick={() => {
-                                                            handleActiveColor(colorName)
-                                                        }}
-                                                    >
-                                                        <div
-                                                            className="w-full h-full rounded-xl border border-line"
-                                                            style={{ backgroundColor: colorName?.toLowerCase() }}
-                                                        />
-                                                        <div className="tag-action bg-black text-white caption2 capitalize px-1.5 py-0.5 rounded-sm">
-                                                            {colorName}
-                                                        </div>
+                                                        className="w-full h-full rounded-xl border border-line"
+                                                        style={{ backgroundColor: colorName?.toLowerCase() }}
+                                                    />
+                                                    <div className="tag-action bg-black text-white caption2 capitalize px-1.5 py-0.5 rounded-sm">
+                                                        {colorName}
                                                     </div>
-                                                );
-                                            })}
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 )}
@@ -330,36 +346,24 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                     <div className={`choose-size ${productMain.colors && productMain.colors.length > 0 ? 'mt-5' : ''}`}>
                                         <div className="heading flex items-center justify-between">
                                             <div className="text-title">Size: <span className='text-title size'>{activeSize || 'Select a size'}</span></div>
-                                            <div
+                                            {/* <div
                                                 className="caption1 size-guide text-red underline cursor-pointer"
                                                 onClick={handleOpenSizeGuide}
                                             >
                                                 Size Guide
-                                            </div>
+                                            </div> */}
                                             <ModalSizeguide data={productMain} isOpen={openSizeGuide} onClose={handleCloseSizeGuide} />
                                         </div>
                                         <div className="list-size flex items-center gap-2 flex-wrap mt-3">
-                                            {productMain.size.map((item, index) => {
-                                                // Parse the size string if it's JSON
-                                                let sizeName = item;
-                                                try {
-                                                    if (typeof item === 'string' && item.startsWith('[')) {
-                                                        sizeName = JSON.parse(item)[0];
-                                                    }
-                                                } catch (e) {
-                                                    // If parsing fails, use the original item
-                                                    sizeName = item;
-                                                }
-                                                return (
-                                                    <div
-                                                        className={`size-item ${sizeName === 'freesize' ? 'px-3 py-2' : 'w-12 h-12'} flex items-center justify-center text-button rounded-full bg-white border border-line cursor-pointer ${activeSize === sizeName ? 'active' : ''}`}
-                                                        key={index}
-                                                        onClick={() => handleActiveSize(sizeName)}
-                                                    >
-                                                        {sizeName}
-                                                    </div>
-                                                );
-                                            })}
+                                            {productMain.size.map((sizeName: string, index: number) => (
+                                                <div
+                                                    className={`size-item ${sizeName === 'freesize' ? 'px-3 py-2' : 'w-12 h-12'} flex items-center justify-center text-button rounded-full bg-white border border-line cursor-pointer ${activeSize === sizeName ? 'active' : ''}`}
+                                                    key={index}
+                                                    onClick={() => handleActiveSize(sizeName)}
+                                                >
+                                                    {sizeName}
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 )}
