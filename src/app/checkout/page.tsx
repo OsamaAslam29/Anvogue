@@ -2,30 +2,151 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import TopNavOne from "@/components/Header/TopNav/TopNavOne";
 import MenuOne from "@/components/Header/Menu/MenuOne";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import Footer from "@/components/Footer/Footer";
 import * as Icon from "@phosphor-icons/react/dist/ssr";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store.d";
 import { useSearchParams } from "next/navigation";
+import OrderService from "@/services/order.service";
+import { cartActions } from "@/redux/slices/cartSlice";
 
 const Checkout = () => {
+  const router = useRouter();
+  const dispatch = useDispatch();
   const searchParams = useSearchParams();
   let discount = searchParams.get("discount");
   let ship = searchParams.get("ship");
 
   const cartArray = useSelector((state: RootState) => state.cart.cartArray);
-  const [activePayment, setActivePayment] = useState<string>("credit-card");
+  const [activePayment] = useState<string>("cash-delivery"); // COD is default
+
+  // Form state for shipping address
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    country: "",
+    city: "",
+    address: "",
+    postalCode: "",
+    note: "",
+  });
+
+  // Loading and error states
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Calculate total cart
   const totalCart = cartArray.reduce((total, item) => {
     return total + item.discountPrice * item.quantity;
   }, 0);
 
-  const handlePayment = (item: string) => {
-    setActivePayment(item);
+  // Calculate subtotal
+  const subtotal = totalCart - Number(discount || 0);
+
+  // Calculate tax (10% of subtotal, or you can adjust this)
+  const tax = Math.round(subtotal * 0.0 * 100) / 100;
+
+  // Calculate total price
+  const totalPrice = subtotal + tax + Number(ship || 0);
+
+  // Handle input changes
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setError(null); // Clear error on input change
+  };
+
+  // Handle place order
+  const handlePlaceOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate form
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.email ||
+      !formData.phoneNumber ||
+      !formData.country ||
+      !formData.city ||
+      !formData.address ||
+      !formData.postalCode
+    ) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    // Build products array from cart
+    const products = cartArray.map((item) => ({
+      productId: item._id || item.id,
+      price: item.discountPrice,
+      quantity: item.quantity,
+      totalPrice: item.discountPrice * item.quantity,
+      selectedColor: item.selectedColor || (item.colors && item.colors.length > 0 ? item.colors[0] : null),
+      selectedSize: item.selectedSize || (item.size && item.size.length > 0 ? item.size[0] : null),
+    }));
+
+    // Build order payload
+    const orderPayload = {
+      products,
+      subtotal,
+      discount: Number(discount || 0),
+      tax,
+      totalPrice,
+      shippingAddress: {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        address: formData.address,
+        city: formData.city,
+        postalCode: formData.postalCode,
+        country: formData.country,
+      },
+    };
+
+    try {
+      const [result, error] = await OrderService.create(orderPayload);
+
+      if (error) {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to place order. Please try again.";
+        setError(errorMessage);
+        setIsLoading(false);
+        return;
+      }
+
+      if (result) {
+        // Clear cart on success
+        dispatch(cartActions.clearCart());
+        
+        // Redirect to order success page or my account
+        router.push("/my-account");
+      } else {
+        setError("Failed to place order. Please try again.");
+        setIsLoading(false);
+      }
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred");
+      setIsLoading(false);
+    }
   };
 
   // Check if cart is empty
@@ -63,19 +184,19 @@ const Checkout = () => {
           <div className="content-main flex justify-between">
             <div className="left w-1/2">
               <div className="login bg-surface py-3 px-4 flex justify-between rounded-lg">
-                <div className="left flex items-center">
+                {/* <div className="left flex items-center">
                   <span className="text-on-surface-variant1 pr-4">
                     Already have an account?{" "}
                   </span>
                   <span className="text-button text-on-surface hover-underline cursor-pointer">
                     Login
                   </span>
-                </div>
+                </div> */}
                 <div className="right">
                   <i className="ph ph-caret-down fs-20 d-block cursor-pointer"></i>
                 </div>
               </div>
-              <div className="form-login-block mt-3">
+              {/* <div className="form-login-block mt-3">
                 <form className="p-5 border border-line rounded-lg">
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div className="email ">
@@ -103,18 +224,26 @@ const Checkout = () => {
                     </button>
                   </div>
                 </form>
-              </div>
+              </div> */}
               <div className="information mt-5">
                 <div className="heading5">Information</div>
                 <div className="form-checkout mt-5">
-                  <form>
+                  <form onSubmit={handlePlaceOrder}>
+                    {error && (
+                      <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+                        {error}
+                      </div>
+                    )}
                     <div className="grid sm:grid-cols-2 gap-4 gap-y-5 flex-wrap">
                       <div className="">
                         <input
                           className="border-line px-4 py-3 w-full rounded-lg"
                           id="firstName"
+                          name="firstName"
                           type="text"
                           placeholder="First Name *"
+                          value={formData.firstName}
+                          onChange={handleInputChange}
                           required
                         />
                       </div>
@@ -122,8 +251,11 @@ const Checkout = () => {
                         <input
                           className="border-line px-4 py-3 w-full rounded-lg"
                           id="lastName"
+                          name="lastName"
                           type="text"
                           placeholder="Last Name *"
+                          value={formData.lastName}
+                          onChange={handleInputChange}
                           required
                         />
                       </div>
@@ -131,8 +263,11 @@ const Checkout = () => {
                         <input
                           className="border-line px-4 py-3 w-full rounded-lg"
                           id="email"
+                          name="email"
                           type="email"
                           placeholder="Email Address *"
+                          value={formData.email}
+                          onChange={handleInputChange}
                           required
                         />
                       </div>
@@ -140,24 +275,25 @@ const Checkout = () => {
                         <input
                           className="border-line px-4 py-3 w-full rounded-lg"
                           id="phoneNumber"
-                          type="number"
+                          name="phoneNumber"
+                          type="tel"
                           placeholder="Phone Numbers *"
+                          value={formData.phoneNumber}
+                          onChange={handleInputChange}
                           required
                         />
                       </div>
                       <div className="col-span-full select-block">
                         <select
                           className="border border-line px-4 py-3 w-full rounded-lg"
-                          id="region"
-                          name="region"
-                          defaultValue={"default"}
+                          id="country"
+                          name="country"
+                          value={formData.country}
+                          onChange={handleInputChange}
+                          required
                         >
-                          <option value="default" disabled>
-                            Choose Country/Region
-                          </option>
-                          <option value="India">India</option>
-                          <option value="France">France</option>
-                          <option value="Singapore">Singapore</option>
+                          <option value="">Choose Country/Region *</option>
+                          <option value="Bangladash">Bangladash</option>
                         </select>
                         <Icon.CaretDown className="arrow-down" />
                       </div>
@@ -165,42 +301,35 @@ const Checkout = () => {
                         <input
                           className="border-line px-4 py-3 w-full rounded-lg"
                           id="city"
+                          name="city"
                           type="text"
                           placeholder="Town/City *"
+                          value={formData.city}
+                          onChange={handleInputChange}
                           required
                         />
                       </div>
                       <div className="">
                         <input
                           className="border-line px-4 py-3 w-full rounded-lg"
-                          id="apartment"
+                          id="address"
+                          name="address"
                           type="text"
-                          placeholder="Street,..."
+                          placeholder="Street Address *"
+                          value={formData.address}
+                          onChange={handleInputChange}
                           required
                         />
-                      </div>
-                      <div className="select-block">
-                        <select
-                          className="border border-line px-4 py-3 w-full rounded-lg"
-                          id="country"
-                          name="country"
-                          defaultValue={"default"}
-                        >
-                          <option value="default" disabled>
-                            Choose State
-                          </option>
-                          <option value="India">India</option>
-                          <option value="France">France</option>
-                          <option value="Singapore">Singapore</option>
-                        </select>
-                        <Icon.CaretDown className="arrow-down" />
                       </div>
                       <div className="">
                         <input
                           className="border-line px-4 py-3 w-full rounded-lg"
-                          id="postal"
+                          id="postalCode"
+                          name="postalCode"
                           type="text"
                           placeholder="Postal Code *"
+                          value={formData.postalCode}
+                          onChange={handleInputChange}
                           required
                         />
                       </div>
@@ -209,303 +338,67 @@ const Checkout = () => {
                           className="border border-line px-4 py-3 w-full rounded-lg"
                           id="note"
                           name="note"
-                          placeholder="Write note..."
+                          placeholder="Write note (optional)..."
+                          value={formData.note}
+                          onChange={handleInputChange}
                         ></textarea>
                       </div>
                     </div>
                     <div className="payment-block md:mt-10 mt-6">
-                      <div className="heading5">Choose payment Option:</div>
+                      <div className="heading5">Payment Method</div>
                       <div className="list-payment mt-5">
-                        <div
-                          className={`type bg-surface p-5 border border-line rounded-lg ${
-                            activePayment === "credit-card" ? "open" : ""
-                          }`}
-                        >
-                          <input
-                            className="cursor-pointer"
-                            type="radio"
-                            id="credit"
-                            name="payment"
-                            checked={activePayment === "credit-card"}
-                            onChange={() => handlePayment("credit-card")}
-                          />
-                          <label
-                            className="text-button pl-2 cursor-pointer"
-                            htmlFor="credit"
-                          >
-                            Credit Card
-                          </label>
-                          <div className="infor">
-                            <div className="text-on-surface-variant1 pt-4">
-                              Make your payment directly into our bank account.
-                              Your order will not be shipped until the funds
-                              have cleared in our account.
-                            </div>
-                            <div className="row">
-                              <div className="col-12 mt-3">
-                                <label htmlFor="cardNumberCredit">
-                                  Card Numbers
-                                </label>
-                                <input
-                                  className="cursor-pointer border-line px-4 py-3 w-full rounded mt-2"
-                                  type="text"
-                                  id="cardNumberCredit"
-                                  placeholder="ex.1234567290"
-                                />
-                              </div>
-                              <div className=" mt-3">
-                                <label htmlFor="dateCredit">Date</label>
-                                <input
-                                  className="border-line px-4 py-3 w-full rounded mt-2"
-                                  type="date"
-                                  id="dateCredit"
-                                  name="date"
-                                />
-                              </div>
-                              <div className=" mt-3">
-                                <label htmlFor="ccvCredit">CCV</label>
-                                <input
-                                  className="cursor-pointer border-line px-4 py-3 w-full rounded mt-2"
-                                  type="text"
-                                  id="ccvCredit"
-                                  placeholder="****"
-                                />
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 mt-3">
-                              <input
-                                type="checkbox"
-                                id="saveCredit"
-                                name="save"
-                              />
-                              <label
-                                className="text-button"
-                                htmlFor="saveCredit"
-                              >
-                                Save Card Details
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div
-                          className={`type bg-surface p-5 border border-line rounded-lg mt-5 ${
-                            activePayment === "cash-delivery" ? "open" : ""
-                          }`}
-                        >
+                        <div className="type bg-surface p-5 border border-line rounded-lg open">
                           <input
                             className="cursor-pointer"
                             type="radio"
                             id="delivery"
                             name="payment"
-                            checked={activePayment === "cash-delivery"}
-                            onChange={() => handlePayment("cash-delivery")}
+                            checked={true}
+                            readOnly
                           />
                           <label
                             className="text-button pl-2 cursor-pointer"
                             htmlFor="delivery"
                           >
-                            Cash on delivery
+                            Cash on Delivery (COD)
                           </label>
                           <div className="infor">
                             <div className="text-on-surface-variant1 pt-4">
-                              Make your payment directly into our bank account.
-                              Your order will not be shipped until the funds
-                              have cleared in our account.
-                            </div>
-                            <div className="row">
-                              <div className="col-12 mt-3">
-                                {/* <div className="bg-img"><Image src="assets/images/component/payment.png" alt="" /></div> */}
-                                <label htmlFor="cardNumberDelivery">
-                                  Card Numbers
-                                </label>
-                                <input
-                                  className="cursor-pointer border-line px-4 py-3 w-full rounded mt-2"
-                                  type="text"
-                                  id="cardNumberDelivery"
-                                  placeholder="ex.1234567290"
-                                />
-                              </div>
-                              <div className=" mt-3">
-                                <label htmlFor="dateDelivery">Date</label>
-                                <input
-                                  className="border-line px-4 py-3 w-full rounded mt-2"
-                                  type="date"
-                                  id="dateDelivery"
-                                  name="date"
-                                />
-                              </div>
-                              <div className=" mt-3">
-                                <label htmlFor="ccvDelivery">CCV</label>
-                                <input
-                                  className="cursor-pointer border-line px-4 py-3 w-full rounded mt-2"
-                                  type="text"
-                                  id="ccvDelivery"
-                                  placeholder="****"
-                                />
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 mt-3">
-                              <input
-                                type="checkbox"
-                                id="saveDelivery"
-                                name="save"
-                              />
-                              <label
-                                className="text-button"
-                                htmlFor="saveDelivery"
-                              >
-                                Save Card Details
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div
-                          className={`type bg-surface p-5 border border-line rounded-lg mt-5 ${
-                            activePayment === "apple-pay" ? "open" : ""
-                          }`}
-                        >
-                          <input
-                            className="cursor-pointer"
-                            type="radio"
-                            id="apple"
-                            name="payment"
-                            checked={activePayment === "apple-pay"}
-                            onChange={() => handlePayment("apple-pay")}
-                          />
-                          <label
-                            className="text-button pl-2 cursor-pointer"
-                            htmlFor="apple"
-                          >
-                            Apple Pay
-                          </label>
-                          <div className="infor">
-                            <div className="text-on-surface-variant1 pt-4">
-                              Make your payment directly into our bank account.
-                              Your order will not be shipped until the funds
-                              have cleared in our account.
-                            </div>
-                            <div className="row">
-                              <div className="col-12 mt-3">
-                                {/* <div className="bg-img"><Image src="assets/images/component/payment.png" alt="" /></div> */}
-                                <label htmlFor="cardNumberApple">
-                                  Card Numbers
-                                </label>
-                                <input
-                                  className="cursor-pointer border-line px-4 py-3 w-full rounded mt-2"
-                                  type="text"
-                                  id="cardNumberApple"
-                                  placeholder="ex.1234567290"
-                                />
-                              </div>
-                              <div className=" mt-3">
-                                <label htmlFor="dateApple">Date</label>
-                                <input
-                                  className="border-line px-4 py-3 w-full rounded mt-2"
-                                  type="date"
-                                  id="dateApple"
-                                  name="date"
-                                />
-                              </div>
-                              <div className=" mt-3">
-                                <label htmlFor="ccvApple">CCV</label>
-                                <input
-                                  className="cursor-pointer border-line px-4 py-3 w-full rounded mt-2"
-                                  type="text"
-                                  id="ccvApple"
-                                  placeholder="****"
-                                />
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 mt-3">
-                              <input
-                                type="checkbox"
-                                id="saveApple"
-                                name="save"
-                              />
-                              <label
-                                className="text-button"
-                                htmlFor="saveApple"
-                              >
-                                Save Card Details
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div
-                          className={`type bg-surface p-5 border border-line rounded-lg mt-5 ${
-                            activePayment === "paypal" ? "open" : ""
-                          }`}
-                        >
-                          <input
-                            className="cursor-pointer"
-                            type="radio"
-                            id="paypal"
-                            name="payment"
-                            checked={activePayment === "paypal"}
-                            onChange={() => handlePayment("paypal")}
-                          />
-                          <label
-                            className="text-button pl-2 cursor-pointer"
-                            htmlFor="paypal"
-                          >
-                            PayPal
-                          </label>
-                          <div className="infor">
-                            <div className="text-on-surface-variant1 pt-4">
-                              Make your payment directly into our bank account.
-                              Your order will not be shipped until the funds
-                              have cleared in our account.
-                            </div>
-                            <div className="row">
-                              <div className="col-12 mt-3">
-                                <label htmlFor="cardNumberPaypal">
-                                  Card Numbers
-                                </label>
-                                <input
-                                  className="cursor-pointer border-line px-4 py-3 w-full rounded mt-2"
-                                  type="text"
-                                  id="cardNumberPaypal"
-                                  placeholder="ex.1234567290"
-                                />
-                              </div>
-                              <div className=" mt-3">
-                                <label htmlFor="datePaypal">Date</label>
-                                <input
-                                  className="border-line px-4 py-3 w-full rounded mt-2"
-                                  type="date"
-                                  id="datePaypal"
-                                  name="date"
-                                />
-                              </div>
-                              <div className=" mt-3">
-                                <label htmlFor="ccvPaypal">CCV</label>
-                                <input
-                                  className="cursor-pointer border-line px-4 py-3 w-full rounded mt-2"
-                                  type="text"
-                                  id="ccvPaypal"
-                                  placeholder="****"
-                                />
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 mt-3">
-                              <input
-                                type="checkbox"
-                                id="savePaypal"
-                                name="save"
-                              />
-                              <label
-                                className="text-button"
-                                htmlFor="savePaypal"
-                              >
-                                Save Card Details
-                              </label>
+                              Pay with cash when your order is delivered. Your order will be processed and shipped after confirmation.
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div className="block-button md:mt-10 mt-6">
-                      <button className="button-main w-full">Payment</button>
+                      <button
+                        type="submit"
+                        className="button-main w-full uppercase"
+                        disabled={isLoading}
+                        style={{
+                          backgroundColor: 'var(--black)',
+                          color: 'var(--white)',
+                          border: 'none',
+                          width: '100%',
+                          display: 'block',
+                          opacity: isLoading ? 0.7 : 1,
+                          cursor: isLoading ? 'not-allowed' : 'pointer'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isLoading) {
+                            e.currentTarget.style.backgroundColor = 'var(--green)';
+                            e.currentTarget.style.color = 'var(--black)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isLoading) {
+                            e.currentTarget.style.backgroundColor = 'var(--black)';
+                            e.currentTarget.style.color = 'var(--white)';
+                          }
+                        }}
+                      >
+                        {isLoading ? "Placing Order..." : "Place Order"}
+                      </button>
                     </div>
                   </form>
                 </div>
@@ -562,10 +455,22 @@ const Checkout = () => {
                     </div>
                   ))}
                 </div>
-                <div className="discount-block py-5 flex justify-between border-b border-line">
-                  <div className="text-title">Discounts</div>
+                <div className="subtotal-block py-5 flex justify-between border-b border-line">
+                  <div className="text-title">Subtotal</div>
                   <div className="text-title">
-                    -৳<span className="discount">{discount || 0}</span>
+                    ৳{subtotal.toLocaleString()}
+                  </div>
+                </div>
+                <div className="discount-block py-5 flex justify-between border-b border-line">
+                  <div className="text-title">Discount</div>
+                  <div className="text-title">
+                    -৳<span className="discount">{Number(discount || 0).toLocaleString()}</span>
+                  </div>
+                </div>
+                <div className="tax-block py-5 flex justify-between border-b border-line">
+                  <div className="text-title">Tax</div>
+                  <div className="text-title">
+                    ৳{tax.toLocaleString()}
                   </div>
                 </div>
                 <div className="ship-block py-5 flex justify-between border-b border-line">
@@ -579,12 +484,7 @@ const Checkout = () => {
                 <div className="total-cart-block pt-5 flex justify-between">
                   <div className="heading5">Total</div>
                   <div className="heading5 total-cart">
-                    ৳
-                    {(
-                      totalCart -
-                      Number(discount || 0) +
-                      Number(ship || 0)
-                    )?.toLocaleString()}
+                    ৳{totalPrice.toLocaleString()}
                   </div>
                 </div>
               </div>
