@@ -218,7 +218,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                             )}
                             {style === 'style-2' || style === 'style-4' ? (
                                 <div className="list-size-block flex items-center justify-center gap-4 absolute bottom-0 left-0 w-full h-8">
-                                    {data.sizes.map((item, index) => (
+                                    {data.size.map((item, index) => (
                                         <strong key={index} className="size-item text-xs font-bold uppercase">{item}</strong>
                                     ))}
                                 </div>
@@ -264,7 +264,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                                 }}
                                             >
                                                 <div className="list-size flex items-center justify-center flex-wrap gap-2">
-                                                    {data.sizes.map((item, index) => (
+                                                    {data.size.map((item, index) => (
                                                         <div
                                                             className={`size-item w-10 h-10 rounded-full flex items-center justify-center text-button bg-white border border-line ${activeSize === item ? 'active' : ''}`}
                                                             key={index}
@@ -351,7 +351,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                                 }}
                                             >
                                                 <div className="list-size flex items-center justify-center flex-wrap gap-2">
-                                                    {data.sizes.map((item, index) => (
+                                                    {data.size.map((item, index) => (
                                                         <div
                                                             className={`size-item w-10 h-10 rounded-full flex items-center justify-center text-button bg-white border border-line ${activeSize === item ? 'active' : ''}`}
                                                             key={index}
@@ -536,7 +536,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                                                 }}
                                             >
                                                 <div className="list-size flex items-center justify-center flex-wrap gap-2">
-                                                    {data.sizes.map((item, index) => (
+                                                    {data.size.map((item, index) => (
                                                         <div
                                                             className={`size-item ${item !== 'freesize' ? 'w-10 h-10' : 'h-10 px-4'} flex items-center justify-center text-button bg-white rounded-full border border-line ${activeSize === item ? 'active' : ''}`}
                                                             key={index}
@@ -736,7 +736,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
                     <div className="product-infor mt-4">
                         <span className="text-title" style={{ height: '48px' }}>{data.title}</span>
                         <div className="flex gap-0.5 mt-1">
-                            <Rate currentRate={data.discountPrice} size={16} />
+                            {/* <Rate currentRate={data.discountPrice} size={16} /> */}
                         </div>
                         <span className="text-title inline-block mt-1"><span className="currency-symbol">৳</span>{data.discountPrice}.00</span>
                         <div className="product-origin-price caption1 text-secondary2"><del><span className="currency-symbol">৳</span>{data.actualPrice}.00</del></div>

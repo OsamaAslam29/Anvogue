@@ -61,7 +61,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('2')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -83,7 +83,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('4')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -105,7 +105,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('6')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -118,7 +118,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('2')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -140,7 +140,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('4')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -162,7 +162,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('6')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -186,7 +186,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('2')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -208,7 +208,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('4')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -230,7 +230,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('6')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -243,7 +243,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('2')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -265,7 +265,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('4')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -287,7 +287,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('6')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -311,7 +311,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('2')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -333,7 +333,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('4')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -355,7 +355,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('6')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -368,7 +368,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('2')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -390,7 +390,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('4')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -412,7 +412,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('6')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -436,7 +436,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('2')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -458,7 +458,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('4')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.
@@ -480,7 +480,7 @@ const Faqs = () => {
                                     onClick={() => handleActiveQuestion('6')}
                                 >
                                     <div className="heading flex items-center justify-between gap-6">
-                                        <div className="heading6">NEW! Plus sizes for Woman</div>
+                                        <div className="heading6">NEW! Plus size for Woman</div>
                                         <Icon.CaretRight size={24} />
                                     </div>
                                     <div className="content body1 text-secondary">The courier companies have adapted their procedures to guarantee the safety of our employees and our community. We thank you for your patience, as there may be some delays to deliveries.

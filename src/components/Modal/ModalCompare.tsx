@@ -35,30 +35,30 @@ const ModalCompare = () => {
               <div className="list-product flex items-center w-full gap-4">
                 {compareState.compareArray.slice(0, 3).map((product: any) => (
                   <div
-                    key={product.id}
+                    key={product._id}
                     className="item p-3 border border-line rounded-xl relative"
                   >
                     <div className="infor flex items-center gap-4">
                       <div className="bg-img w-[100px] h-[100px] flex-shrink-0 rounded-lg overflow-hidden">
                         <Image
-                          src={product.images[0]}
+                          src={product.images?.[0]?.Location || product.images?.[0] || '/images/product/1.png'}
                           width={500}
                           height={500}
-                          alt={product.name}
+                          alt={product.title || product.name}
                           className="w-full h-full"
                         />
                       </div>
                       <div className="">
-                        <div className="name text-title">{product.name}</div>
+                        <div className="name text-title">{product.title || product.name}</div>
                         <div className="product-price text-title mt-2">
                           <span className="currency-symbol">৳</span>
-                          {product.price}.00
+                          {product.discountPrice?.toLocaleString()}
                         </div>
                       </div>
                     </div>
                     <div
                       className="close-btn absolute -right-4 -top-4 w-8 h-8 rounded-full bg-red text-white flex items-center justify-center duration-300 cursor-pointer hover:bg-black"
-                      onClick={() => removeFromCompare(product.id)}
+                      onClick={() => removeFromCompare(product._id)}
                     >
                       <Icon.X size={14} />
                     </div>

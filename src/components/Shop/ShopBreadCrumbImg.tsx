@@ -34,7 +34,7 @@ const convertToLegacyProduct = (product: any): any => {
         sold: Math.floor(Math.random() * 100), // Random sold count
         quantity: product.stock || 0,
         quantityPurchase: 1,
-        sizes: product.size || [],
+        size: product.size || [],
         // variation: (product.colors || []).map((color, index) => ({
         //     color: color.replace(/[\[\]"]/g, ''),
         //     colorCode: '#000000',
@@ -50,6 +50,24 @@ const convertToLegacyProduct = (product: any): any => {
 };
 
 const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, categoryImage }) => {
+    // Calculate dynamic price range from products
+    const calculatePriceRange = () => {
+        if (!data || data.length === 0) return { min: 0, max: 1000 };
+        
+        const prices = data.map(product => product.discountPrice || product.actualPrice || 0);
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+        
+        // Add some padding to the range
+        const padding = (maxPrice - minPrice) * 0.1;
+        return {
+            min: Math.floor(Math.max(0, minPrice - padding)),
+            max: Math.ceil(maxPrice + padding)
+        };
+    };
+
+    const initialPriceRange = calculatePriceRange();
+    
     const [layoutCol, setLayoutCol] = useState<number | null>(null)
     const [showOnlySale, setShowOnlySale] = useState(false)
     const [sortOption, setSortOption] = useState('');
@@ -58,10 +76,19 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, ca
     const [size, setSize] = useState<string | null>()
     const [color, setColor] = useState<string | null>()
     const [brand, setBrand] = useState<string | null>()
-    const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 100 });
+    const [priceRange, setPriceRange] = useState<{ min: number; max: number }>(initialPriceRange);
+    const [tempPriceRange, setTempPriceRange] = useState<{ from: number; to: number }>({ from: initialPriceRange.min, to: initialPriceRange.max });
     const [currentPage, setCurrentPage] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
     const productsPerPage = productPerPage;
     const offset = currentPage * productsPerPage;
+
+    // Update initial price range when data changes
+    useEffect(() => {
+        const newRange = calculatePriceRange();
+        setPriceRange(newRange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data]);
 
     const handleLayoutCol = (col: number) => {
         setLayoutCol(col)
@@ -97,6 +124,21 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, ca
             setPriceRange({ min: values[0], max: values[1] });
             setCurrentPage(0);
         }
+    };
+
+    const handleFromPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = parseFloat(e.target.value) || 0;
+        setTempPriceRange({ ...tempPriceRange, from: value });
+    };
+
+    const handleToPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = parseFloat(e.target.value) || 0;
+        setTempPriceRange({ ...tempPriceRange, to: value });
+    };
+
+    const handleApplyPriceFilter = () => {
+        setPriceRange({ min: tempPriceRange.from, max: tempPriceRange.to });
+        setCurrentPage(0);
     };
 
     const handleColor = (color: string) => {
@@ -141,10 +183,10 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, ca
             isSizeMatched = (product.size || []).includes(size)
         }
 
+        // Filter by price range using discountPrice
         let isPriceRangeMatched = true;
-        if (priceRange.min !== 0 || priceRange.max !== 100) {
-            isPriceRangeMatched = (product.discountPrice || 0) >= priceRange.min && (product.discountPrice || 0) <= priceRange.max;
-        }
+        const productPrice = product.discountPrice || 0;
+        isPriceRangeMatched = productPrice >= priceRange.min && productPrice <= priceRange.max;
 
         let isColorMatched = true;
         if (color) {
@@ -233,7 +275,16 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, ca
     }
 
     const handlePageChange = (selected: number) => {
+        setIsLoading(true);
+        // Scroll to top of product list
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
         setCurrentPage(selected);
+        
+        // Simulate loading delay for better UX
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 300);
     };
 
     const handleClearAll = () => {
@@ -242,7 +293,9 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, ca
         setSize(null);
         setColor(null);
         setBrand(null);
-        setPriceRange({ min: 0, max: 100 });
+        const resetRange = calculatePriceRange();
+        setPriceRange(resetRange);
+        setTempPriceRange({ from: resetRange.min, to: resetRange.max });
         setCurrentPage(0);
     };
 
@@ -418,28 +471,36 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, ca
                                     </div>
                                 </div>
                                 <div className="filter-price mt-8">
-                                    <div className="heading6">Price Range</div>
-                                    <Slider
-                                        range
-                                        defaultValue={[0, 100]}
-                                        min={0}
-                                        max={100}
-                                        onChange={handlePriceChange}
-                                        className='mt-5'
-                                    />
-                                    <div className="price-block flex items-center justify-between flex-wrap mt-4">
-                                        <div className="min flex items-center gap-1">
-                                            <div>Min price:</div>
-                                            <div className='price-min'><span className="currency-symbol">৳</span>
-                                                <span>{priceRange.min}</span>
-                                            </div>
-                                        </div>
-                                        <div className="min flex items-center gap-1">
-                                            <div>Max price:</div>
-                                            <div className='price-max'><span className="currency-symbol">৳</span>
-                                                <span>{priceRange.max}</span>
-                                            </div>
-                                        </div>
+                                    <div className="heading6 flex items-center justify-between">
+                                        <span>PRICE RANGE</span>
+                                        <Icon.CaretDown size={14} className='text-secondary2' />
+                                    </div>
+                                    <div className="w-full h-px bg-line mt-2 mb-4"></div>
+                                    <div className="price-block flex items-center gap-2 mt-4">
+                                        <input
+                                            type="number"
+                                            min={calculatePriceRange().min}
+                                            max={calculatePriceRange().max}
+                                            value={tempPriceRange.from || ''}
+                                            onChange={handleFromPriceChange}
+                                            className="flex-1 px-3 py-2 rounded border border-line caption1"
+                                            placeholder="From"
+                                        />
+                                        <input
+                                            type="number"
+                                            min={calculatePriceRange().min}
+                                            max={calculatePriceRange().max}
+                                            value={tempPriceRange.to || ''}
+                                            onChange={handleToPriceChange}
+                                            className="flex-1 px-3 py-2 rounded border border-line caption1"
+                                            placeholder="To"
+                                        />
+                                        <button
+                                            onClick={handleApplyPriceFilter}
+                                            className="px-4 py-2 bg-primary text-white rounded caption1 font-medium hover:opacity-90 transition-opacity"
+                                        >
+                                            Go
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -570,6 +631,13 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, ca
                             }
                         </div>
 
+                        {isLoading ? (
+                            <div className="loading-spinner flex items-center justify-center py-20">
+                                <div className="relative w-16 h-16">
+                                    <div className="absolute top-0 left-0 w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                </div>
+                            </div>
+                        ) : (
                         <div className={`list-product hide-product-sold grid ${layoutCol ? `lg:grid-cols-${layoutCol}` : 'lg:grid-cols-4'} sm:grid-cols-3 grid-cols-2 sm:gap-[30px] gap-[20px] mt-7`}>
                             {currentProducts.map((item) => (
                                 item._id === 'no-data' ? (
@@ -579,6 +647,7 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, ca
                                 )
                             ))}
                         </div>
+                        )}
 
                         {pageCount > 1 && (
                             <div className="list-pagination flex items-center justify-center md:mt-10 mt-7">

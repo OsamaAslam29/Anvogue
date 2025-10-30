@@ -306,7 +306,7 @@ const External: React.FC<Props> = ({ data, productId }) => {
                     />
                   </div>
                   <div className="list-size flex items-center gap-2 flex-wrap mt-3">
-                    {productMain.sizes.map((item, index) => (
+                    {productMain.size.map((item, index) => (
                       <div
                         className={`size-item ${
                           item === "freesize" ? "px-3 py-2" : "w-12 h-12"

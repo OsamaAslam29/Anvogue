@@ -29,12 +29,13 @@ const Compare = () => {
         }
         openModalCart()
     };
+    console.log('this si the compare state', compareState)
 
     return (
         <>
-            <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
+            {/* <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" /> */}
             <div id="header" className='relative w-full'>
-                <MenuOne props="bg-transparent" />
+                {/* <MenuOne props="bg-transparent" /> */}
                 <Breadcrumb heading='Compare Products' subHeading='Compare Products' />
             </div>
             <div className="compare-block md:py-20 py-10">
@@ -56,24 +57,24 @@ const Compare = () => {
                                                 />
                                             </div>
                                             <div className="text-title text-center mt-4">{item.title}</div>
-                                            <div className="caption2 font-semibold text-secondary2 uppercase text-center mt-1">{item.brand}</div>
+                                            <div className="caption2 font-semibold text-secondary2 uppercase text-center mt-1">{item.brandId?.name || item.brand}</div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                             <div className="compare-table flex">
                                 <div className="left lg:w-[240px] w-[170px] flex-shrink-0 border border-line border-r-0 rounded-l-2xl">
-                                    <div className="item text-button flex items-center h-[60px] px-8 w-full border-b border-line">Rating</div>
+                                    {/* <div className="item text-button flex items-center h-[60px] px-8 w-full border-b border-line">Rating</div> */}
                                     <div className="item text-button flex items-center h-[60px] px-8 w-full border-b border-line">Price</div>
                                     <div className="item text-button flex items-center h-[60px] px-8 w-full border-b border-line">Type</div>
-                                    <div className="item text-button flex items-center h-[60px] px-8 w-full border-b border-line">Anvogue</div>
-                                    <div className="item text-button flex items-center h-[60px] px-8 w-full border-b border-line">Size</div>
+                                    <div className="item text-button flex items-center h-[60px] px-8 w-full border-b border-line">Brand</div>
+                                    <div className="item text-button flex items-center h-[60px] px-8 w-full border-b border-line">Sizes</div>
                                     <div className="item text-button flex items-center h-[60px] px-8 w-full border-b border-line">Colors</div>
                                     <div className="item text-button flex items-center h-[60px] px-8 w-full border-b border-line">Metarial</div>
                                     <div className="item text-button flex items-center h-[60px] px-8 w-full border-b border-line">Add To Cart</div>
                                 </div>
                                 <table className="right border-collapse w-full border-t border-r border-line">
-                                    <tr className={`flex w-full items-center`}>
+                                    {/* <tr className={`flex w-full items-center`}>
                                         {compareState.compareArray.map((item, index) => (
                                             <td className="w-full border border-line h-[60px] border-t-0 border-r-0" key={index}>
                                                 <div className='h-full flex items-center justify-center'>
@@ -82,12 +83,12 @@ const Compare = () => {
                                                 </div>
                                             </td>
                                         ))}
-                                    </tr>
+                                    </tr> */}
                                     <tr className={`flex w-full items-center`}>
                                         {compareState.compareArray.map((item, index) => (
                                             <td className="w-full border border-line h-[60px] border-t-0 border-r-0" key={index}>
                                                 <div className='h-full flex items-center justify-center'>
-                                                    ${item.discountPrice}.00
+                                                    ৳{item.discountPrice?.toLocaleString()}
                                                 </div>
                                             </td>
                                         ))}
@@ -96,7 +97,7 @@ const Compare = () => {
                                         {compareState.compareArray.map((item, index) => (
                                             <td className="w-full border border-line h-[60px] border-t-0 border-r-0" key={index}>
                                                 <div className='h-full flex items-center justify-center capitalize'>
-                                                    {item.type}
+                                                    {item.typeId?.name || item.type || 'N/A'}
                                                 </div>
                                             </td>
                                         ))}
@@ -105,7 +106,7 @@ const Compare = () => {
                                         {compareState.compareArray.map((item, index) => (
                                             <td className="w-full border border-line h-[60px] border-t-0 border-r-0" key={index}>
                                                 <div className='h-full flex items-center justify-center capitalize'>
-                                                    {item.brand}
+                                                    {item.brandId?.name || item.brand || 'N/A'}
                                                 </div>
                                             </td>
                                         ))}
@@ -114,11 +115,21 @@ const Compare = () => {
                                         {compareState.compareArray.map((item, index) => (
                                             <td className="w-full border border-line h-[60px] border-t-0 border-r-0 size" key={index}>
                                                 <div className='h-full flex items-center justify-center capitalize gap-1'>
-                                                    {item.size.map((size, i) => (
-                                                        <p key={i}>{size}
-                                                            <span>,</span>
-                                                        </p>
-                                                    ))}
+                                                    {item.size && item.size.length > 0 ? item.size.map((size: any, i: number) => {
+                                                        let sizeName = size;
+                                                        try {
+                                                            if (typeof size === 'string' && size.startsWith('[')) {
+                                                                sizeName = JSON.parse(size)[0];
+                                                            }
+                                                        } catch (e) {
+                                                            sizeName = size;
+                                                        }
+                                                        return (
+                                                            <p key={i}>{sizeName}
+                                                                {i < item.size.length - 1 ? <span>,</span> : null}
+                                                            </p>
+                                                        );
+                                                    }) : 'N/A'}
                                                 </div>
                                             </td>
                                         ))}
@@ -127,13 +138,23 @@ const Compare = () => {
                                         {compareState.compareArray.map((item, index) => (
                                             <td className="w-full border border-line h-[60px] border-t-0 border-r-0 size" key={index}>
                                                 <div className='h-full flex items-center justify-center capitalize gap-2'>
-                                                    {item.colors.map((colorItem, i) => (
-                                                        <span
-                                                            key={i}
-                                                            className={`w-6 h-6 rounded-full`}
-                                                            style={{ backgroundColor: `${colorItem}` }}
-                                                        ></span>
-                                                    ))}
+                                                    {item.colors && item.colors.length > 0 ? item.colors.map((colorItem: any, i: number) => {
+                                                        let colorName = colorItem;
+                                                        try {
+                                                            if (typeof colorItem === 'string' && colorItem.startsWith('[')) {
+                                                                colorName = JSON.parse(colorItem)[0];
+                                                            }
+                                                        } catch (e) {
+                                                            colorName = colorItem;
+                                                        }
+                                                        return (
+                                                            <span
+                                                                key={i}
+                                                                className={`w-6 h-6 rounded-full`}
+                                                                style={{ backgroundColor: colorName.toLowerCase() }}
+                                                            ></span>
+                                                        );
+                                                    }) : <span>N/A</span>}
                                                 </div>
                                             </td>
                                         ))}
@@ -142,7 +163,7 @@ const Compare = () => {
                                         {compareState.compareArray.map((item, index) => (
                                             <td className="w-full border border-line h-[60px] border-t-0 border-r-0" key={index}>
                                                 <div className='h-full flex items-center justify-center capitalize'>
-                                                    Cotton
+                                                    {item.materialId?.name || 'N/A'}
                                                 </div>
                                             </td>
                                         ))}

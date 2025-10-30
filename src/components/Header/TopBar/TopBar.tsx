@@ -194,7 +194,7 @@ const TopBar = () => {
                 >
                   <Icon.X size={14} />
                 </div>
-                <Link href={'/'} className='logo text-3xl font-semibold text-center'>Anvogue</Link>
+                <Link href={'/'} className='logo text-3xl font-semibold text-center'>Foxybd</Link>
               </div>
               
               {/* Mobile Search */}

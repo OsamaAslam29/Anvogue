@@ -117,7 +117,7 @@ const FeaturedProduct: React.FC<Props> = ({ data }) => {
                                     </div>
                                 </div>
                                 <div className="list-size flex items-center gap-2 flex-wrap mt-3">
-                                    {productMain.sizes.map((item, index) => (
+                                    {productMain.size.map((item, index) => (
                                         <div
                                             className={`size-item w-12 h-12 flex items-center justify-center text-button rounded-full bg-white border border-line ${activeSize === item ? 'active' : ''}`}
                                             key={index}
