@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
@@ -11,6 +11,7 @@ import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useSelector } from "react-redux";
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
+import ProductFilter, { FilterState } from "@/components/Shop/ProductFilter";
 
 const SearchResult = () => {
   const [searchKeyword, setSearchKeyword] = useState<string>("");
@@ -19,39 +20,65 @@ const SearchResult = () => {
   const [showOnlySale, setShowOnlySale] = useState(false);
   const [sortOption, setSortOption] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [filterState, setFilterState] = useState<FilterState>({
+    selectedCategories: [],
+    selectedBrands: [],
+    selectedMaterials: [],
+    selectedTypes: [],
+    selectedColors: [],
+    minPrice: 0,
+    maxPrice: 1000
+  });
   
   // Calculate dynamic price range from products
   const { products } = useSelector((state: any) => state.products)
   const { categories } = useSelector((state: any) => state.categories)
   
-  const calculatePriceRange = () => {
-    if (!products || products.length === 0) return { min: 0, max: 1000 };
+  const searchParams = useSearchParams();
+  const query = searchParams.get("query") as string || "";
+
+  // First filter by search query to get base products for filtering
+  const searchFilteredProducts = useMemo(() => {
+    if (!products || products.length === 0) return [];
     
-    const prices = products.map(product => product.discountPrice || product.actualPrice || 0);
+    if (!query) return products;
+    
+    const searchQuery = query.toLowerCase();
+    return products.filter((product) => {
+      return (
+        product.title?.toLowerCase().includes(searchQuery) ||
+        product.name?.toLowerCase().includes(searchQuery) ||
+        product.typeId?.name?.toLowerCase().includes(searchQuery) ||
+        product.type?.toLowerCase().includes(searchQuery) ||
+        product.brandId?.name?.toLowerCase().includes(searchQuery) ||
+        product.brand?.toLowerCase().includes(searchQuery) ||
+        product.categoryId?.name?.toLowerCase().includes(searchQuery) ||
+        product.category?.toLowerCase().includes(searchQuery)
+      );
+    });
+  }, [products, query]);
+
+  const calculatePriceRange = () => {
+    const productsToUse = searchFilteredProducts.length > 0 ? searchFilteredProducts : products;
+    if (!productsToUse || productsToUse.length === 0) return { min: 0, max: 1000 };
+    
+    const prices = productsToUse.map((product: any) => product.discountPrice || product.actualPrice || 0).filter(p => p > 0);
+    if (prices.length === 0) return { min: 0, max: 1000 };
+    
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
     
-    const padding = (maxPrice - minPrice) * 0.1;
+    const padding = (maxPrice - minPrice) * 0.1 || 100;
     return {
       min: Math.floor(Math.max(0, minPrice - padding)),
       max: Math.ceil(maxPrice + padding)
     };
   };
 
-  const initialPriceRange = calculatePriceRange();
-  const [priceRange, setPriceRange] = useState<{ min: number; max: number }>(initialPriceRange);
-  const [tempPriceRange, setTempPriceRange] = useState<{ from: number; to: number }>({ from: initialPriceRange.min, to: initialPriceRange.max });
+  const initialPriceRange = useMemo(() => calculatePriceRange(), [searchFilteredProducts, products]);
   
   const productsPerPage = 8;
   const offset = currentPage * productsPerPage;
-  let filteredData = products;
-
-  // Update price range when products change
-  useEffect(() => {
-    const newRange = calculatePriceRange();
-    setPriceRange(newRange);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const router = useRouter();
 
@@ -75,76 +102,123 @@ const SearchResult = () => {
     setCurrentPage(0);
   };
 
-  const handlePriceChange = (values: number | number[]) => {
-    if (Array.isArray(values)) {
-      setPriceRange({ min: values[0], max: values[1] });
-      setCurrentPage(0);
-    }
-  };
-
-  const handleFromPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value) || 0;
-    setTempPriceRange({ ...tempPriceRange, from: value });
-  };
-
-  const handleToPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value) || 0;
-    setTempPriceRange({ ...tempPriceRange, to: value });
-  };
-
-  const handleApplyPriceFilter = () => {
-    setPriceRange({ min: tempPriceRange.from, max: tempPriceRange.to });
+  const handleFilterChange = (filters: FilterState) => {
+    setFilterState(filters);
     setCurrentPage(0);
   };
 
   const handleClearAll = () => {
     setSortOption('');
-    const resetRange = calculatePriceRange();
-    setPriceRange(resetRange);
-    setTempPriceRange({ from: resetRange.min, to: resetRange.max });
     setShowOnlySale(false);
+    const clearedState = {
+      selectedCategories: [],
+      selectedBrands: [],
+      selectedMaterials: [],
+      selectedTypes: [],
+      selectedColors: [],
+      minPrice: initialPriceRange.min,
+      maxPrice: initialPriceRange.max
+    };
+    setFilterState(clearedState);
+    handleFilterChange(clearedState);
     setCurrentPage(0);
   };
 
-  const searchParams = useSearchParams();
-  let query = searchParams.get("query") as string;
+  // Filter products based on search query and filters
+  const filteredData = useMemo(() => {
+    if (!searchFilteredProducts || searchFilteredProducts.length === 0) return [];
+    
+    let filtered = searchFilteredProducts;
 
-  if (query === null) {
-    query = "dress";
-  } else {
-    console.log('this is the products', products)
-    filteredData = products.filter(
-      (product) => {
-        const searchQuery = query.toLowerCase();
-        const isSearchMatched = (
-          product.title?.toLowerCase().includes(searchQuery) ||
-          product.name?.toLowerCase().includes(searchQuery) ||
-          product.typeId?.name?.toLowerCase().includes(searchQuery) ||
-          product.type?.toLowerCase().includes(searchQuery) ||
-          product.brandId?.name?.toLowerCase().includes(searchQuery) ||
-          product.brand?.toLowerCase().includes(searchQuery) ||
-          product.categoryId?.name?.toLowerCase().includes(searchQuery) ||
-          product.category?.toLowerCase().includes(searchQuery)
-        );
-
-        // Filter by sale
-        let isShowOnlySaleMatched = true;
-        if (showOnlySale) {
-          isShowOnlySaleMatched = (product.discountPrice || 0) < (product.actualPrice || 0);
+    // Apply filter state
+    filtered = filtered.filter((product) => {
+      // Category filter
+      if (filterState.selectedCategories.length > 0) {
+        const categoryName = typeof product.categoryId === 'object' 
+          ? product.categoryId?.name 
+          : product.categoryId || product.category;
+        if (!categoryName || !filterState.selectedCategories.includes(categoryName)) {
+          return false;
         }
-
-        // Filter by price range using discountPrice
-        let isPriceRangeMatched = true;
-        const productPrice = product.discountPrice || 0;
-        isPriceRangeMatched = productPrice >= priceRange.min && productPrice <= priceRange.max;
-
-        return isSearchMatched && isShowOnlySaleMatched && isPriceRangeMatched;
       }
-    );
+
+      // Brand filter
+      if (filterState.selectedBrands.length > 0) {
+        const brandName = product.brandId?.name || product.brand;
+        if (!brandName || !filterState.selectedBrands.includes(brandName)) {
+          return false;
+        }
+      }
+
+      // Material filter
+      if (filterState.selectedMaterials.length > 0) {
+        const materialName = product.materialId?.name || product.material;
+        if (!materialName || !filterState.selectedMaterials.includes(materialName)) {
+          return false;
+        }
+      }
+
+      // Type filter
+      if (filterState.selectedTypes.length > 0) {
+        const typeName = product.typeId?.name || product.type;
+        if (!typeName || !filterState.selectedTypes.includes(typeName)) {
+          return false;
+        }
+      }
+
+      // Color filter
+      if (filterState.selectedColors.length > 0) {
+        const productColors = product.colors || [];
+        const hasSelectedColor = filterState.selectedColors.some(color => 
+          productColors.some((pc: string) => pc.trim() === color)
+        );
+        if (!hasSelectedColor) {
+          return false;
+        }
+      }
+
+      // Price range filter
+      const productPrice = product.discountPrice || product.actualPrice || 0;
+      if (productPrice < filterState.minPrice || productPrice > filterState.maxPrice) {
+        return false;
+      }
+
+      // Sale filter
+      if (showOnlySale) {
+        if ((product.discountPrice || 0) >= (product.actualPrice || 0)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    return filtered;
+  }, [searchFilteredProducts, filterState, showOnlySale]);
+
+  // Sort products
+  let sortedData = [...filteredData];
+  if (sortOption === 'soldQuantityHighToLow') {
+    sortedData = filteredData.sort((a: any, b: any) => Math.floor(Math.random() * 100) - Math.floor(Math.random() * 100))
+  }
+  if (sortOption === 'discountHighToLow') {
+    sortedData = filteredData.sort((a: any, b: any) => {
+      const discountA = Math.floor(100 - (((a.discountPrice || 0) / ((a.actualPrice || 1) || 1)) * 100))
+      const discountB = Math.floor(100 - (((b.discountPrice || 0) / ((b.actualPrice || 1) || 1)) * 100))
+      return discountB - discountA
+    })
+  }
+  if (sortOption === 'priceHighToLow') {
+    sortedData = filteredData.sort((a: any, b: any) => (b.discountPrice || 0) - (a.discountPrice || 0))
+  }
+  if (sortOption === 'priceLowToHigh') {
+    sortedData = filteredData.sort((a: any, b: any) => (a.discountPrice || 0) - (b.discountPrice || 0))
   }
 
-  if (filteredData.length === 0) {
-    filteredData = [
+  let finalFilteredData = sortedData;
+
+  if (finalFilteredData.length === 0) {
+    finalFilteredData = [
       {
         id: "no-data",
         category: "no-data",
@@ -171,29 +245,8 @@ const SearchResult = () => {
     ];
   }
 
-  // Sort products
-  let sortedData = [...filteredData];
-  if (sortOption === 'soldQuantityHighToLow') {
-    sortedData = filteredData.sort((a: any, b: any) => Math.floor(Math.random() * 100) - Math.floor(Math.random() * 100))
-  }
-  if (sortOption === 'discountHighToLow') {
-    sortedData = filteredData.sort((a: any, b: any) => {
-      const discountA = Math.floor(100 - (((a.discountPrice || 0) / ((a.actualPrice || 1) || 1)) * 100))
-      const discountB = Math.floor(100 - (((b.discountPrice || 0) / ((b.actualPrice || 1) || 1)) * 100))
-      return discountB - discountA
-    })
-  }
-  if (sortOption === 'priceHighToLow') {
-    sortedData = filteredData.sort((a: any, b: any) => (b.discountPrice || 0) - (a.discountPrice || 0))
-  }
-  if (sortOption === 'priceLowToHigh') {
-    sortedData = filteredData.sort((a: any, b: any) => (a.discountPrice || 0) - (b.discountPrice || 0))
-  }
-
-  filteredData = sortedData;
-
   // Find page number base on filteredData
-  const pageCount = Math.ceil(filteredData.length / productsPerPage);
+  const pageCount = Math.ceil(finalFilteredData.length / productsPerPage);
 
   // If page number 0, set current page = 0
   if (pageCount === 0) {
@@ -203,8 +256,8 @@ const SearchResult = () => {
   // Get product data for current page
   let currentProducts: any;
 
-  if (filteredData.length > 0) {
-    currentProducts = filteredData.slice(offset, offset + productsPerPage);
+  if (finalFilteredData.length > 0) {
+    currentProducts = finalFilteredData.slice(offset, offset + productsPerPage);
   } else {
     currentProducts = [];
   }
@@ -222,6 +275,7 @@ const SearchResult = () => {
     }, 300);
   };
 
+  const { products : productsArray } = useSelector((state: any) => state.products)
   return (
     <>
       <div id="header" className="relative w-full">
@@ -231,9 +285,7 @@ const SearchResult = () => {
         <div className="container">
           <div className="heading flex flex-col items-center">
             <div className="heading4 text-center">
-              Found {filteredData.length} results for {String.raw`"`}
-              {query}
-              {String.raw`"`}
+              Found {finalFilteredData.length} results {query && <>for {String.raw`"`}{query}{String.raw`"`}</>}
             </div>
             <div className="input-block lg:w-1/2 sm:w-3/5 w-full md:h-[52px] h-[44px] sm:mt-8 mt-5">
               <div className="w-full h-full relative">
@@ -309,76 +361,165 @@ const SearchResult = () => {
             </div>
           </div>
 
-          <div
-            className={`sidebar style-dropdown bg-white grid md:grid-cols-1 grid-cols-1 md:gap-[30px] gap-6 mt-4 ${openSidebar ? 'open' : ''}`}
-          >
-            <div className="filter-price">
-              <div className="heading6 flex items-center justify-between">
-                <span>PRICE RANGE</span>
-                <Icon.CaretDown size={14} className='text-secondary2' />
-              </div>
-              <div className="w-full h-px bg-line mt-2 mb-4"></div>
-              <div className="price-block flex items-center gap-2 mt-4">
-                <input
-                  type="number"
-                  min={calculatePriceRange().min}
-                  max={calculatePriceRange().max}
-                  value={tempPriceRange.from || ''}
-                  onChange={handleFromPriceChange}
-                  className="flex-1 px-3 py-2 rounded border border-line caption1"
-                  placeholder="From"
-                />
-                <input
-                  type="number"
-                  min={calculatePriceRange().min}
-                  max={calculatePriceRange().max}
-                  value={tempPriceRange.to || ''}
-                  onChange={handleToPriceChange}
-                  className="flex-1 px-3 py-2 rounded border border-line caption1"
-                  placeholder="To"
-                />
-                <button
-                  onClick={handleApplyPriceFilter}
-                  className="px-4 py-2 bg-primary text-white rounded caption1 font-medium hover:opacity-90 transition-opacity"
-                >
-                  Go
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="list-product-block relative md:pt-10 pt-6">
-            <div className="heading6">product Search: {query}</div>
-            
-            {isLoading ? (
-              <div className="loading-spinner flex items-center justify-center py-20">
-                <div className="relative w-16 h-16">
-                  <div className="absolute top-0 left-0 w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                </div>
-              </div>
-            ) : (
-              <div
-                className={`list-product hide-product-sold grid lg:grid-cols-4 sm:grid-cols-3 grid-cols-2 sm:gap-[30px] gap-[20px] mt-5`}
-              >
-                {currentProducts.map((item: any) =>
-                  item.id === "no-data" ? (
-                    <div key={item.id} className="no-data-product">
-                      No products match the selected criteria.
-                    </div>
-                  ) : (
-                    <Product key={item.id} data={item} type="grid" />
-                  )
-                )}
-              </div>
-            )}
+          <ProductFilter
+            products={searchFilteredProducts}
+            onFilterChange={handleFilterChange}
+            openSidebar={openSidebar}
+            onToggleSidebar={handleOpenSidebar}
+            initialPriceRange={initialPriceRange}
+            externalFilterState={filterState}
+          />
 
-            {pageCount > 1 && (
-              <div className="list-pagination flex items-center justify-center md:mt-10 mt-7">
-                <HandlePagination
-                  pageCount={pageCount}
-                  onPageChange={handlePageChange}
-                />
-              </div>
-            )}
+          <div className="list-filtered flex items-center gap-3 mt-4">
+            <div className="total-product">
+              {finalFilteredData.length}
+              <span className='text-secondary pl-1'>Products Found</span>
+            </div>
+            {
+              (filterState.selectedCategories.length > 0 || 
+               filterState.selectedBrands.length > 0 || 
+               filterState.selectedMaterials.length > 0 || 
+               filterState.selectedTypes.length > 0 || 
+               filterState.selectedColors.length > 0) && (
+                <>
+                  <div className="list flex items-center gap-3">
+                    <div className='w-px h-4 bg-line'></div>
+                    {filterState.selectedCategories.map((cat) => (
+                      <div 
+                        key={cat} 
+                        className="item flex items-center px-2 py-1 gap-1 bg-linear rounded-full capitalize cursor-pointer hover:opacity-80"
+                        onClick={() => {
+                          const newState = {
+                            ...filterState,
+                            selectedCategories: filterState.selectedCategories.filter(c => c !== cat)
+                          };
+                          setFilterState(newState);
+                          handleFilterChange(newState);
+                          setCurrentPage(0);
+                        }}
+                      >
+                        <Icon.X className='cursor-pointer' size={14} />
+                        <span>{cat}</span>
+                      </div>
+                    ))}
+                    {filterState.selectedBrands.map((brand) => (
+                      <div 
+                        key={brand} 
+                        className="item flex items-center px-2 py-1 gap-1 bg-linear rounded-full capitalize cursor-pointer hover:opacity-80"
+                        onClick={() => {
+                          const newState = {
+                            ...filterState,
+                            selectedBrands: filterState.selectedBrands.filter(b => b !== brand)
+                          };
+                          setFilterState(newState);
+                          handleFilterChange(newState);
+                          setCurrentPage(0);
+                        }}
+                      >
+                        <Icon.X className='cursor-pointer' size={14} />
+                        <span>{brand}</span>
+                      </div>
+                    ))}
+                    {filterState.selectedMaterials.map((material) => (
+                      <div 
+                        key={material} 
+                        className="item flex items-center px-2 py-1 gap-1 bg-linear rounded-full capitalize cursor-pointer hover:opacity-80"
+                        onClick={() => {
+                          const newState = {
+                            ...filterState,
+                            selectedMaterials: filterState.selectedMaterials.filter(m => m !== material)
+                          };
+                          setFilterState(newState);
+                          handleFilterChange(newState);
+                          setCurrentPage(0);
+                        }}
+                      >
+                        <Icon.X className='cursor-pointer' size={14} />
+                        <span>{material}</span>
+                      </div>
+                    ))}
+                    {filterState.selectedTypes.map((type) => (
+                      <div 
+                        key={type} 
+                        className="item flex items-center px-2 py-1 gap-1 bg-linear rounded-full capitalize cursor-pointer hover:opacity-80"
+                        onClick={() => {
+                          const newState = {
+                            ...filterState,
+                            selectedTypes: filterState.selectedTypes.filter(t => t !== type)
+                          };
+                          setFilterState(newState);
+                          handleFilterChange(newState);
+                          setCurrentPage(0);
+                        }}
+                      >
+                        <Icon.X className='cursor-pointer' size={14} />
+                        <span>{type}</span>
+                      </div>
+                    ))}
+                    {filterState.selectedColors.map((color) => (
+                      <div 
+                        key={color} 
+                        className="item flex items-center px-2 py-1 gap-1 bg-linear rounded-full capitalize cursor-pointer hover:opacity-80"
+                        onClick={() => {
+                          const newState = {
+                            ...filterState,
+                            selectedColors: filterState.selectedColors.filter(c => c !== color)
+                          };
+                          setFilterState(newState);
+                          handleFilterChange(newState);
+                          setCurrentPage(0);
+                        }}
+                      >
+                        <Icon.X className='cursor-pointer' size={14} />
+                        <span>{color}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div
+                    className="clear-btn flex items-center px-2 py-1 gap-1 rounded-full border border-red cursor-pointer"
+                    onClick={handleClearAll}
+                  >
+                    <Icon.X color='rgb(219, 68, 68)' className='cursor-pointer' />
+                    <span className='text-button-uppercase text-red'>Clear All</span>
+                  </div>
+                </>
+              )
+            }
+          </div>
+
+          <div className="list-product-block relative md:pt-10 pt-6">
+              {query && <div className="heading6">product Search: {query}</div>}
+              
+              {isLoading ? (
+                <div className="loading-spinner flex items-center justify-center py-20">
+                  <div className="relative w-16 h-16">
+                    <div className="absolute top-0 left-0 w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className={`list-product hide-product-sold grid lg:grid-cols-4 sm:grid-cols-3 grid-cols-2 sm:gap-[30px] gap-[20px] mt-5`}
+                >
+                  {currentProducts.map((item: any) =>
+                    item.id === "no-data" ? (
+                      <div key={item.id} className="no-data-product">
+                        No products match the selected criteria.
+                      </div>
+                    ) : (
+                      <Product key={item.id} data={item} type="grid" />
+                    )
+                  )}
+                </div>
+              )}
+
+              {pageCount > 1 && (
+                <div className="list-pagination flex items-center justify-center md:mt-10 mt-7">
+                  <HandlePagination
+                    pageCount={pageCount}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              )}
           </div>
         </div>
       </div>
