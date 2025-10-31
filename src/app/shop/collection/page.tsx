@@ -11,9 +11,7 @@ export default function Collection() {
 
     return (
         <>
-            <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
             <div id="header" className='relative w-full'>
-                <MenuOne props="bg-transparent" />
                 <Breadcrumb heading='Shop Collection' subHeading='Collection' />
             </div>
             <ShopCollection data={productData} />

@@ -15,6 +15,23 @@ interface Props {
 }
 
 const ShopFilterOptions: React.FC<Props> = ({ data, productPerPage }) => {
+    // Calculate dynamic price range from products
+    const calculatePriceRange = () => {
+        if (!data || data.length === 0) return { min: 0, max: 1000 };
+        
+        const prices = data.map(product => product.discountPrice || product.price || 0);
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+        
+        const padding = (maxPrice - minPrice) * 0.1;
+        return {
+            min: Math.floor(Math.max(0, minPrice - padding)),
+            max: Math.ceil(maxPrice + padding)
+        };
+    };
+
+    const initialPriceRange = calculatePriceRange();
+
     const [layoutCol, setLayoutCol] = useState<number | null>(4)
     const [sortOption, setSortOption] = useState('');
     const [showOnlySale, setShowOnlySale] = useState(false)
@@ -22,10 +39,17 @@ const ShopFilterOptions: React.FC<Props> = ({ data, productPerPage }) => {
     const [size, setSize] = useState<string | undefined>()
     const [color, setColor] = useState<string | undefined>()
     const [brand, setBrand] = useState<string | undefined>()
-    const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 100 });
+    const [priceRange, setPriceRange] = useState<{ min: number; max: number }>(initialPriceRange);
     const [currentPage, setCurrentPage] = useState(0);
     const productsPerPage = productPerPage;
     const offset = currentPage * productsPerPage;
+
+    // Update price range when data changes
+    useEffect(() => {
+        const newRange = calculatePriceRange();
+        setPriceRange(newRange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleLayoutCol = (col: number) => {
         setLayoutCol(col)
@@ -83,13 +107,13 @@ const ShopFilterOptions: React.FC<Props> = ({ data, productPerPage }) => {
 
         let isSizeMatched = true;
         if (size) {
-            isSizeMatched = product.sizes.includes(size)
+            isSizeMatched = product.size.includes(size)
         }
 
+        // Filter by price range using discountPrice (or fallback to price)
         let isPriceRangeMatched = true;
-        if (priceRange.min !== 0 || priceRange.max !== 100) {
-            isPriceRangeMatched = product.price >= priceRange.min && product.price <= priceRange.max;
-        }
+        const productPrice = product.discountPrice || product.price || 0;
+        isPriceRangeMatched = productPrice >= priceRange.min && productPrice <= priceRange.max;
 
         let isColorMatched = true;
         if (color) {
@@ -150,7 +174,7 @@ const ShopFilterOptions: React.FC<Props> = ({ data, productPerPage }) => {
             sold: 0,
             quantity: 0,
             quantityPurchase: 0,
-            sizes: [],
+            size: [],
             variation: [],
             thumbImage: [],
             images: [],
@@ -164,10 +188,12 @@ const ShopFilterOptions: React.FC<Props> = ({ data, productPerPage }) => {
     // Find page number base on filteredData
     const pageCount = Math.ceil(filteredData.length / productsPerPage);
 
-    // If page number 0, set current page = 0
-    if (pageCount === 0) {
-        setCurrentPage(0);
-    }
+    // When page count shrinks to 0 after filters, reset current page safely
+    useEffect(() => {
+        if (pageCount === 0 && currentPage !== 0) {
+            setCurrentPage(0);
+        }
+    }, [pageCount]);
 
     // Get product data for current page
     let currentProducts: ProductType[];
@@ -187,7 +213,7 @@ const ShopFilterOptions: React.FC<Props> = ({ data, productPerPage }) => {
         setSize(undefined);
         setColor(undefined);
         setBrand(undefined);
-        setPriceRange({ min: 0, max: 100 });
+        setPriceRange(calculatePriceRange());
         setCurrentPage(0);
     };
 

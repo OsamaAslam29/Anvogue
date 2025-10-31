@@ -22,7 +22,7 @@ const ProductDefault = () => {
         if (productId) {
             ProductService.getById(productId, dispatch)
         }
-    }, [])
+    }, [productId])
 
     if (productId === null) {
         productId = '1'
@@ -53,11 +53,9 @@ const ProductDefault = () => {
 
     return (
         <>
-            {/* <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
             <div id="header" className='relative w-full'>
-                <MenuOne props="bg-white" />
                 <BreadcrumbProduct data={productData} productPage='default' productId={productId} />
-            </div> */}
+            </div>
             <Default product={selectedProduct} productId={productId} />
             {/* <Footer /> */}
         </>

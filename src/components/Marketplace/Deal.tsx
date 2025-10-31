@@ -36,7 +36,7 @@ const convertToLegacyProduct = (product: any) => {
     return {
         _id: product._id,
         category: product?.categoryId?.name?.toLowerCase().replace(/\s+/g, '-') || 'general',
-        type: 'product',
+        typeId: product?.typeId || 'product',
         title: product?.title || 'Untitled Product',
         gender: 'unisex',
         new: product?.newArrival || false,
@@ -44,17 +44,19 @@ const convertToLegacyProduct = (product: any) => {
         rate: 5, // Default rating
         discountPrice: product?.discountPrice || 0,
         actualPrice: product?.actualPrice || 0,
-        brand: 'Brand', // Default brand
+        brandId: product?.brandId || 'Brand', // Default brand
         sold: Math.floor(Math.random() * 100), // Random sold count
         quantity: product?.stock || 0,
         quantityPurchase: 1,
-        sizes: product.size || [],
-        variation: (product.colors || []).map((color, index) => ({
-            color: color.replace(/[\[\]"]/g, ''),
-            colorCode: '#000000',
-            colorImage: product.images?.[0]?.Location || '',
-            image: product.images?.[0]?.Location || ''
-        })),
+        size: product.size || [],
+        materialId: product.materialId || [],
+        colors: product.colors,
+        // variation: (product.colors || []).map((color, index) => ({
+        //     color: color.replace(/[\[\]"]/g, ''),
+        //     colorCode: '#000000',
+        //     colorImage: product.images?.[0]?.Location || '',
+        //     image: product.images?.[0]?.Location || ''
+        // })),
         thumbImage: (product.images || []),
         images: (product?.images || []),
         description: product?.detail || '',

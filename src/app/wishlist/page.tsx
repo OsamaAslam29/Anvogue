@@ -3,12 +3,13 @@ import React, { useState, useEffect } from "react";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import { ProductType } from "@/type/ProductType";
 import Product from "@/components/Product/Product";
-import { useWishlist } from "@/context/WishlistContext";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store.d';
 import HandlePagination from "@/components/Other/HandlePagination";
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 
 const Wishlist = () => {
-  const { wishlistState } = useWishlist();
+  const wishlistArray = useSelector((state: RootState) => state.wishlist.wishlistArray);
   const [sortOption, setSortOption] = useState("");
   const [layoutCol, setLayoutCol] = useState<number | null>(4);
   const [type, setType] = useState<string | undefined>();
@@ -29,7 +30,7 @@ const Wishlist = () => {
   };
 
   // Filter product data by type
-  let filteredData = wishlistState.wishlistArray.filter((product) => {
+  let filteredData = wishlistArray.filter((product) => {
     let isTypeMatched = true;
     if (type) {
       // Support both new backend structure (typeId.name) and legacy structure (type)
@@ -60,7 +61,7 @@ const Wishlist = () => {
   //         sold: 0,
   //         quantity: 0,
   //         quantityPurchase: 0,
-  //         sizes: [],
+  //         size: [],
   //         size: ["no-data"],
   //         variation: [],
   //         thumbImage: [],

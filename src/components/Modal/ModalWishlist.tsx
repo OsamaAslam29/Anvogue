@@ -5,11 +5,18 @@ import Link from "next/link";
 import Image from "next/image";
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useModalWishlistContext } from "@/context/ModalWishlistContext";
-import { useWishlist } from "@/context/WishlistContext";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/redux/store.d';
+import { wishlistActions } from '@/redux/slices/wishlistSlice';
 
 const ModalWishlist = () => {
   const { isModalOpen, closeModalWishlist } = useModalWishlistContext();
-  const { wishlistState, removeFromWishlist } = useWishlist();
+  const dispatch = useDispatch();
+  const wishlistArray = useSelector((state: RootState) => state.wishlist.wishlistArray);
+  
+  const removeFromWishlist = (itemId: string) => {
+    dispatch(wishlistActions.removeFromWishlist(itemId));
+  };
 
   return (
     <>
@@ -30,7 +37,7 @@ const ModalWishlist = () => {
             </div>
           </div>
           <div className="list-product px-6">
-            {wishlistState.wishlistArray.map((product: any) => (
+            {wishlistArray.map((product: any) => (
               <div
                 key={product.id}
                 className="item py-5 flex items-center justify-between gap-3 border-b border-line"

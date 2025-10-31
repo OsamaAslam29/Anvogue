@@ -7,7 +7,9 @@ import * as Icon from "@phosphor-icons/react/dist/ssr";
 import productData from "@/data/Product.json";
 import { ProductType } from "@/type/ProductType";
 import { useModalCartContext } from "@/context/ModalCartContext";
-import { useCart } from "@/context/CartContext";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/redux/store.d';
+import { cartActions } from '@/redux/slices/cartSlice';
 import { countdownTime } from "@/store/countdownTime";
 import CountdownTimeType from "@/type/CountdownType";
 
@@ -28,15 +30,20 @@ const ModalCart = ({
 
   const [activeTab, setActiveTab] = useState<string | undefined>("");
   const { isModalOpen, closeModalCart } = useModalCartContext();
-  const { cartState, addToCart, removeFromCart, updateCart } = useCart();
+  const dispatch = useDispatch();
+  const cartArray = useSelector((state: RootState) => state.cart.cartArray);
 
   const handleAddToCart = (productItem: any) => {
-    if (!cartState.cartArray.find((item) => item.id === productItem.id)) {
-      addToCart({ ...productItem });
-      updateCart(productItem.id, productItem.quantityPurchase, "", "");
+    if (!cartArray.find((item) => item._id === productItem._id)) {
+      dispatch(cartActions.addToCart({ ...productItem }));
+      dispatch(cartActions.updateCart({ itemId: productItem._id, quantity: productItem.quantityPurchase || 1, selectedSize: "", selectedColor: "" }));
     } else {
-      updateCart(productItem.id, productItem.quantityPurchase, "", "");
+      dispatch(cartActions.updateCart({ itemId: productItem._id, quantity: productItem.quantityPurchase || 1, selectedSize: "", selectedColor: "" }));
     }
+  };
+
+  const removeFromCart = (itemId: string) => {
+    dispatch(cartActions.removeFromCart(itemId));
   };
 
   const handleActiveTab = (tab: string) => {
@@ -44,12 +51,11 @@ const ModalCart = ({
   };
 
   let moneyForFreeship = 150;
-  let [totalCart, setTotalCart] = useState<number>(0);
   let [discountCart, setDiscountCart] = useState<number>(0);
 
-  cartState.cartArray.map(
-    (item: any) => (totalCart += item.price * item.quantity)
-  );
+  const totalCart = cartArray.reduce((total, item: any) => {
+    return total + (item.discountPrice * item.quantity)
+  }, 0);
 
   return (
     <>
@@ -107,7 +113,7 @@ const ModalCart = ({
               </div>
             </div>
             <div className="time px-6">
-              <div className=" flex items-center gap-3 px-5 py-3 bg-green rounded-lg">
+              {/* <div className=" flex items-center gap-3 px-5 py-3 bg-green rounded-lg">
                 <p className="text-3xl">🔥</p>
                 <div className="caption1">
                   Your cart will expire in{" "}
@@ -121,9 +127,9 @@ const ModalCart = ({
                   <br />
                   Please checkout now before your items sell out!
                 </div>
-              </div>
+              </div> */}
             </div>
-            <div className="heading banner mt-3 px-6">
+            {/* <div className="heading banner mt-3 px-6">
               <div className="text">
                 Buy{" "}
                 <span className="text-button">
@@ -152,9 +158,9 @@ const ModalCart = ({
                   }}
                 ></div>
               </div>
-            </div>
+            </div> */}
             <div className="list-product px-6">
-              {cartState.cartArray.map((product: any) => (
+              {cartArray.map((product: any) => (
                 <div
                   key={product._id}
                   className="item py-5 flex items-center justify-between gap-3 border-b border-line"
@@ -181,8 +187,8 @@ const ModalCart = ({
                       </div>
                       <div className="flex items-center justify-between gap-2 mt-3 w-full">
                         <div className="flex items-center text-secondary2 capitalize">
-                          {product.selectedSize || product.sizes[0]}/
-                          {product.selectedColor || product.variation[0].color}
+                          {product.selectedSize || product.size[0]}/
+                          {product.selectedColor || product.colors[0]}
                         </div>
                         <div className="product-price text-title">
                           <span className="currency-symbol">৳</span>
@@ -196,27 +202,27 @@ const ModalCart = ({
             </div>
             <div className="footer-modal bg-white absolute bottom-0 left-0 w-full">
               <div className="flex items-center justify-center lg:gap-14 gap-8 px-6 py-4 border-b border-line">
-                <div
+                {/* <div
                   className="item flex items-center gap-3 cursor-pointer"
                   onClick={() => handleActiveTab("note")}
                 >
                   <Icon.NotePencil className="text-xl" />
                   <div className="caption1">Note</div>
-                </div>
-                <div
+                </div> */}
+                {/* <div
                   className="item flex items-center gap-3 cursor-pointer"
                   onClick={() => handleActiveTab("shipping")}
                 >
                   <Icon.Truck className="text-xl" />
                   <div className="caption1">Shipping</div>
-                </div>
-                <div
+                </div> */}
+                {/* <div
                   className="item flex items-center gap-3 cursor-pointer"
                   onClick={() => handleActiveTab("coupon")}
                 >
                   <Icon.Tag className="text-xl" />
                   <div className="caption1">Coupon</div>
-                </div>
+                </div> */}
               </div>
               <div className="flex items-center justify-between pt-6 px-6">
                 <div className="heading5">Subtotal</div>
@@ -246,7 +252,7 @@ const ModalCart = ({
                   Or continue shopping
                 </div>
               </div>
-              <div
+              {/* <div
                 className={`tab-item note-block ${
                   activeTab === "note" ? "active" : ""
                 }`}
@@ -420,7 +426,7 @@ const ModalCart = ({
                     Cancel
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

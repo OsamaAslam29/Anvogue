@@ -85,7 +85,7 @@ const ShopBreadCrumb2: React.FC<Props> = ({ data, productPerPage, dataType }) =>
 
         let isSizeMatched = true;
         if (size) {
-            isSizeMatched = product.sizes.includes(size)
+            isSizeMatched = product.size.includes(size)
         }
 
         let isPriceRangeMatched = true;
@@ -151,7 +151,7 @@ const ShopBreadCrumb2: React.FC<Props> = ({ data, productPerPage, dataType }) =>
             sold: 0,
             quantity: 0,
             quantityPurchase: 0,
-            sizes: [],
+            size: [],
             variation: [],
             thumbImage: [],
             images: [],
