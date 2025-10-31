@@ -121,7 +121,6 @@ export interface ProductType {
     image: string;
   }[]; // added from sample data
   colors: string[];
-  size: string[];
   sizes?: string[]; // alias for size
   type?: string; // legacy field
   typeId?: Type; // new backend field
