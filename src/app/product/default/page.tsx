@@ -55,7 +55,7 @@ const ProductDefault = () => {
         <>
             <div id="header" className='relative w-full'>
                 <BreadcrumbProduct data={productData} productPage='default' productId={productId} />
-            </div> */}
+            </div>
             <Default product={selectedProduct} productId={productId} />
             {/* <Footer /> */}
         </>
