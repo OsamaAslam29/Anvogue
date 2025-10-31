@@ -14,10 +14,6 @@ export default function FilterDropdown() {
 
     return (
         <>
-            <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
-            <div id="header" className='relative w-full'>
-                <MenuOne props="bg-transparent" />
-            </div>
             <ShopFilterDropdown data={productData} productPerPage={12} dataType={type} />
         </>
     )

@@ -51,21 +51,21 @@ const SliderMarketplace = () => {
             title: "FEATURED",
             heading: "Explore Categories",
             image: '/images/slider/marketplace.png',
-            link: '/shop'
+            link: '/'
         },
         {
             id: "2",
             title: "POPULAR",
             heading: "Shop by Category",
             image: '/images/slider/marketplace.png',
-            link: '/shop'
+            link: '/'
         },
         {
             id: "3",
             title: "TRENDING",
             heading: "Browse Collections",
             image: '/images/slider/marketplace.png',
-            link: '/shop'
+            link: '/'
         }
     ];
 

@@ -96,7 +96,7 @@ const ShopFilterCanvas: React.FC<any> = ({ data, productPerPage, dataType, produ
 
         let isSizeMatched = true;
         if (size) {
-            isSizeMatched = product.sizes.includes(size)
+            isSizeMatched = product.size.includes(size)
         }
 
         let isPriceRangeMatched = true;
@@ -163,7 +163,7 @@ const ShopFilterCanvas: React.FC<any> = ({ data, productPerPage, dataType, produ
             sold: 0,
             quantity: 0,
             quantityPurchase: 0,
-            sizes: [],
+            size: [],
             variation: [],
             thumbImage: [],
             images: [],

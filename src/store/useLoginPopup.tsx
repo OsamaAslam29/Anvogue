@@ -15,7 +15,7 @@ const useLoginPopup = () => {
         if (openLoginPopup && !targetElement.closest('.login-popup')) {
             setOpenLoginPopup(false)
         }
-    }, [])
+    }, [openLoginPopup])
 
     useEffect(() => {
         // Add a global click event to track clicks outside the popup.
@@ -25,7 +25,7 @@ const useLoginPopup = () => {
         return () => {
             document.removeEventListener('click', handleClickOutsideLoginPopup);
         };
-    }, [])
+    }, [handleClickOutsideLoginPopup])
 
     return {
         openLoginPopup,

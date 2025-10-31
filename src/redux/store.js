@@ -3,6 +3,11 @@ import { persistStore, persistReducer } from "redux-persist";
 import { combineReducers } from "@reduxjs/toolkit";
 import productReducer from "./slices/productSlice";
 import categoryReducer from "./slices/categorySlice";
+import cartReducer from "./slices/cartSlice";
+import wishlistReducer from "./slices/wishlistSlice";
+import compareReducer from "./slices/compareSlice";
+import authReducer from "./slices/authSlice";
+import ordersReducer from "./slices/ordersSlice";
 
 // Create a storage that only works on client side
 const createNoopStorage = () => {
@@ -27,12 +32,17 @@ const storage =
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["categories", "products"], // Only persist these reducers
+  whitelist: ["categories", "products", "cart", "wishlist", "compare", "auth", "orders"], // Only persist these reducers
 };
 
 const rootReducer = combineReducers({
   products: productReducer,
   categories: categoryReducer,
+  cart: cartReducer,
+  wishlist: wishlistReducer,
+  compare: compareReducer,
+  auth: authReducer,
+  orders: ordersReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

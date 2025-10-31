@@ -8,9 +8,11 @@ import Footer from "@/components/Footer/Footer";
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useRouter } from "next/navigation";
 import AuthService from "@/services/auth.service";
+import { useDispatch } from "react-redux";
 
 const Login = () => {
   const navigate = useRouter();
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -51,18 +53,13 @@ const Login = () => {
         email: formData.email,
         password: formData.password,
       };
-      await AuthService.login(payload, navigate);
+      await AuthService.login(payload, navigate, dispatch);
     }
   };
 
   return (
     <>
-      <TopNavOne
-        props="style-one bg-black"
-        slogan="New customers save 10% with the code GET10"
-      />
       <div id="header" className="relative w-full">
-        <MenuOne props="bg-transparent" />
         <Breadcrumb heading="Login" subHeading="Login" />
       </div>
       <div className="login-block md:py-20 py-10">

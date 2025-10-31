@@ -122,7 +122,7 @@ export interface ProductType {
   }[]; // added from sample data
   colors: string[];
   size: string[];
-  sizes?: string[]; // alias for size
+  size?: string[]; // alias for size
   type?: string; // legacy field
   typeId?: Type; // new backend field
   productId?: string;
@@ -185,7 +185,7 @@ export interface LegacyProductType {
     sold: number,
     quantity: number,
     quantityPurchase: number,
-    sizes: Array<string>,
+    size: Array<string>,
     variation: Variation[],
     thumbImage: Array<string>,
     images: Array<string>,

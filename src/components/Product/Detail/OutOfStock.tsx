@@ -289,7 +289,7 @@ const OutOfStock: React.FC<Props> = ({ data, productId }) => {
                                         <ModalSizeguide data={productMain} isOpen={openSizeGuide} onClose={handleCloseSizeGuide} />
                                     </div>
                                     <div className="list-size flex items-center gap-2 flex-wrap mt-3">
-                                        {productMain.sizes.map((item, index) => (
+                                        {productMain.size.map((item, index) => (
                                             <div
                                                 className={`size-item ${item === 'freesize' ? 'px-3 py-2' : 'w-12 h-12'} relative flex items-center justify-center text-button rounded-full bg-surface text-secondary2`}
                                                 key={index}

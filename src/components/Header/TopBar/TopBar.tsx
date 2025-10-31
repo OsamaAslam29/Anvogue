@@ -5,12 +5,13 @@ import * as Icon from "@phosphor-icons/react/dist/ssr";
 import useMenuMobile from "@/store/useMenuMobile";
 import { useModalCartContext } from "@/context/ModalCartContext";
 import { useModalWishlistContext } from "@/context/ModalWishlistContext";
-import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import useLoginPopup from "@/store/useLoginPopup";
 import Image from "next/image";
 import logo from "../../../../public/logo.png";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from '@/redux/store.d';
+import AuthService from "@/services/auth.service";
 
 const TopBar = () => {
   const router = useRouter();
@@ -22,7 +23,10 @@ const TopBar = () => {
   const { openModalCart } = useModalCartContext();
   const { openModalWishlist } = useModalWishlistContext();
   const { openLoginPopup, handleLoginPopup } = useLoginPopup();
-  const { cartState } = useCart();
+  const cartArray = useSelector((state: RootState) => state.cart.cartArray);
+  const auth = useSelector((state: any) => state.auth);
+  const { user, isAuthenticated } = auth || { user: null, isAuthenticated: false };
+  const dispatch = useDispatch();
 
   const handleSearch = (value: string) => {
     router.push(`/search-result?query=${value}`);
@@ -93,43 +97,37 @@ const TopBar = () => {
             <div className="right flex gap-12">
               <div className="list-action flex items-center gap-4">
                 <div className="user-icon flex items-center justify-center cursor-pointer">
-                  <Icon.User
-                    weight="bold"
-                    size={24}
-                    color="white"
-                    onClick={handleLoginPopup}
-                  />
+                  <div className="flex items-center gap-2" onClick={handleLoginPopup}>
+                    <Icon.User
+                      weight="bold"
+                      size={24}
+                      color="white"
+                    />
+                    {isAuthenticated && (
+                      <span className="text-white text-sm max-lg:hidden">{user?.name}</span>
+                    )}
+                  </div>
                   <div
-                    className={`login-popup absolute top-[74px] w-[320px] p-7 rounded-xl bg-white box-shadow-sm 
-                                                  ${
-                                                    openLoginPopup ? "open" : ""
-                                                  }`}
+                    className={`login-popup absolute top-[74px] w-[320px] p-7 rounded-xl bg-white box-shadow-sm ${openLoginPopup ? "open" : ""}`}
                   >
-                    <Link
-                      href={"/login"}
-                      className="button-main w-full text-center"
-                    >
-                      Login
-                    </Link>
-                    <div className="text-secondary text-center mt-3 pb-4">
-                      Don't have an account?
-                      <Link
-                        href={"/register"}
-                        className="text-black pl-1 hover:underline"
-                      >
-                        Register
-                      </Link>
-                    </div>
-                    <Link
-                      href={"/my-account"}
-                      className="button-main bg-white text-black border border-black w-full text-center"
-                    >
-                      Dashboard
-                    </Link>
-                    <div className="bottom mt-4 pt-4 border-t border-line"></div>
-                    <Link href={"#!"} className="body1 hover:underline">
-                      Support
-                    </Link>
+                    {!isAuthenticated ? (
+                      <>
+                        <Link href={"/login"} className="button-main w-full text-center">Login</Link>
+                        <div className="text-secondary text-center mt-3 pb-4">
+                          Don't have an account?
+                          <Link href={"/register"} className="text-black pl-1 hover:underline">Register</Link>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-center mb-4">
+                          <div className="heading6">Hi, {user?.name}</div>
+                          <div className="body2 text-secondary">{user?.email}</div>
+                        </div>
+                        <Link href={"/my-account"} className="button-main bg-white text-black border border-black w-full text-center">Dashboard</Link>
+                        <button onClick={() => AuthService.logout(dispatch, router)} className="button-main w-full text-center mt-3">Logout</button>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div
@@ -144,7 +142,7 @@ const TopBar = () => {
                 >
                   <Icon.Handbag weight="bold" size={24} color="white" />
                   <span className="quantity cart-quantity absolute -right-1.5 -top-1.5 text-xs text-white bg-red w-4 h-4 flex items-center justify-center rounded-full">
-                    {cartState.cartArray.length}
+                    {cartArray.length}
                   </span>
                 </div>
               </div>
@@ -194,7 +192,7 @@ const TopBar = () => {
                 >
                   <Icon.X size={14} />
                 </div>
-                <Link href={'/'} className='logo text-3xl font-semibold text-center'>Anvogue</Link>
+                <Link href={'/'} className='logo text-3xl font-semibold text-center'>Foxybd</Link>
               </div>
               
               {/* Mobile Search */}

@@ -1,5 +1,6 @@
 import http from "./http.service";
 import Promisable from "./promisable.service";
+import { setUser, clearUser } from "@/redux/slices/authSlice";
 
 const url = "auth";
 
@@ -19,7 +20,7 @@ const AuthService = {
     return [success, error];
   },
 
-  login: async (data, navigate) => {
+  login: async (data, navigate, dispatch) => {
     const config = {
       baseURL: http.getUserBaseUrl(),
     };
@@ -30,9 +31,21 @@ const AuthService = {
 
     if (success) {
       const { result } = success.data;
-
       const token = result.token;
-      localStorage.setItem("token", `Bearer ${token}`);
+      try {
+        localStorage.setItem("token", `Bearer ${token}`);
+        // Persist full user payload for UI rendering (name, email, role, etc.)
+        // The backend returns { result: { token, ...userFields } }
+        const persistedUser = { ...result };
+        // Ensure token is included on the user object for easy access if needed
+        if (!persistedUser.token) persistedUser.token = token;
+        localStorage.setItem("user", JSON.stringify(persistedUser));
+      } catch {}
+      // update redux state if provided
+      dispatch?.(setUser({ ...result }));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('auth-changed'));
+      }
       navigate.push("/");
     }
 
@@ -81,11 +94,21 @@ const AuthService = {
   //   return [success, error];
   // },
   logout: (dispatch, navigate) => {
-    localStorage.removeItem("token");
-    sessionStorage.clear();
-    navigate("/");
-    dispatch?.(authActions.logout());
-    dispatch?.(authActions.setUser(null));
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      sessionStorage.clear();
+    } catch {}
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('auth-changed'));
+    }
+    // update redux state
+    dispatch?.(clearUser());
+    if (navigate?.push) {
+      navigate.push("/");
+    } else if (typeof navigate === 'function') {
+      navigate("/");
+    }
   },
 };
 
