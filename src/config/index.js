@@ -1,8 +1,8 @@
 const config = {
   API_URL:
     process.env.API_URL ||
-    "http://localhost:1201/api/"
-    // "https://tayyab.api.jiyaclothing.com/api/",
+    // "http://localhost:1201/api/"
+    "https://tayyab.api.jiyaclothing.com/api/",
 };
 
 export default config;
