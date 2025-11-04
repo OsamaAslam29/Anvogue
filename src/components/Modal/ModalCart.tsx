@@ -187,8 +187,8 @@ const ModalCart = ({
                       </div>
                       <div className="flex items-center justify-between gap-2 mt-3 w-full">
                         <div className="flex items-center text-secondary2 capitalize">
-                          {product.selectedSize || product.size[0]}/
-                          {product.selectedColor || product.colors[0]}
+                          {product.selectedSize || ""}/
+                          {product.selectedColor || ""}
                         </div>
                         <div className="product-price text-title">
                           <span className="currency-symbol">৳</span>

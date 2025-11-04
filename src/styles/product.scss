@@ -768,3 +768,38 @@ body {
     transform: scale(1);
   }
 }
+
+// Specifications Section Styling
+.product-detail {
+  .specifications {
+    .spec-group {
+      border: 1px solid #e5e7eb;
+      
+      .bg-blue-400 {
+        background-color: #60a5fa !important;
+        letter-spacing: 0.025em;
+      }
+      
+      .spec-details {
+        .spec-item {
+          transition: background-color 0.2s ease;
+          
+          &:hover {
+            background-color: #f9fafb;
+          }
+          
+          .spec-key {
+            min-width: fit-content;
+            font-weight: 600;
+          }
+          
+          .spec-value {
+            min-width: 0;
+            word-wrap: break-word;
+            max-width: 60%;
+          }
+        }
+      }
+    }
+  }
+}

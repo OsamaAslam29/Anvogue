@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ProductType } from '@/type/ProductType'
 import Product from '../Product'
 import Rate from '@/components/Other/Rate'
@@ -19,9 +20,127 @@ import { compareActions } from '@/redux/slices/compareSlice';
 import { useModalCartContext } from '@/context/ModalCartContext'
 import { useModalWishlistContext } from '@/context/ModalWishlistContext'
 import { useModalCompareContext } from '@/context/ModalCompareContext'
+import { useModalEMIContext } from '@/context/ModalEMIContext'
 import ModalSizeguide from '@/components/Modal/ModalSizeguide'
+import ModalEMI from '@/components/Modal/ModalEMI'
 
 SwiperCore.use([Navigation, Thumbs]);
+
+// Function to format product description into HTML
+const formatProductDescription = (description: string): string => {
+    if (!description) return '';
+    
+    // If already properly formatted HTML, return as is
+    if (description.includes('<h3>') || description.includes('<h4>') || description.includes('<div class="flex')) {
+        return description;
+    }
+    
+    let html = description;
+    
+    // Remove existing <p> tags if any and clean up
+    html = html.replace(/<p>/g, '').replace(/<\/p>/g, '\n');
+    
+    // Convert **text** to <strong>text</strong>
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Split into lines for processing
+    const lines = html.split('\n');
+    const processedLines: string[] = [];
+    let currentSection = '';
+    let inList = false;
+    let listItems: string[] = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        // Skip empty lines
+        if (!line) {
+            // Close any open list
+            if (inList && listItems.length > 0) {
+                processedLines.push(`<ul class="list-disc list-inside space-y-1 my-3 ml-4">${listItems.join('')}</ul>`);
+                listItems = [];
+                inList = false;
+            }
+            continue;
+        }
+        
+        // Check for main section headers
+        const sectionHeaders = [
+            'Key Features:',
+            'General Information:',
+            'Panel:',
+            'Video:',
+            'Audio:',
+            'System & Performance:',
+            'System and Performance:',
+            'Smart Features & Applications:',
+            'Smart Features and Applications:',
+            'Connectivity & Convenience:',
+            'Connectivity and Convenience:'
+        ];
+        
+        let isSectionHeader = false;
+        for (const header of sectionHeaders) {
+            if (line.includes(`<strong>${header}</strong>`) || line === header || line.startsWith(header)) {
+                const headerText = header.replace(':', '');
+                processedLines.push(`<h3 class="font-bold text-xl mt-6 mb-4 text-gray-900">${headerText}</h3>`);
+                currentSection = headerText;
+                isSectionHeader = true;
+                break;
+            }
+        }
+        
+        if (isSectionHeader) continue;
+        
+        // Check for list items
+        if (line.startsWith('- ') || line.startsWith('* ') || line.startsWith('• ')) {
+            const listContent = line.substring(2).trim();
+            listItems.push(`<li class="mb-1">${listContent}</li>`);
+            inList = true;
+            continue;
+        }
+        
+        // Close list if we encounter a non-list item
+        if (inList && listItems.length > 0) {
+            processedLines.push(`<ul class="list-disc list-inside space-y-1 my-3 ml-4">${listItems.join('')}</ul>`);
+            listItems = [];
+            inList = false;
+        }
+        
+        // Check for specification format: "Name: Value"
+        if (line.includes(': ') && !line.endsWith(':')) {
+            const colonIndex = line.indexOf(': ');
+            const name = line.substring(0, colonIndex).trim();
+            const value = line.substring(colonIndex + 2).trim();
+            
+            // Clean up HTML tags from name
+            const cleanName = name.replace(/<strong>/g, '').replace(/<\/strong>/g, '');
+            
+            processedLines.push(
+                `<div class="flex flex-wrap py-2 border-b border-gray-100">
+                    <span class="font-semibold text-gray-900 min-w-[220px] sm:w-auto">${cleanName}:</span>
+                    <span class="text-gray-700 ml-2 flex-1">${value}</span>
+                </div>`
+            );
+            continue;
+        }
+        
+        // Regular paragraph
+        if (!line.startsWith('<')) {
+            processedLines.push(`<p class="mb-3 leading-relaxed">${line}</p>`);
+        } else {
+            processedLines.push(line);
+        }
+    }
+    
+    // Close any remaining list
+    if (inList && listItems.length > 0) {
+        processedLines.push(`<ul class="list-disc list-inside space-y-1 my-3 ml-4">${listItems.join('')}</ul>`);
+    }
+    
+    // Wrap in container
+    return `<div class="product-description space-y-2">${processedLines.join('\n')}</div>`;
+};
 
 interface Props {
     product: any
@@ -31,12 +150,14 @@ interface Props {
 const Default: React.FC<any> = ({ product, productId }) => {
     const swiperRef: any = useRef();
     const [photoIndex, setPhotoIndex] = useState(0)
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0)
     const [openPopupImg, setOpenPopupImg] = useState(false)
     const [openSizeGuide, setOpenSizeGuide] = useState<boolean>(false)
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperCore | null>(null);
     const [activeColor, setActiveColor] = useState<string>('')
     const [activeSize, setActiveSize] = useState<string>('')
     const [activeTab, setActiveTab] = useState<string | undefined>('description')
+    const router = useRouter();
     const dispatch = useDispatch();
     const cartArray = useSelector((state: RootState) => state.cart.cartArray);
     const wishlistArray = useSelector((state: RootState) => state.wishlist.wishlistArray);
@@ -44,6 +165,7 @@ const Default: React.FC<any> = ({ product, productId }) => {
     const { openModalCart } = useModalCartContext()
     const { openModalWishlist } = useModalWishlistContext()
     const { openModalCompare } = useModalCompareContext()
+    const { openModalEMI, closeModalEMI, isModalOpen } = useModalEMIContext()
     
     const addToCart = (item: any) => {
         dispatch(cartActions.addToCart(item));
@@ -71,7 +193,6 @@ const Default: React.FC<any> = ({ product, productId }) => {
     
     // Use the product passed as prop
     const productMain = product
-    console.log('this is teh product', productMain)
 
     // Calculate discount percentage
     const percentSale = productMain?.actualPrice && productMain?.discountPrice
@@ -134,6 +255,17 @@ const Default: React.FC<any> = ({ product, productId }) => {
         openModalCart()
     };
 
+    const handleBuyItNow = () => {
+        // Add product to cart if not already there
+        if (!cartArray.find(item => item._id === productMain._id)) {
+            addToCart({ ...productMain });
+        }
+        // Update cart with current quantity, size, and color
+        updateCart(productMain._id, quantity, activeSize, activeColor);
+        // Navigate to checkout page
+        router.push('/checkout');
+    };
+
     const handleAddToWishlist = () => {
         // if product existed in wishlit, remove from wishlist and set state to false
         if (wishlistArray.some(item => item._id === productMain._id)) {
@@ -172,56 +304,122 @@ const Default: React.FC<any> = ({ product, productId }) => {
                 <div className="featured-product underwear md:py-20 py-10">
                     <div className="container flex justify-between gap-y-6 flex-wrap">
                         <div className="list-img md:w-1/2 md:pr-[45px] w-full">
-                            <Swiper
-                                slidesPerView={1}
-                                spaceBetween={0}
-                                thumbs={{ swiper: thumbsSwiper }}
-                                modules={[Thumbs]}
-                                className="mySwiper2 rounded-2xl overflow-hidden"
-                            >
-                                {productMain.images.map((item, index) => (
-                                    <SwiperSlide
-                                        key={index}
+                            <div className="flex gap-4">
+                                {/* Thumbnails Column - Left Side */}
+                                <div className="flex flex-col gap-3 flex-shrink-0 max-md:hidden">
+                                    {productMain.images.map((item: any, index: number) => (
+                                        <div
+                                            key={index}
+                                            onClick={() => {
+                                                setSelectedImageIndex(index);
+                                            }}
+                                            className={`relative cursor-pointer transition-all duration-300 ${
+                                                selectedImageIndex === index 
+                                                    ? 'w-24 h-28 border-2 border-gray-300 rounded-lg overflow-hidden shadow-md' 
+                                                    : 'w-20 h-24 border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300'
+                                            }`}
+                                        >
+                                            <Image
+                                                src={item.Location}
+                                                width={100}
+                                                height={120}
+                                                alt={`thumbnail-${index}`}
+                                                className='w-full h-full object-cover'
+                                            />
+                                            {/* Overlays for active thumbnail */}
+                                            {selectedImageIndex === index && (
+                                                <>
+                                                    {/* Price Overlay - Top Left */}
+                                                    {/* <div className="absolute top-1 left-1 bg-white/90 px-2 py-0.5 rounded text-xs font-semibold">
+                                                        <div className="line-through text-gray-500">৳{productMain.actualPrice?.toLocaleString() || '0'}</div>
+                                                        <div className="text-black font-bold">৳{productMain.discountPrice?.toLocaleString() || '0'}</div>
+                                                    </div> */}
+                                                    {/* Guarantee Badge - Bottom Left */}
+                                                    {/* <div className="absolute bottom-1 left-1">
+                                                        <div className="w-6 h-6 bg-white rounded-full border-2 border-yellow-400 flex items-center justify-center">
+                                                            <Icon.ShieldCheck size={14} weight="fill" className="text-yellow-600" />
+                                                        </div>
+                                                    </div> */}
+                                                    {/* Discount Badge - Bottom Right */}
+                                                    {/* {percentSale > 0 && (
+                                                        <div className="absolute bottom-1 right-1 bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-semibold">
+                                                            <div>{percentSale}%</div>
+                                                            <div>OFF</div>
+                                                        </div>
+                                                    )} */}
+                                                </>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                
+                                {/* Main Product Image - Right Side */}
+                                <div className="flex-1 relative">
+                                    {/* Heart Icon - Top Right */}
+                                    {/* <div
+                                        className={`absolute top-2 right-2 z-10 w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full cursor-pointer transition-all duration-300 hover:bg-white ${wishlistArray.some(item => item._id === productMain._id) ? 'text-red-500' : 'text-gray-600 hover:text-red-500'}`}
+                                        onClick={handleAddToWishlist}
+                                    >
+                                        {wishlistArray.some(item => item._id === productMain._id) ? (
+                                            <Icon.Heart size={20} weight='fill' />
+                                        ) : (
+                                            <Icon.Heart size={20} />
+                                        )}
+                                    </div> */}
+                                    
+                                    {/* Main Image */}
+                                    <div 
+                                        className="w-full aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer"
                                         onClick={() => {
-                                            swiperRef.current?.slideTo(index);
-                                            setOpenPopupImg(true)
+                                            swiperRef.current?.slideTo(selectedImageIndex);
+                                            setOpenPopupImg(true);
                                         }}
                                     >
                                         <Image
-                                            src={item.Location}
+                                            src={productMain.images[selectedImageIndex]?.Location || productMain.images[0]?.Location}
                                             width={1000}
-                                            height={1000}
-                                            alt='prd-img'
-                                            className='w-full aspect-[3/4] object-cover'
+                                            height={1333}
+                                            alt='main-product-img'
+                                            className='w-full h-full object-cover'
                                         />
-                                    </SwiperSlide>
-                                ))}
-                            </Swiper>
-                            <Swiper
-                                onSwiper={(swiper) => {
-                                    handleSwiper(swiper)
-                                }}
-                                spaceBetween={0}
-                                slidesPerView={4}
-                                freeMode={true}
-                                watchSlidesProgress={true}
-                                modules={[Navigation, Thumbs]}
-                                className="mySwiper"
-                            >
-                                {productMain.images.map((item, index) => (
-                                    <SwiperSlide
-                                        key={index}
-                                    >
-                                        <Image
-                                            src={item.Location}
-                                            width={1000}
-                                            height={1000}
-                                            alt='prd-img'
-                                            className='w-full aspect-[3/4] object-cover rounded-xl'
-                                        />
-                                    </SwiperSlide>
-                                ))}
-                            </Swiper>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Mobile Thumbnails - Horizontal Row Below Main Image */}
+                            <div className="md:hidden w-full mt-4">
+                                <div className="flex gap-2 overflow-x-auto pb-2">
+                                    {productMain.images.map((item: any, index: number) => (
+                                        <div
+                                            key={index}
+                                            onClick={() => {
+                                                setSelectedImageIndex(index);
+                                            }}
+                                            className={`relative flex-shrink-0 cursor-pointer transition-all duration-300 ${
+                                                selectedImageIndex === index 
+                                                    ? 'w-20 h-24 border-2 border-gray-300 rounded-lg overflow-hidden shadow-md' 
+                                                    : 'w-16 h-20 border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300'
+                                            }`}
+                                        >
+                                            <Image
+                                                src={item.Location}
+                                                width={80}
+                                                height={96}
+                                                alt={`thumbnail-${index}`}
+                                                className='w-full h-full object-cover'
+                                            />
+                                            {selectedImageIndex === index && percentSale > 0 && (
+                                                <div className="absolute bottom-1 right-1 bg-blue-600 text-white px-1.5 py-0.5 rounded text-xs font-semibold">
+                                                    <div>{percentSale}%</div>
+                                                    <div>OFF</div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            {/* Popup Modal for Full Screen Image View */}
                             <div className={`popup-img ${openPopupImg ? 'open' : ''}`}>
                                 <span
                                     className="close-popup-btn absolute top-4 right-4 z-[2] cursor-pointer"
@@ -237,9 +435,14 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                     modules={[Navigation, Thumbs]}
                                     navigation={true}
                                     loop={true}
+                                    initialSlide={selectedImageIndex}
                                     className="popupSwiper"
                                     onSwiper={(swiper) => {
-                                        swiperRef.current = swiper
+                                        swiperRef.current = swiper;
+                                        swiper.slideTo(selectedImageIndex);
+                                    }}
+                                    onSlideChange={(swiper) => {
+                                        setSelectedImageIndex(swiper.activeIndex);
                                     }}
                                 >
                                     {productMain.images.map((item, index) => (
@@ -385,7 +588,27 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                     <div onClick={handleAddToCart} className="button-main w-full text-center bg-white text-black border border-black">Add To Cart</div>
                                 </div>
                                 <div className="button-block mt-5">
-                                    <div className="button-main w-full text-center">Buy It Now</div>
+                                    <div 
+                                        className="button-main w-full text-center cursor-pointer" 
+                                        onClick={handleBuyItNow}
+                                    >
+                                        Buy It Now
+                                    </div>
+                                </div>
+                                <div className="emi-section mt-5 p-4 rounded-lg transition-all duration-300">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-title">EMIs from:</span>
+                                            <span className="text-lg font-semibold">৳999.97/month</span>
+                                        </div>
+                                        <button
+                                            onClick={openModalEMI}
+                                            className="emi-know-more flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                                        >
+                                            Know More
+                                            <Icon.CaretRight size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                                 {/* <div className="flex items-center lg:gap-20 gap-8 mt-5 pb-6 border-b border-line">
                                     <div className="compare flex items-center gap-3 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleAddToCompare() }}>
@@ -541,7 +764,10 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                 <div className='grid md:grid-cols-2 gap-8 gap-y-5'>
                                     <div className="left">
                                         <div className="heading6">Description</div>
-                                        <div className="text-secondary mt-2">{productMain?.detail}</div>
+                                        <div 
+                                            className="product-description-wrapper mt-2"
+                                            dangerouslySetInnerHTML={{ __html: formatProductDescription(productMain?.detail || '') }}
+                                        />
                                         {/* <div className="text-secondary mt-2">Keep your home organized, yet elegant with storage cabinets by Onita Patio Furniture. These cabinets not only make a great storage units, but also bring a great decorative accent to your decor. Traditionally designed, they are perfect to be used in the hallway, living room, bedroom, office or any place where you need to store or display things. Made of high quality materials, they are sturdy and durable for years. Bring one-of-a-kind look to your interior with furniture from Onita Furniture!</div> */}
                                     </div>
                                     {/* <div className="right">
@@ -597,13 +823,24 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                 {productMain.specifications && productMain.specifications.length > 0 ? (
                                     <div className='grid md:grid-cols-2 gap-6'>
                                         {productMain.specifications.map((specGroup: any, index: number) => (
-                                            <div key={index} className="spec-group">
-                                                <div className="heading6 mb-4">{specGroup.name}</div>
-                                                <div className="space-y-2">
+                                            <div key={index} className="spec-group bg-white rounded-lg overflow-hidden shadow-sm">
+                                                {/* Section Header with Light Blue Background - Rounded Top Corners */}
+                                                <div className="bg-blue-400 text-white py-3 px-4 font-bold text-base rounded-t-lg">
+                                                    {specGroup.name}
+                                                </div>
+                                                {/* Key-Value Pairs */}
+                                                <div className="spec-details bg-white">
                                                     {specGroup.detail && specGroup.detail.map((detailItem: any, detailIndex: number) => (
-                                                        <div key={detailIndex} className={`item flex items-center gap-4 py-3 px-4 rounded-lg ${index % 2 === 0 ? 'bg-surface' : 'bg-white'}`}>
-                                                            <div className="text-title font-semibold sm:w-1/3 w-1/2">{detailItem.name}</div>
-                                                            <p className="text-secondary flex-1">{detailItem.value}</p>
+                                                        <div 
+                                                            key={detailIndex} 
+                                                            className="spec-item flex justify-between items-center py-3 px-4 border-b border-gray-200 last:border-b-0"
+                                                        >
+                                                            <span className="spec-key text-gray-900 font-semibold text-sm flex-shrink-0">
+                                                                {detailItem.name}
+                                                            </span>
+                                                            <span className="spec-value text-gray-600 text-sm text-right ml-4 break-words">
+                                                                {detailItem.value}
+                                                            </span>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -982,6 +1219,13 @@ const Default: React.FC<any> = ({ product, productId }) => {
                     </div>
                 </div> */}
             </div>
+            
+            {/* EMI Modal */}
+            <ModalEMI 
+                isOpen={isModalOpen} 
+                onClose={closeModalEMI} 
+                productPrice={productMain.discountPrice || productMain.actualPrice || 0}
+            />
         </>
     )
 }
