@@ -21,13 +21,10 @@ const ResetPassword = () => {
   });
 
   const email = searchParams.get("email");
-  console.log("Email from params:", email);
   useEffect(() => {
     if (email) {
       setFormData((prev) => ({ ...prev, email: email }));
     }
-    console.log("Email inside useEffect:", email);
-    console.log("Email inside useEffect:", formData);
   }, []);
 
   const [errors, setErrors] = useState<any>(null);

@@ -10,7 +10,6 @@ const GlobalDataLoader = () => {
 	const { products } = useSelector((state: any) => state.products)
 	const { categories } = useSelector((state: any) => state.categories)
 
-	console.log("=========>Called")
 	// useEffect(() => {
 	// 	ProductService.getAll(dispatch)
 	// 	CategoryService.getAll(dispatch)

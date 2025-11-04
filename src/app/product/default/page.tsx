@@ -28,8 +28,6 @@ const ProductDefault = () => {
         productId = '1'
     }
 
-    console.log("selectedProduct", selectedProduct)
-
     // Show loading state
     if (isLoading) {
         return (

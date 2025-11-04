@@ -75,12 +75,10 @@ const EMIService = {
         dispatch(emiActions.setEMIBanks(result));
       } else {
         // If API fails, use mock data
-        console.log('API failed, using mock data');
         dispatch(emiActions.setEMIBanks(mockEMIData));
       }
     } catch (err) {
       // If there's any error, use mock data
-      console.log('Using mock EMI data');
       dispatch(emiActions.setEMIBanks(mockEMIData));
     }
     

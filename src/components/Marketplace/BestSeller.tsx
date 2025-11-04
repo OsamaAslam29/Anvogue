@@ -19,7 +19,6 @@ const BestSeller: React.FC<Props> = ({ data, start, limit }) => {
     };
 
     const filteredProducts = data.filter((product) => product.category === activeTab);
-    console.log(activeTab);
     
 
     return (

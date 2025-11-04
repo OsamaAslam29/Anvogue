@@ -33,6 +33,7 @@ interface Props {
 const Default: React.FC<any> = ({ product, productId }) => {
     const swiperRef: any = useRef();
     const [photoIndex, setPhotoIndex] = useState(0)
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0)
     const [openPopupImg, setOpenPopupImg] = useState(false)
     const [openSizeGuide, setOpenSizeGuide] = useState<boolean>(false)
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperCore | null>(null);
@@ -74,7 +75,6 @@ const Default: React.FC<any> = ({ product, productId }) => {
     
     // Use the product passed as prop
     const productMain = product
-    console.log('this is teh product', productMain)
 
     // Calculate discount percentage
     const percentSale = productMain?.actualPrice && productMain?.discountPrice
@@ -175,56 +175,122 @@ const Default: React.FC<any> = ({ product, productId }) => {
                 <div className="featured-product underwear md:py-20 py-10">
                     <div className="container flex justify-between gap-y-6 flex-wrap">
                         <div className="list-img md:w-1/2 md:pr-[45px] w-full">
-                            <Swiper
-                                slidesPerView={1}
-                                spaceBetween={0}
-                                thumbs={{ swiper: thumbsSwiper }}
-                                modules={[Thumbs]}
-                                className="mySwiper2 rounded-2xl overflow-hidden"
-                            >
-                                {productMain.images.map((item, index) => (
-                                    <SwiperSlide
-                                        key={index}
+                            <div className="flex gap-4">
+                                {/* Thumbnails Column - Left Side */}
+                                <div className="flex flex-col gap-3 flex-shrink-0 max-md:hidden">
+                                    {productMain.images.map((item: any, index: number) => (
+                                        <div
+                                            key={index}
+                                            onClick={() => {
+                                                setSelectedImageIndex(index);
+                                            }}
+                                            className={`relative cursor-pointer transition-all duration-300 ${
+                                                selectedImageIndex === index 
+                                                    ? 'w-24 h-28 border-2 border-gray-300 rounded-lg overflow-hidden shadow-md' 
+                                                    : 'w-20 h-24 border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300'
+                                            }`}
+                                        >
+                                            <Image
+                                                src={item.Location}
+                                                width={100}
+                                                height={120}
+                                                alt={`thumbnail-${index}`}
+                                                className='w-full h-full object-cover'
+                                            />
+                                            {/* Overlays for active thumbnail */}
+                                            {selectedImageIndex === index && (
+                                                <>
+                                                    {/* Price Overlay - Top Left */}
+                                                    <div className="absolute top-1 left-1 bg-white/90 px-2 py-0.5 rounded text-xs font-semibold">
+                                                        <div className="line-through text-gray-500">৳{productMain.actualPrice?.toLocaleString() || '0'}</div>
+                                                        <div className="text-black font-bold">৳{productMain.discountPrice?.toLocaleString() || '0'}</div>
+                                                    </div>
+                                                    {/* Guarantee Badge - Bottom Left */}
+                                                    <div className="absolute bottom-1 left-1">
+                                                        <div className="w-6 h-6 bg-white rounded-full border-2 border-yellow-400 flex items-center justify-center">
+                                                            <Icon.ShieldCheck size={14} weight="fill" className="text-yellow-600" />
+                                                        </div>
+                                                    </div>
+                                                    {/* Discount Badge - Bottom Right */}
+                                                    {percentSale > 0 && (
+                                                        <div className="absolute bottom-1 right-1 bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-semibold">
+                                                            <div>{percentSale}%</div>
+                                                            <div>OFF</div>
+                                                        </div>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                
+                                {/* Main Product Image - Right Side */}
+                                <div className="flex-1 relative">
+                                    {/* Heart Icon - Top Right */}
+                                    {/* <div
+                                        className={`absolute top-2 right-2 z-10 w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full cursor-pointer transition-all duration-300 hover:bg-white ${wishlistArray.some(item => item._id === productMain._id) ? 'text-red-500' : 'text-gray-600 hover:text-red-500'}`}
+                                        onClick={handleAddToWishlist}
+                                    >
+                                        {wishlistArray.some(item => item._id === productMain._id) ? (
+                                            <Icon.Heart size={20} weight='fill' />
+                                        ) : (
+                                            <Icon.Heart size={20} />
+                                        )}
+                                    </div> */}
+                                    
+                                    {/* Main Image */}
+                                    <div 
+                                        className="w-full aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer"
                                         onClick={() => {
-                                            swiperRef.current?.slideTo(index);
-                                            setOpenPopupImg(true)
+                                            swiperRef.current?.slideTo(selectedImageIndex);
+                                            setOpenPopupImg(true);
                                         }}
                                     >
                                         <Image
-                                            src={item.Location}
+                                            src={productMain.images[selectedImageIndex]?.Location || productMain.images[0]?.Location}
                                             width={1000}
-                                            height={1000}
-                                            alt='prd-img'
-                                            className='w-full aspect-[3/4] object-cover'
+                                            height={1333}
+                                            alt='main-product-img'
+                                            className='w-full h-full object-cover'
                                         />
-                                    </SwiperSlide>
-                                ))}
-                            </Swiper>
-                            <Swiper
-                                onSwiper={(swiper) => {
-                                    handleSwiper(swiper)
-                                }}
-                                spaceBetween={0}
-                                slidesPerView={4}
-                                freeMode={true}
-                                watchSlidesProgress={true}
-                                modules={[Navigation, Thumbs]}
-                                className="mySwiper"
-                            >
-                                {productMain.images.map((item, index) => (
-                                    <SwiperSlide
-                                        key={index}
-                                    >
-                                        <Image
-                                            src={item.Location}
-                                            width={1000}
-                                            height={1000}
-                                            alt='prd-img'
-                                            className='w-full aspect-[3/4] object-cover rounded-xl'
-                                        />
-                                    </SwiperSlide>
-                                ))}
-                            </Swiper>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Mobile Thumbnails - Horizontal Row Below Main Image */}
+                            <div className="md:hidden w-full mt-4">
+                                <div className="flex gap-2 overflow-x-auto pb-2">
+                                    {productMain.images.map((item: any, index: number) => (
+                                        <div
+                                            key={index}
+                                            onClick={() => {
+                                                setSelectedImageIndex(index);
+                                            }}
+                                            className={`relative flex-shrink-0 cursor-pointer transition-all duration-300 ${
+                                                selectedImageIndex === index 
+                                                    ? 'w-20 h-24 border-2 border-gray-300 rounded-lg overflow-hidden shadow-md' 
+                                                    : 'w-16 h-20 border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300'
+                                            }`}
+                                        >
+                                            <Image
+                                                src={item.Location}
+                                                width={80}
+                                                height={96}
+                                                alt={`thumbnail-${index}`}
+                                                className='w-full h-full object-cover'
+                                            />
+                                            {selectedImageIndex === index && percentSale > 0 && (
+                                                <div className="absolute bottom-1 right-1 bg-blue-600 text-white px-1.5 py-0.5 rounded text-xs font-semibold">
+                                                    <div>{percentSale}%</div>
+                                                    <div>OFF</div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            {/* Popup Modal for Full Screen Image View */}
                             <div className={`popup-img ${openPopupImg ? 'open' : ''}`}>
                                 <span
                                     className="close-popup-btn absolute top-4 right-4 z-[2] cursor-pointer"
@@ -240,9 +306,14 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                     modules={[Navigation, Thumbs]}
                                     navigation={true}
                                     loop={true}
+                                    initialSlide={selectedImageIndex}
                                     className="popupSwiper"
                                     onSwiper={(swiper) => {
-                                        swiperRef.current = swiper
+                                        swiperRef.current = swiper;
+                                        swiper.slideTo(selectedImageIndex);
+                                    }}
+                                    onSlideChange={(swiper) => {
+                                        setSelectedImageIndex(swiper.activeIndex);
                                     }}
                                 >
                                     {productMain.images.map((item, index) => (

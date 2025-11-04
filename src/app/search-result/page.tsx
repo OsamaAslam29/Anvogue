@@ -11,7 +11,7 @@ import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useSelector } from "react-redux";
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
-import ProductFilter, { FilterState } from "@/components/Shop/ProductFilter";
+import StaticProductFilter, { FilterState } from "@/components/Shop/StaticProductFilter";
 
 const SearchResult = () => {
   const [searchKeyword, setSearchKeyword] = useState<string>("");
@@ -26,12 +26,18 @@ const SearchResult = () => {
     selectedMaterials: [],
     selectedTypes: [],
     selectedColors: [],
+    selectedProcessors: [],
+    selectedRAM: [],
+    selectedFeatures: [],
+    selectedDisplaySizes: [],
+    selectedOperatingSystems: [],
+    selectedCapacities: [],
     minPrice: 0,
-    maxPrice: 1000
+    maxPrice: 0
   });
   
-  // Calculate dynamic price range from products
-  const { products } = useSelector((state: any) => state.products)
+  // Get all products from Redux for filter counts
+  const { products: allProducts } = useSelector((state: any) => state.products)
   const { categories } = useSelector((state: any) => state.categories)
   
   const searchParams = useSearchParams();
@@ -39,12 +45,12 @@ const SearchResult = () => {
 
   // First filter by search query to get base products for filtering
   const searchFilteredProducts = useMemo(() => {
-    if (!products || products.length === 0) return [];
+    if (!allProducts || allProducts.length === 0) return [];
     
-    if (!query) return products;
+    if (!query) return allProducts;
     
     const searchQuery = query.toLowerCase();
-    return products.filter((product) => {
+    return allProducts.filter((product) => {
       return (
         product.title?.toLowerCase().includes(searchQuery) ||
         product.name?.toLowerCase().includes(searchQuery) ||
@@ -56,13 +62,12 @@ const SearchResult = () => {
         product.category?.toLowerCase().includes(searchQuery)
       );
     });
-  }, [products, query]);
+  }, [allProducts, query]);
 
   const calculatePriceRange = () => {
-    const productsToUse = searchFilteredProducts.length > 0 ? searchFilteredProducts : products;
-    if (!productsToUse || productsToUse.length === 0) return { min: 0, max: 1000 };
+    if (!allProducts || allProducts.length === 0) return { min: 0, max: 1000 };
     
-    const prices = productsToUse.map((product: any) => product.discountPrice || product.actualPrice || 0).filter(p => p > 0);
+    const prices = allProducts.map((product: any) => product.discountPrice || product.actualPrice || 0).filter(p => p > 0);
     if (prices.length === 0) return { min: 0, max: 1000 };
     
     const minPrice = Math.min(...prices);
@@ -75,7 +80,7 @@ const SearchResult = () => {
     };
   };
 
-  const initialPriceRange = useMemo(() => calculatePriceRange(), [searchFilteredProducts, products]);
+  const initialPriceRange = useMemo(() => calculatePriceRange(), [allProducts]);
   
   const productsPerPage = 8;
   const offset = currentPage * productsPerPage;
@@ -110,27 +115,56 @@ const SearchResult = () => {
   const handleClearAll = () => {
     setSortOption('');
     setShowOnlySale(false);
-    const clearedState = {
+    const clearedState: FilterState = {
       selectedCategories: [],
       selectedBrands: [],
       selectedMaterials: [],
       selectedTypes: [],
       selectedColors: [],
-      minPrice: initialPriceRange.min,
-      maxPrice: initialPriceRange.max
+      selectedProcessors: [],
+      selectedRAM: [],
+      selectedFeatures: [],
+      selectedDisplaySizes: [],
+      selectedOperatingSystems: [],
+      selectedCapacities: [],
+      minPrice: 0,
+      maxPrice: 0
     };
     setFilterState(clearedState);
     handleFilterChange(clearedState);
     setCurrentPage(0);
   };
 
-  // Filter products based on search query and filters
-  const filteredData = useMemo(() => {
-    if (!searchFilteredProducts || searchFilteredProducts.length === 0) return [];
-    
-    let filtered = searchFilteredProducts;
+  // Check if any filters are active
+  const hasActiveFilters = useMemo(() => {
+    return (
+      filterState.selectedCategories.length > 0 ||
+      filterState.selectedBrands.length > 0 ||
+      filterState.selectedMaterials.length > 0 ||
+      filterState.selectedTypes.length > 0 ||
+      filterState.selectedColors.length > 0 ||
+      filterState.selectedProcessors.length > 0 ||
+      filterState.selectedRAM.length > 0 ||
+      filterState.selectedFeatures.length > 0 ||
+      filterState.selectedDisplaySizes.length > 0 ||
+      filterState.selectedOperatingSystems.length > 0 ||
+      filterState.selectedCapacities.length > 0 ||
+      filterState.minPrice !== 0 ||
+      filterState.maxPrice !== 0 ||
+      showOnlySale
+    );
+  }, [filterState, showOnlySale]);
 
-    // Apply filter state
+  // Filter products from ALL products
+  // When filters are active, show ALL matching products regardless of search query
+  // When no filters are active, apply search query
+  const filteredData = useMemo(() => {
+    if (!allProducts || allProducts.length === 0) return [];
+    
+    // Start with ALL products
+    let filtered = allProducts;
+
+    // Apply filter state - these take priority
     filtered = filtered.filter((product) => {
       // Category filter
       if (filterState.selectedCategories.length > 0) {
@@ -177,10 +211,154 @@ const SearchResult = () => {
         }
       }
 
-      // Price range filter
-      const productPrice = product.discountPrice || product.actualPrice || 0;
-      if (productPrice < filterState.minPrice || productPrice > filterState.maxPrice) {
-        return false;
+      // Processor filter
+      if (filterState.selectedProcessors.length > 0) {
+        let hasProcessor = false;
+        if (product.processor && filterState.selectedProcessors.includes(product.processor)) {
+          hasProcessor = true;
+        }
+        // Check in specifications
+        if (!hasProcessor && product.specifications) {
+          hasProcessor = product.specifications.some((spec: any) => {
+            if (spec.name?.toLowerCase().includes('processor') || spec.name?.toLowerCase().includes('cpu')) {
+              return spec.detail?.some((detail: any) => 
+                filterState.selectedProcessors.includes(detail.value)
+              );
+            }
+            return false;
+          });
+        }
+        if (!hasProcessor) {
+          return false;
+        }
+      }
+
+      // RAM filter
+      if (filterState.selectedRAM.length > 0) {
+        let hasRAM = false;
+        if (product.ram && filterState.selectedRAM.includes(product.ram)) {
+          hasRAM = true;
+        }
+        // Check in specifications
+        if (!hasRAM && product.specifications) {
+          hasRAM = product.specifications.some((spec: any) => {
+            if (spec.name?.toLowerCase().includes('memory') || spec.name?.toLowerCase().includes('ram')) {
+              return spec.detail?.some((detail: any) => 
+                filterState.selectedRAM.includes(detail.value)
+              );
+            }
+            return false;
+          });
+        }
+        if (!hasRAM) {
+          return false;
+        }
+      }
+
+      // Feature filter
+      if (filterState.selectedFeatures.length > 0) {
+        let hasFeature = false;
+        if (product.features && Array.isArray(product.features)) {
+          hasFeature = filterState.selectedFeatures.some(feature => 
+            product.features.some((pf: string) => pf.trim() === feature)
+          );
+        }
+        // Check in specifications
+        if (!hasFeature && product.specifications) {
+          hasFeature = product.specifications.some((spec: any) => {
+            if (spec.name?.toLowerCase().includes('feature')) {
+              return spec.detail?.some((detail: any) => 
+                filterState.selectedFeatures.includes(detail.value)
+              );
+            }
+            return false;
+          });
+        }
+        if (!hasFeature) {
+          return false;
+        }
+      }
+
+      // Display Size filter
+      if (filterState.selectedDisplaySizes.length > 0) {
+        let hasDisplaySize = false;
+        if (product.displaySize && filterState.selectedDisplaySizes.includes(product.displaySize)) {
+          hasDisplaySize = true;
+        }
+        // Check in specifications
+        if (!hasDisplaySize && product.specifications) {
+          hasDisplaySize = product.specifications.some((spec: any) => {
+            if (spec.name?.toLowerCase().includes('display') || spec.name?.toLowerCase().includes('screen')) {
+              return spec.detail?.some((detail: any) => 
+                filterState.selectedDisplaySizes.includes(detail.value)
+              );
+            }
+            return false;
+          });
+        }
+        if (!hasDisplaySize) {
+          return false;
+        }
+      }
+
+      // Operating System filter
+      if (filterState.selectedOperatingSystems.length > 0) {
+        let hasOS = false;
+        if (product.operatingSystem && filterState.selectedOperatingSystems.includes(product.operatingSystem)) {
+          hasOS = true;
+        }
+        // Check in specifications
+        if (!hasOS && product.specifications) {
+          hasOS = product.specifications.some((spec: any) => {
+            if (spec.name?.toLowerCase().includes('os') || spec.name?.toLowerCase().includes('operating system')) {
+              return spec.detail?.some((detail: any) => 
+                filterState.selectedOperatingSystems.includes(detail.value)
+              );
+            }
+            return false;
+          });
+        }
+        if (!hasOS) {
+          return false;
+        }
+      }
+
+      // Capacity filter
+      if (filterState.selectedCapacities.length > 0) {
+        let hasCapacity = false;
+        if (product.capacity && filterState.selectedCapacities.includes(product.capacity)) {
+          hasCapacity = true;
+        }
+        // Check in specifications
+        if (!hasCapacity && product.specifications) {
+          hasCapacity = product.specifications.some((spec: any) => {
+            if (spec.name?.toLowerCase().includes('capacity') || spec.name?.toLowerCase().includes('storage')) {
+              return spec.detail?.some((detail: any) => 
+                filterState.selectedCapacities.includes(detail.value)
+              );
+            }
+            return false;
+          });
+        }
+        if (!hasCapacity) {
+          return false;
+        }
+      }
+
+      // Price range filter - only apply if price range is set (not 0-0)
+      if (filterState.minPrice !== 0 || filterState.maxPrice !== 0) {
+        const productPrice = product.discountPrice || product.actualPrice || 0;
+        if (filterState.maxPrice === 0) {
+          // If max is 0 but min is set, check if price is >= min
+          if (productPrice < filterState.minPrice) {
+            return false;
+          }
+        } else {
+          // Both min and max are set
+          if (productPrice < filterState.minPrice || productPrice > filterState.maxPrice) {
+            return false;
+          }
+        }
       }
 
       // Sale filter
@@ -193,8 +371,26 @@ const SearchResult = () => {
       return true;
     });
 
+    // Only apply search query if NO filters are active
+    // If filters are active, show ALL products matching those filters
+    if (query && !hasActiveFilters) {
+      const searchQuery = query.toLowerCase();
+      filtered = filtered.filter((product) => {
+        return (
+          product.title?.toLowerCase().includes(searchQuery) ||
+          product.name?.toLowerCase().includes(searchQuery) ||
+          product.typeId?.name?.toLowerCase().includes(searchQuery) ||
+          product.type?.toLowerCase().includes(searchQuery) ||
+          product.brandId?.name?.toLowerCase().includes(searchQuery) ||
+          product.brand?.toLowerCase().includes(searchQuery) ||
+          product.categoryId?.name?.toLowerCase().includes(searchQuery) ||
+          product.category?.toLowerCase().includes(searchQuery)
+        );
+      });
+    }
+
     return filtered;
-  }, [searchFilteredProducts, filterState, showOnlySale]);
+  }, [allProducts, query, filterState, showOnlySale, hasActiveFilters]);
 
   // Sort products
   let sortedData = [...filteredData];
@@ -309,25 +505,9 @@ const SearchResult = () => {
             </div>
           </div>
 
-          <div className="filter-heading flex items-center justify-between gap-5 flex-wrap pt-8">
+          {/* Top Controls */}
+          <div className="filter-heading flex items-center justify-between gap-5 flex-wrap pt-8 mb-6">
             <div className="left flex has-line items-center flex-wrap gap-5">
-              <div
-                className="filter-sidebar-btn flex items-center gap-2 cursor-pointer"
-                onClick={handleOpenSidebar}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 21V14" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M4 10V3" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M12 21V12" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M12 8V3" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M20 21V16" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M20 12V3" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M1 14H7" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M9 8H15" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M17 16H23" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span>Filters</span>
-              </div>
               <div className="check-sale flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -361,33 +541,68 @@ const SearchResult = () => {
             </div>
           </div>
 
-          <ProductFilter
-            products={searchFilteredProducts}
-            onFilterChange={handleFilterChange}
-            openSidebar={openSidebar}
-            onToggleSidebar={handleOpenSidebar}
-            initialPriceRange={initialPriceRange}
-            externalFilterState={filterState}
-          />
-
-          <div className="list-filtered flex items-center gap-3 mt-4">
-            <div className="total-product">
-              {finalFilteredData.length}
-              <span className='text-secondary pl-1'>Products Found</span>
+          {/* Main Layout with Filter Sidebar and Products */}
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+            {/* Static Filter Sidebar */}
+            <div className="hidden lg:block flex-shrink-0">
+              <StaticProductFilter
+                products={allProducts}
+                allProducts={allProducts}
+                onFilterChange={handleFilterChange}
+                initialPriceRange={initialPriceRange}
+                externalFilterState={filterState}
+              />
             </div>
-            {
-              (filterState.selectedCategories.length > 0 || 
-               filterState.selectedBrands.length > 0 || 
-               filterState.selectedMaterials.length > 0 || 
-               filterState.selectedTypes.length > 0 || 
-               filterState.selectedColors.length > 0) && (
-                <>
-                  <div className="list flex items-center gap-3">
-                    <div className='w-px h-4 bg-line'></div>
+
+            {/* Mobile Filter Toggle */}
+            <div className="lg:hidden w-full mb-4">
+              <button
+                onClick={handleOpenSidebar}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 21V14" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M4 10V3" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M12 21V12" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M12 8V3" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M20 21V16" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M20 12V3" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M1 14H7" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M9 8H15" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M17 16H23" stroke="#1F1F1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span>Filters</span>
+              </button>
+            </div>
+
+            {/* Products Section */}
+            <div className="flex-1">
+              {/* Enhanced Filter Display */}
+              <div className="top-filter-bar">
+                <div className="flex items-center justify-between">
+                  <div className="total-product text-lg font-semibold">
+                    {finalFilteredData.length}
+                    <span className='text-secondary pl-1 font-normal'>Products Found</span>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {query && `Search: "${query}"`}
+                  </div>
+                </div>
+                
+                {/* Active Filters */}
+                {(filterState.selectedCategories.length > 0 || 
+                  filterState.selectedBrands.length > 0 || 
+                  filterState.selectedMaterials.length > 0 || 
+                  filterState.selectedTypes.length > 0 || 
+                  filterState.selectedColors.length > 0 ||
+                  filterState.selectedProcessors.length > 0 ||
+                  filterState.selectedRAM.length > 0 ||
+                  filterState.selectedFeatures.length > 0) && (
+                  <div className="filter-chips">
                     {filterState.selectedCategories.map((cat) => (
                       <div 
                         key={cat} 
-                        className="item flex items-center px-2 py-1 gap-1 bg-linear rounded-full capitalize cursor-pointer hover:opacity-80"
+                        className="filter-chip"
                         onClick={() => {
                           const newState = {
                             ...filterState,
@@ -398,14 +613,14 @@ const SearchResult = () => {
                           setCurrentPage(0);
                         }}
                       >
-                        <Icon.X className='cursor-pointer' size={14} />
-                        <span>{cat}</span>
+                        <span>Category: {cat}</span>
+                        <Icon.X className='remove-icon' size={14} />
                       </div>
                     ))}
                     {filterState.selectedBrands.map((brand) => (
                       <div 
                         key={brand} 
-                        className="item flex items-center px-2 py-1 gap-1 bg-linear rounded-full capitalize cursor-pointer hover:opacity-80"
+                        className="filter-chip"
                         onClick={() => {
                           const newState = {
                             ...filterState,
@@ -416,32 +631,14 @@ const SearchResult = () => {
                           setCurrentPage(0);
                         }}
                       >
-                        <Icon.X className='cursor-pointer' size={14} />
-                        <span>{brand}</span>
-                      </div>
-                    ))}
-                    {filterState.selectedMaterials.map((material) => (
-                      <div 
-                        key={material} 
-                        className="item flex items-center px-2 py-1 gap-1 bg-linear rounded-full capitalize cursor-pointer hover:opacity-80"
-                        onClick={() => {
-                          const newState = {
-                            ...filterState,
-                            selectedMaterials: filterState.selectedMaterials.filter(m => m !== material)
-                          };
-                          setFilterState(newState);
-                          handleFilterChange(newState);
-                          setCurrentPage(0);
-                        }}
-                      >
-                        <Icon.X className='cursor-pointer' size={14} />
-                        <span>{material}</span>
+                        <span>Brand: {brand}</span>
+                        <Icon.X className='remove-icon' size={14} />
                       </div>
                     ))}
                     {filterState.selectedTypes.map((type) => (
                       <div 
                         key={type} 
-                        className="item flex items-center px-2 py-1 gap-1 bg-linear rounded-full capitalize cursor-pointer hover:opacity-80"
+                        className="filter-chip"
                         onClick={() => {
                           const newState = {
                             ...filterState,
@@ -452,74 +649,147 @@ const SearchResult = () => {
                           setCurrentPage(0);
                         }}
                       >
-                        <Icon.X className='cursor-pointer' size={14} />
-                        <span>{type}</span>
+                        <span>Type: {type}</span>
+                        <Icon.X className='remove-icon' size={14} />
                       </div>
                     ))}
-                    {filterState.selectedColors.map((color) => (
+                    {filterState.selectedProcessors.map((processor) => (
                       <div 
-                        key={color} 
-                        className="item flex items-center px-2 py-1 gap-1 bg-linear rounded-full capitalize cursor-pointer hover:opacity-80"
+                        key={processor} 
+                        className="filter-chip"
                         onClick={() => {
                           const newState = {
                             ...filterState,
-                            selectedColors: filterState.selectedColors.filter(c => c !== color)
+                            selectedProcessors: filterState.selectedProcessors.filter(p => p !== processor)
                           };
                           setFilterState(newState);
                           handleFilterChange(newState);
                           setCurrentPage(0);
                         }}
                       >
-                        <Icon.X className='cursor-pointer' size={14} />
-                        <span>{color}</span>
+                        <span>Processor: {processor}</span>
+                        <Icon.X className='remove-icon' size={14} />
                       </div>
                     ))}
+                    {filterState.selectedRAM.map((ram) => (
+                      <div 
+                        key={ram} 
+                        className="filter-chip"
+                        onClick={() => {
+                          const newState = {
+                            ...filterState,
+                            selectedRAM: filterState.selectedRAM.filter(r => r !== ram)
+                          };
+                          setFilterState(newState);
+                          handleFilterChange(newState);
+                          setCurrentPage(0);
+                        }}
+                      >
+                        <span>RAM: {ram}</span>
+                        <Icon.X className='remove-icon' size={14} />
+                      </div>
+                    ))}
+                    {filterState.selectedFeatures.map((feature) => (
+                      <div 
+                        key={feature} 
+                        className="filter-chip"
+                        onClick={() => {
+                          const newState = {
+                            ...filterState,
+                            selectedFeatures: filterState.selectedFeatures.filter(f => f !== feature)
+                          };
+                          setFilterState(newState);
+                          handleFilterChange(newState);
+                          setCurrentPage(0);
+                        }}
+                      >
+                        <span>Feature: {feature}</span>
+                        <Icon.X className='remove-icon' size={14} />
+                      </div>
+                    ))}
+                    <div
+                      className="filter-chip clear-all-chip"
+                      onClick={handleClearAll}
+                    >
+                      <span>Clear All</span>
+                      <Icon.X className='remove-icon' size={14} />
+                    </div>
                   </div>
-                  <div
-                    className="clear-btn flex items-center px-2 py-1 gap-1 rounded-full border border-red cursor-pointer"
-                    onClick={handleClearAll}
-                  >
-                    <Icon.X color='rgb(219, 68, 68)' className='cursor-pointer' />
-                    <span className='text-button-uppercase text-red'>Clear All</span>
-                  </div>
-                </>
-              )
-            }
+                )}
+              </div>
+
+              <div className="list-product-block relative">
+                  {query && <div className="heading6 mb-4">Search Results for: "{query}"</div>}
+                  
+                  {isLoading ? (
+                    <div className="enhanced-product-grid">
+                      <div className="loading-skeleton grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:gap-[30px] gap-[20px]">
+                        {Array.from({ length: 6 }).map((_, index) => (
+                          <div key={index} className="skeleton-item h-80 rounded-lg"></div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="enhanced-product-grid">
+                      <div
+                        className={`list-product hide-product-sold grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:gap-[30px] gap-[20px]`}
+                      >
+                        {currentProducts.map((item: any) =>
+                          item.id === "no-data" ? (
+                            <div key={item.id} className="no-data-product flex items-center justify-center h-80 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 col-span-full">
+                              <div className="text-center">
+                                <Icon.MagnifyingGlass size={48} className="mx-auto text-gray-400 mb-4" />
+                                <p className="text-gray-500 text-lg font-medium">No products found</p>
+                                <p className="text-gray-400 text-sm mt-2">Try adjusting your filters or search terms</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div key={item.id} className="product-item">
+                              <Product data={item} type="grid" />
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {pageCount > 1 && (
+                    <div className="list-pagination flex items-center justify-center md:mt-10 mt-7">
+                      <HandlePagination
+                        pageCount={pageCount}
+                        onPageChange={handlePageChange}
+                      />
+                    </div>
+                  )}
+              </div>
+            </div>
           </div>
 
-          <div className="list-product-block relative md:pt-10 pt-6">
-              {query && <div className="heading6">product Search: {query}</div>}
-              
-              {isLoading ? (
-                <div className="loading-spinner flex items-center justify-center py-20">
-                  <div className="relative w-16 h-16">
-                    <div className="absolute top-0 left-0 w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  className={`list-product hide-product-sold grid lg:grid-cols-4 sm:grid-cols-3 grid-cols-2 sm:gap-[30px] gap-[20px] mt-5`}
-                >
-                  {currentProducts.map((item: any) =>
-                    item.id === "no-data" ? (
-                      <div key={item.id} className="no-data-product">
-                        No products match the selected criteria.
-                      </div>
-                    ) : (
-                      <Product key={item.id} data={item} type="grid" />
-                    )
-                  )}
-                </div>
-              )}
-
-              {pageCount > 1 && (
-                <div className="list-pagination flex items-center justify-center md:mt-10 mt-7">
-                  <HandlePagination
-                    pageCount={pageCount}
-                    onPageChange={handlePageChange}
-                  />
-                </div>
-              )}
+          {/* Mobile Filter Overlay */}
+          <div 
+            className={`lg:hidden enhanced-filter-sidebar ${openSidebar ? 'open' : ''}`}
+            onClick={handleOpenSidebar}
+          >
+            <div className="filter-sidebar-main" onClick={(e) => { e.stopPropagation() }}>
+              <div className="filter-header flex items-center justify-between p-6 border-b border-line bg-white">
+                <div className="heading4 font-bold text-gray-900">Filter</div>
+                <Icon.X 
+                  size={24} 
+                  weight='bold' 
+                  onClick={handleOpenSidebar} 
+                  className='cursor-pointer hover:text-red-500 transition-colors' 
+                />
+              </div>
+              <div className="p-4">
+                <StaticProductFilter
+                  products={allProducts}
+                  allProducts={allProducts}
+                  onFilterChange={handleFilterChange}
+                  initialPriceRange={initialPriceRange}
+                  externalFilterState={filterState}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
