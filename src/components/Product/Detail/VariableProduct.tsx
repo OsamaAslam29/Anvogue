@@ -282,11 +282,11 @@ const VariableProduct: React.FC<Props> = ({ data, productId }) => {
               </div>
               <div className="flex items-center gap-3 flex-wrap mt-5 pb-6 border-b border-line">
                 <div className="product-price heading5">
-                  ${productMain.price}.00
+                  ${productMain.price}
                 </div>
                 <div className="w-px h-4 bg-line"></div>
                 <div className="product-origin-price font-normal text-secondary2">
-                  <del>${productMain.originPrice}.00</del>
+                  <del>${productMain.originPrice}</del>
                 </div>
                 {productMain.originPrice && (
                   <div className="product-sale caption2 font-semibold bg-green px-3 py-0.5 inline-block rounded-full">

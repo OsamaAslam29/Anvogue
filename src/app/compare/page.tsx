@@ -114,7 +114,7 @@ const Compare = () => {
                                         {compareArray.map((item, index) => (
                                             <td className="w-full border border-line h-[60px] border-t-0 border-r-0" key={index}>
                                                 <div className='h-full flex items-center justify-center'>
-                                                    ৳{item.discountPrice?.toLocaleString()}
+                                                    <span className="currency-symbol">৳</span>{item.discountPrice?.toLocaleString()}
                                                 </div>
                                             </td>
                                         ))}

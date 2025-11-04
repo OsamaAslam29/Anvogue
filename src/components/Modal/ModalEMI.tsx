@@ -15,6 +15,26 @@ interface ModalEMIProps {
   productPrice: number
 }
 
+// Function to calculate EMI details dynamically
+const calculateEMIDetails = (emiDetail: EMIDetail, productPrice: number) => {
+  // Calculate convenience fee based on product price and percentage
+  const convenienceFee = (productPrice * emiDetail.convenienceFeeInPercentage) / 100;
+  
+  // Total amount = product price + convenience fee
+  const totalPrice = productPrice + convenienceFee;
+  
+  // Price per month = total price / number of EMIs
+  const pricePerMonth = totalPrice / emiDetail.noOfEMIs;
+  
+  return {
+    ...emiDetail,
+    price: productPrice,
+    convenienceFeeInPrice: convenienceFee,
+    totalPrice: totalPrice,
+    pricePerMonth: pricePerMonth
+  };
+}
+
 const ModalEMI: React.FC<ModalEMIProps> = ({ isOpen, onClose, productPrice }) => {
   const dispatch = useDispatch()
   const { emiBanks, selectedBank, isLoading, error } = useSelector((state: RootState) => state.emi)
@@ -42,7 +62,25 @@ const ModalEMI: React.FC<ModalEMIProps> = ({ isOpen, onClose, productPrice }) =>
   }
 
   const formatCurrency = (amount: number) => {
-    return `৳${amount.toLocaleString()}`
+    return <><span className="currency-symbol">৳</span>{Math.round(amount).toLocaleString()}</>
+  }
+
+  // Calculate minimum EMI per month across all banks
+  const calculateMinEMIPerMonth = () => {
+    if (emiBanks.length === 0 || productPrice === 0) return 0;
+    
+    let minEMI = Infinity;
+    
+    emiBanks.forEach((bank) => {
+      bank.EMIDetails.forEach((emiDetail) => {
+        const calculated = calculateEMIDetails(emiDetail, productPrice);
+        if (calculated.pricePerMonth < minEMI) {
+          minEMI = calculated.pricePerMonth;
+        }
+      });
+    });
+    
+    return minEMI === Infinity ? 0 : minEMI;
   }
 
   if (!isOpen) return null
@@ -107,45 +145,50 @@ const ModalEMI: React.FC<ModalEMIProps> = ({ isOpen, onClose, productPrice }) =>
                 <h3 className="text-xl font-semibold mb-6">{selectedBank.bankName}</h3>
                 
                 <div className="space-y-4">
-                  {selectedBank.EMIDetails.map((emi) => (
-                    <div key={emi._id} className="emi-item border border-line rounded-lg">
-                      <div
-                        className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50"
-                        onClick={() => toggleEMIExpansion(emi._id)}
-                      >
-                        <div className="flex items-center gap-4">
-                          <span className="text-sm font-medium">
-                            {emi.noOfEMIs} EMIs | Convenience Fee ({emi.convenienceFeeInPercentage}%) {formatCurrency(emi.pricePerMonth)}/m
-                          </span>
+                  {selectedBank.EMIDetails.map((emi) => {
+                    // Calculate EMI details dynamically based on product price
+                    const calculatedEMI = calculateEMIDetails(emi, productPrice);
+                    
+                    return (
+                      <div key={emi._id} className="emi-item border border-line rounded-lg">
+                        <div
+                          className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50"
+                          onClick={() => toggleEMIExpansion(emi._id)}
+                        >
+                          <div className="flex items-center gap-4">
+                            <span className="text-sm font-medium">
+                              {emi.noOfEMIs} EMIs | Convenience Fee ({emi.convenienceFeeInPercentage}%) {formatCurrency(calculatedEMI.pricePerMonth)}/m
+                            </span>
+                          </div>
+                          <Icon.CaretDown
+                            size={16}
+                            className={`transition-transform ${
+                              expandedEMI === emi._id ? 'rotate-180' : ''
+                            }`}
+                          />
                         </div>
-                        <Icon.CaretDown
-                          size={16}
-                          className={`transition-transform ${
-                            expandedEMI === emi._id ? 'rotate-180' : ''
-                          }`}
-                        />
-                      </div>
-                      
-                      {expandedEMI === emi._id && (
-                        <div className="expanded-content px-4 pb-4 border-t border-line bg-gray-50">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                            <div className="flex justify-between">
-                              <span className="text-secondary">Price</span>
-                              <span className="font-medium">{formatCurrency(emi.price)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-secondary">Convenience Fee</span>
-                              <span className="font-medium">{formatCurrency(emi.convenienceFeeInPrice)}</span>
-                            </div>
-                            <div className="flex justify-between col-span-1 md:col-span-2 pt-2 border-t border-line">
-                              <span className="text-secondary font-medium">Total Amount Payable</span>
-                              <span className="font-semibold text-lg">{formatCurrency(emi.totalPrice)}</span>
+                        
+                        {expandedEMI === emi._id && (
+                          <div className="expanded-content px-4 pb-4 border-t border-line bg-gray-50">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                              <div className="flex justify-between">
+                                <span className="text-secondary">Price</span>
+                                <span className="font-medium">{formatCurrency(calculatedEMI.price)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-secondary">Convenience Fee</span>
+                                <span className="font-medium">{formatCurrency(calculatedEMI.convenienceFeeInPrice)}</span>
+                              </div>
+                              <div className="flex justify-between col-span-1 md:col-span-2 pt-2 border-t border-line">
+                                <span className="text-secondary font-medium">Total Amount Payable</span>
+                                <span className="font-semibold text-lg">{formatCurrency(calculatedEMI.totalPrice)}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

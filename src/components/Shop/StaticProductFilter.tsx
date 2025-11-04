@@ -4,6 +4,9 @@ import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 import CategoryService from '@/services/category.service'
+import { useRouter } from 'next/navigation'
+import Slider from 'rc-slider'
+import 'rc-slider/assets/index.css'
 
 interface FilterState {
   selectedCategories: string[]
@@ -37,6 +40,7 @@ const StaticProductFilter: React.FC<StaticProductFilterProps> = ({
   externalFilterState
 }) => {
   const dispatch = useDispatch()
+  const router = useRouter()
   const { categories } = useSelector((state: any) => state.categories)
   
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
@@ -60,23 +64,41 @@ const StaticProductFilter: React.FC<StaticProductFilterProps> = ({
   const prevExternalFilterStateRef = useRef<string>('')
   const isInternalUpdateRef = useRef(false)
 
-  // Calculate max price from all products for display
+  // Format price in BDT format (e.g., "BDT 4,999")
+  const formatPrice = (price: number): string => {
+    if (price === 0) return 'BDT 0'
+    return `BDT ${price.toLocaleString('en-US')}`
+  }
+
+  // Calculate max price from filtered products (products displayed on right-hand side) for display
   const maxPriceFromProducts = useMemo(() => {
-    if (!allProducts || allProducts.length === 0) return 0
+    // Use products (filtered) instead of allProducts for price range calculation
+    const productsToUse = products && products.length > 0 ? products : allProducts
+    if (!productsToUse || productsToUse.length === 0) return 0
     
-    const prices = allProducts.map(product => product.discountPrice || product.actualPrice || 0).filter(p => p > 0)
+    const prices = productsToUse.map((product: any) => product.discountPrice || product.actualPrice || 0).filter((p: number) => p > 0)
     if (prices.length === 0) return 0
     
     return Math.ceil(Math.max(...prices))
-  }, [allProducts])
+  }, [products, allProducts])
 
-  // Initialize price range to 0 - 0
+  // Initialize price range based on filtered products
   useEffect(() => {
-    setMinPrice(0)
-    setMaxPrice(0)
-    setTempMinPrice(0)
-    setTempMaxPrice(0)
-  }, [])
+    // Only reset if maxPriceFromProducts changes significantly (when filtered products change)
+    if (maxPriceFromProducts > 0) {
+      // If current tempMaxPrice is greater than new max, reset it
+      if (tempMaxPrice > maxPriceFromProducts || tempMaxPrice === 0) {
+        setTempMaxPrice(maxPriceFromProducts)
+      }
+      // If current tempMinPrice is greater than new max, reset it
+      if (tempMinPrice > maxPriceFromProducts) {
+        setTempMinPrice(0)
+      }
+    } else {
+      setTempMinPrice(0)
+      setTempMaxPrice(0)
+    }
+  }, [maxPriceFromProducts])
 
   // Fetch categories if not in Redux
   useEffect(() => {
@@ -398,27 +420,34 @@ const StaticProductFilter: React.FC<StaticProductFilterProps> = ({
   }
 
   const handleApplyPriceFilter = () => {
-    const newMinPrice = Math.max(0, Math.min(tempMinPrice, tempMaxPrice))
-    const newMaxPrice = Math.max(tempMinPrice, tempMaxPrice, maxPriceFromProducts)
+    // Ensure min is less than or equal to max
+    // If tempMaxPrice is 0 or not set, use maxPriceFromProducts
+    const effectiveMaxPrice = tempMaxPrice > 0 ? tempMaxPrice : maxPriceFromProducts
+    const finalMinPrice = Math.max(0, Math.min(tempMinPrice, effectiveMaxPrice))
+    const finalMaxPrice = Math.max(tempMinPrice, effectiveMaxPrice)
     
-    setMinPrice(newMinPrice)
-    setMaxPrice(newMaxPrice)
-    
-    onFilterChange({
-      selectedCategories,
-      selectedBrands,
-      selectedMaterials,
-      selectedTypes,
-      selectedColors,
-      selectedProcessors,
-      selectedRAM,
-      selectedFeatures,
-      selectedDisplaySizes,
-      selectedOperatingSystems,
-      selectedCapacities,
-      minPrice: newMinPrice,
-      maxPrice: newMaxPrice
-    })
+    // Only apply filter if we have valid price range
+    if (finalMinPrice >= 0 && finalMaxPrice > 0 && finalMaxPrice >= finalMinPrice) {
+      setMinPrice(finalMinPrice)
+      setMaxPrice(finalMaxPrice)
+      
+      // Immediately call onFilterChange to apply the filter
+      onFilterChange({
+        selectedCategories,
+        selectedBrands,
+        selectedMaterials,
+        selectedTypes,
+        selectedColors,
+        selectedProcessors,
+        selectedRAM,
+        selectedFeatures,
+        selectedDisplaySizes,
+        selectedOperatingSystems,
+        selectedCapacities,
+        minPrice: finalMinPrice,
+        maxPrice: finalMaxPrice
+      })
+    }
   }
 
   const handleClearAll = () => {
@@ -568,6 +597,47 @@ const StaticProductFilter: React.FC<StaticProductFilterProps> = ({
       </div>
 
       <div className="filter-content">
+        {/* Products Section - Moved to Top */}
+        <div className="filter-section border-b border-gray-200">
+          <div 
+            className="section-header flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={() => toggleSection('products')}
+          >
+            <div className="text-base font-medium text-gray-900">Products</div>
+            <div className="flex items-center gap-2">
+              <div className="text-xs text-gray-500">({allProducts?.length || 0})</div>
+              <Icon.CaretRight 
+                size={16} 
+                className={`transition-transform text-gray-500 ${activeFilterSection === 'products' ? 'rotate-90' : ''}`}
+              />
+            </div>
+          </div>
+          {activeFilterSection === 'products' && (
+            <div className="section-content px-4 pb-4 max-h-60 overflow-y-auto">
+              {allProducts && allProducts.length > 0 ? (
+                <div className="space-y-2">
+                  {allProducts.map((product: any, index: number) => (
+                    <div
+                      key={product._id || index}
+                      className="text-sm text-gray-700 py-1.5 hover:text-blue-600 transition-colors cursor-pointer"
+                      onClick={() => {
+                        // Navigate to product detail page
+                        if (product._id) {
+                          router.push(`/product/default?id=${product._id}`);
+                        }
+                      }}
+                    >
+                      {product.title || product.name || `Product ${index + 1}`}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-500 py-4 text-center">No products available</div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Category Filter */}
         <div className="filter-section border-gray-200">
           <div 
@@ -872,65 +942,84 @@ const StaticProductFilter: React.FC<StaticProductFilterProps> = ({
         )}
 
         {/* Price Range Filter */}
-        <div className="filter-section border-gray-200">
+        <div className="filter-section border-b border-gray-200">
           <div className="section-header p-4">
-            <div className="text-base font-medium text-gray-900 mb-3">Price Range</div>
-            <div className="price-inputs space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="flex-1">
-                  <label className="text-xs text-gray-600 mb-1 block">Min Price</label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={maxPriceFromProducts}
-                    step="1"
-                    value={tempMinPrice}
-                    onChange={(e) => {
-                      const inputValue = e.target.value;
-                      if (inputValue === '') {
-                        setTempMinPrice(0);
-                      } else {
-                        const numValue = parseFloat(inputValue);
-                        if (!isNaN(numValue)) {
-                          setTempMinPrice(Math.max(0, numValue));
-                        }
-                      }
-                    }}
-                    className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:border-blue-500 focus:outline-none transition-colors"
-                    placeholder="0"
-                  />
+            <div className="text-base font-medium text-gray-900 mb-4">Price Range</div>
+            
+            {/* Enhanced Price Range Display */}
+            <div className="mb-5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col items-center flex-1">
+                  <div className="text-xs text-gray-500 mb-1">Min</div>
+                  <div className="text-base font-bold text-gray-900">{formatPrice(tempMinPrice || 0)}</div>
                 </div>
-                <div className="flex-1">
-                  <label className="text-xs text-gray-600 mb-1 block">Max Price</label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={maxPriceFromProducts}
-                    step="1"
-                    value={tempMaxPrice}
-                    onChange={(e) => {
-                      const inputValue = e.target.value;
-                      if (inputValue === '') {
-                        setTempMaxPrice(0);
-                      } else {
-                        const numValue = parseFloat(inputValue);
-                        if (!isNaN(numValue)) {
-                          setTempMaxPrice(Math.max(0, numValue));
-                        }
-                      }
-                    }}
-                    className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:border-blue-500 focus:outline-none transition-colors"
-                    placeholder={`Max: ${maxPriceFromProducts || 0}`}
-                  />
+                <div className="flex flex-col items-center flex-1">
+                  <div className="text-xs text-gray-500 mb-1">Max</div>
+                  <div className="text-base font-bold text-gray-900">{formatPrice(tempMaxPrice > 0 ? tempMaxPrice : (maxPriceFromProducts || 0))}</div>
                 </div>
               </div>
-              <button
-                onClick={handleApplyPriceFilter}
-                className="w-full px-4 py-3 bg-blue-600 text-black rounded-lg text-sm font-semibold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-              >
-                Apply Price Range
-              </button>
+              
+              {/* Ant Design Range Slider */}
+              {maxPriceFromProducts > 0 && (
+                <div className="mb-4 px-1">
+                  <Slider
+                    range
+                    min={0}
+                    max={maxPriceFromProducts}
+                    step={Math.max(1, Math.floor(maxPriceFromProducts / 1000))}
+                    value={[tempMinPrice, tempMaxPrice]}
+                    onChange={(value) => {
+                      if (Array.isArray(value)) {
+                        setTempMinPrice(value[0])
+                        setTempMaxPrice(value[1])
+                      }
+                    }}
+                    trackStyle={[
+                      { backgroundColor: '#0ea5e9', height: 8 },
+                      { backgroundColor: '#0ea5e9', height: 8 }
+                    ]}
+                    handleStyle={[
+                      {
+                        backgroundColor: '#ffffff',
+                        borderColor: '#0ea5e9',
+                        borderWidth: 2,
+                        width: 20,
+                        height: 20,
+                        marginTop: -6,
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)'
+                      },
+                      {
+                        backgroundColor: '#ffffff',
+                        borderColor: '#0ea5e9',
+                        borderWidth: 2,
+                        width: 20,
+                        height: 20,
+                        marginTop: -6,
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)'
+                      }
+                    ]}
+                    railStyle={{
+                      backgroundColor: '#e5e7eb',
+                      height: 8,
+                      opacity: 0.6
+                    }}
+                  />
+                </div>
+              )}
             </div>
+
+            {/* Apply Button */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                handleApplyPriceFilter()
+              }}
+              className="w-full px-4 py-3 bg-black text-white rounded-lg text-sm font-semibold border border-gray-800 shadow-lg hover:bg-gray-900 transition-all hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
+            >
+              Apply Price Range
+            </button>
           </div>
         </div>
       </div>
@@ -938,8 +1027,13 @@ const StaticProductFilter: React.FC<StaticProductFilterProps> = ({
       {/* Clear All Button - Always Visible */}
       <div className="filter-footer p-4 border-t border-gray-200 sticky bottom-0 bg-white">
         <button
-          onClick={handleClearAll}
-          className="w-full px-4 py-3 bg-red-500 text-black rounded-lg text-sm font-semibold hover:bg-red-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+          type="button"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            handleClearAll()
+          }}
+          className="w-full px-4 py-3 bg-black text-white rounded-lg text-sm font-semibold border border-gray-800 shadow-lg hover:bg-gray-900 transition-all hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
         >
           Clear All Filters
         </button>

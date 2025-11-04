@@ -9,6 +9,7 @@ import compareReducer from "./slices/compareSlice";
 import authReducer from "./slices/authSlice";
 import ordersReducer from "./slices/ordersSlice";
 import emiReducer from "./slices/emiSlice";
+import footerReducer from "./slices/footerSlice";
 
 // Create a storage that only works on client side
 const createNoopStorage = () => {
@@ -33,7 +34,7 @@ const storage =
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["categories", "products", "cart", "wishlist", "compare", "auth", "orders", "emi"], // Only persist these reducers
+  whitelist: ["categories", "products", "cart", "wishlist", "compare", "auth", "orders", "emi", "footer"], // Only persist these reducers
 };
 
 const rootReducer = combineReducers({
@@ -45,6 +46,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   orders: ordersReducer,
   emi: emiReducer,
+  footer: footerReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

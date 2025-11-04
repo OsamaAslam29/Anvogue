@@ -450,7 +450,7 @@ const Checkout = () => {
                           <span className="quantity">{product.quantity}</span>
                           <span className="px-1">x</span>
                           <span>
-                            ৳{product.discountPrice?.toLocaleString()}
+                            <span className="currency-symbol">৳</span>{product.discountPrice?.toLocaleString()}
                           </span>
                         </div>
                       </div>
@@ -460,19 +460,19 @@ const Checkout = () => {
                 <div className="subtotal-block py-4 sm:py-5 flex justify-between border-b border-line">
                   <div className="text-title text-sm sm:text-base">Subtotal</div>
                   <div className="text-title text-sm sm:text-base">
-                    ৳{subtotal.toLocaleString()}
+                    <span className="currency-symbol">৳</span>{subtotal.toLocaleString()}
                   </div>
                 </div>
                 <div className="discount-block py-4 sm:py-5 flex justify-between border-b border-line">
                   <div className="text-title text-sm sm:text-base">Discount</div>
                   <div className="text-title text-sm sm:text-base">
-                    -৳<span className="discount">{Number(discount || 0).toLocaleString()}</span>
+                    -<span className="currency-symbol">৳</span><span className="discount">{Number(discount || 0).toLocaleString()}</span>
                   </div>
                 </div>
                 <div className="tax-block py-4 sm:py-5 flex justify-between border-b border-line">
                   <div className="text-title text-sm sm:text-base">Tax</div>
                   <div className="text-title text-sm sm:text-base">
-                    ৳{tax.toLocaleString()}
+                    <span className="currency-symbol">৳</span>{tax.toLocaleString()}
                   </div>
                 </div>
                 <div className="ship-block py-4 sm:py-5 flex justify-between border-b border-line">
@@ -480,13 +480,13 @@ const Checkout = () => {
                   <div className="text-title text-sm sm:text-base">
                     {Number(ship) === 0
                       ? "Free"
-                      : `৳${Number(ship)?.toLocaleString()}`}
+                      : <><span className="currency-symbol">৳</span>{Number(ship)?.toLocaleString()}</>}
                   </div>
                 </div>
                 <div className="total-cart-block pt-4 sm:pt-5 flex justify-between">
                   <div className="heading5 text-base sm:text-lg">Total</div>
                   <div className="heading5 total-cart text-base sm:text-lg">
-                    ৳{totalPrice.toLocaleString()}
+                    <span className="currency-symbol">৳</span>{totalPrice.toLocaleString()}
                   </div>
                 </div>
               </div>

@@ -28,7 +28,7 @@ const mockEMIData = [
       }
     ],
     "createdAt": "2025-11-04T06:20:47.854Z",
-    "updatedAt": "2025-11-04T06:20:47.854Z",
+    "updatedAt": "2025-11-04T18:23:53.081Z",
     "__v": 0
   },
   {
@@ -60,6 +60,36 @@ const mockEMIData = [
   }
 ];
 
+// Helper function to transform simple EMI array to bank structure
+const transformEMIData = (data) => {
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return [];
+  }
+
+  // Check if data already has bank structure (has bankName and EMIDetails)
+  const firstItem = data[0];
+  if (firstItem.bankName && firstItem.EMIDetails) {
+    return data; // Already in bank structure
+  }
+
+  // Check if it's a simple array of EMI details
+  if (firstItem.noOfEMIs !== undefined && firstItem.convenienceFeeInPercentage !== undefined) {
+    // Transform simple EMI array to bank structure
+    return [
+      {
+        "_id": "default-bank",
+        "bankName": "EMI Options",
+        "EMIDetails": data,
+        "createdAt": new Date().toISOString(),
+        "updatedAt": new Date().toISOString(),
+        "__v": 0
+      }
+    ];
+  }
+
+  return data; // Return as is if structure is unknown
+};
+
 const EMIService = {
   getAll: async (dispatch) => {
     dispatch(emiActions.setLoading(true));
@@ -72,7 +102,9 @@ const EMIService = {
 
       if (success) {
         const { result } = success.data;
-        dispatch(emiActions.setEMIBanks(result));
+        // Transform data if needed (handle both bank structure and simple EMI array)
+        const transformedData = transformEMIData(result);
+        dispatch(emiActions.setEMIBanks(transformedData));
       } else {
         // If API fails, use mock data
         dispatch(emiActions.setEMIBanks(mockEMIData));
