@@ -84,8 +84,8 @@ const ModalCart = ({
                                         <div className=''>
                                             <div className="name text-button">{product.name}</div>
                                             <div className="flex items-center gap-2 mt-2">
-                                                <div className="product-price text-title"><span className="currency-symbol">৳</span>{product.price}.00</div>
-                                                <div className="product-origin-price text-title text-secondary2"><del>${product.originPrice}.00</del></div>
+                                                <div className="product-price text-title"><span className="currency-symbol">৳</span>{product.price}</div>
+                                                <div className="product-origin-price text-title text-secondary2"><del>${product.originPrice}</del></div>
                                             </div>
                                         </div>
                                     </div>
@@ -192,7 +192,7 @@ const ModalCart = ({
                         </div>
                         <div className="product-price text-title">
                           <span className="currency-symbol">৳</span>
-                          {product.discountPrice}.00
+                          {product.discountPrice}
                         </div>
                       </div>
                     </div>
@@ -226,7 +226,7 @@ const ModalCart = ({
               </div>
               <div className="flex items-center justify-between pt-6 px-6">
                 <div className="heading5">Subtotal</div>
-                <div className="heading5">${totalCart}.00</div>
+                <div className="heading5">${totalCart}</div>
               </div>
               <div className="block-button text-center p-6">
                 <div className="flex items-center gap-4">

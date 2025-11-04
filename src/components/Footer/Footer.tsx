@@ -1,17 +1,28 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/redux/store.d";
 import SubscriptionService from "@/services/subscription";
+import FooterService from "@/services/footer.service";
 import logo from "../../../public/logo.png";
 
 const Footer = () => {
   const navigate = useRouter();
+  const dispatch = useDispatch();
+  const { footerInfo } = useSelector((state: RootState) => state.footer);
   const [formData, setFormData] = useState({
     email: "",
   });
+
+  useEffect(() => {
+    if (!footerInfo) {
+      FooterService.getAll(dispatch);
+    }
+  }, [dispatch, footerInfo]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -53,19 +64,19 @@ const Footer = () => {
                     <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
                       <Icon.Envelope size={14} color="#1F1F1F" />
                     </div>
-                    <span className="">support@foxybd.com</span>
+                    <span className="">{footerInfo?.email || "support@foxybd.com"}</span>
                   </div>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
                       <Icon.Phone size={14} color="#1F1F1F" />
                     </div>
-                    <span className="">01342688851</span>
+                    <span className="">{footerInfo?.phone || "01342688851"}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
                       <Icon.MapPin size={14} color="#1F1F1F" />
                     </div>
-                    <span className="">Dhaka Bangladesh</span>
+                    <span className="">{footerInfo?.location || "Dhaka Bangladesh"}</span>
                   </div>
                 </div>
                 <div className="list-social flex items-center gap-4 mt-4">

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -23,6 +23,8 @@ import { useModalCompareContext } from '@/context/ModalCompareContext'
 import { useModalEMIContext } from '@/context/ModalEMIContext'
 import ModalSizeguide from '@/components/Modal/ModalSizeguide'
 import ModalEMI from '@/components/Modal/ModalEMI'
+import EMIService from '@/services/emi.service'
+import { EMIDetail } from '@/type/EMIType'
 
 SwiperCore.use([Navigation, Thumbs]);
 
@@ -162,10 +164,18 @@ const Default: React.FC<any> = ({ product, productId }) => {
     const cartArray = useSelector((state: RootState) => state.cart.cartArray);
     const wishlistArray = useSelector((state: RootState) => state.wishlist.wishlistArray);
     const compareArray = useSelector((state: RootState) => state.compare.compareArray);
+    const { emiBanks } = useSelector((state: RootState) => state.emi);
     const { openModalCart } = useModalCartContext()
     const { openModalWishlist } = useModalWishlistContext()
     const { openModalCompare } = useModalCompareContext()
     const { openModalEMI, closeModalEMI, isModalOpen } = useModalEMIContext()
+    
+    // Fetch EMI data when component mounts
+    useEffect(() => {
+        if (emiBanks.length === 0) {
+            EMIService.getAll(dispatch);
+        }
+    }, [dispatch, emiBanks.length]);
     
     const addToCart = (item: any) => {
         dispatch(cartActions.addToCart(item));
@@ -198,6 +208,44 @@ const Default: React.FC<any> = ({ product, productId }) => {
     const percentSale = productMain?.actualPrice && productMain?.discountPrice
         ? Math.floor(100 - ((productMain.discountPrice / productMain.actualPrice) * 100))
         : 0
+
+    // Function to calculate EMI details dynamically
+    const calculateEMIDetails = (emiDetail: EMIDetail, productPrice: number) => {
+        // Calculate convenience fee based on product price and percentage
+        const convenienceFee = (productPrice * emiDetail.convenienceFeeInPercentage) / 100;
+        
+        // Total amount = product price + convenience fee
+        const totalPrice = productPrice + convenienceFee;
+        
+        // Price per month = total price / number of EMIs
+        const pricePerMonth = totalPrice / emiDetail.noOfEMIs;
+        
+        return pricePerMonth;
+    }
+
+    // Calculate minimum EMI per month across all banks
+    const calculateMinEMIPerMonth = () => {
+        const productPrice = productMain?.discountPrice || productMain?.actualPrice || 0;
+        if (emiBanks.length === 0 || productPrice === 0) return 0;
+        
+        let minEMI = Infinity;
+        
+        emiBanks.forEach((bank) => {
+            bank.EMIDetails.forEach((emiDetail) => {
+                const pricePerMonth = calculateEMIDetails(emiDetail, productPrice);
+                if (pricePerMonth < minEMI) {
+                    minEMI = pricePerMonth;
+                }
+            });
+        });
+        
+        return minEMI === Infinity ? 0 : minEMI;
+    }
+
+    const minEMIPerMonth = calculateMinEMIPerMonth();
+    const formatEMIPrice = (amount: number) => {
+        return amount > 0 ? <><span className="currency-symbol">৳</span>{Math.round(amount).toLocaleString()}</> : <><span className="currency-symbol">৳</span>0</>;
+    };
 
     const handleOpenSizeGuide = () => {
         setOpenSizeGuide(true);
@@ -508,11 +556,11 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-3 flex-wrap mt-5 pb-6 border-b border-line">
-                                <div className="product-price heading5">৳{productMain.discountPrice?.toLocaleString()}</div>
+                                <div className="product-price heading5"><span className="currency-symbol">৳</span>{productMain.discountPrice?.toLocaleString()}</div>
                                 {productMain.actualPrice && productMain.actualPrice > productMain.discountPrice && (
                                     <>
                                         <div className='w-px h-4 bg-line'></div>
-                                        <div className="product-origin-price font-normal text-secondary2"><del>৳{productMain.actualPrice?.toLocaleString()}</del></div>
+                                        <div className="product-origin-price font-normal text-secondary2"><del><span className="currency-symbol">৳</span>{productMain.actualPrice?.toLocaleString()}</del></div>
                                         <div className="product-sale caption2 font-semibold bg-green px-3 py-0.5 inline-block rounded-full">
                                             -{percentSale}%
                                         </div>
@@ -595,21 +643,23 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                         Buy It Now
                                     </div>
                                 </div>
-                                <div className="emi-section mt-5 p-4 rounded-lg transition-all duration-300">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-title">EMIs from:</span>
-                                            <span className="text-lg font-semibold">৳999.97/month</span>
+                                {minEMIPerMonth > 0 && (
+                                    <div className="emi-section mt-5 p-4 rounded-lg transition-all duration-300">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-title">EMIs from:</span>
+                                                <span className="text-lg font-semibold">{formatEMIPrice(minEMIPerMonth)}/month</span>
+                                            </div>
+                                            <button
+                                                onClick={openModalEMI}
+                                                className="emi-know-more flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                                            >
+                                                Know More
+                                                <Icon.CaretRight size={16} />
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={openModalEMI}
-                                            className="emi-know-more flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
-                                        >
-                                            Know More
-                                            <Icon.CaretRight size={16} />
-                                        </button>
                                     </div>
-                                </div>
+                                )}
                                 {/* <div className="flex items-center lg:gap-20 gap-8 mt-5 pb-6 border-b border-line">
                                     <div className="compare flex items-center gap-3 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleAddToCompare() }}>
                                         <div className="compare-btn md:w-12 md:h-12 w-10 h-10 flex items-center justify-center border border-line cursor-pointer rounded-xl duration-300 hover:bg-black hover:text-white">

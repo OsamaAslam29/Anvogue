@@ -27,5 +27,18 @@ export interface RootState {
     isLoading: boolean;
     error: string | null;
   };
+  footer: {
+    footerInfo: {
+      _id?: string;
+      email?: string;
+      phone?: string;
+      location?: string;
+      createdAt?: string;
+      updatedAt?: string;
+      __v?: number;
+    } | null;
+    isLoading: boolean;
+    error: string | null;
+  };
 }
 

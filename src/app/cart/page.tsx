@@ -148,7 +148,7 @@ const Cart = () => {
                                                         </div>
                                                     </div>
                                                     <div className="w-1/12 price flex items-center justify-center">
-                                                        <div className="text-title text-center">৳{product?.discountPrice?.toLocaleString()}</div>
+                                                        <div className="text-title text-center"><span className="currency-symbol">৳</span>{product?.discountPrice?.toLocaleString()}</div>
                                                     </div>
                                                     <div className="w-1/6 flex items-center justify-center">
                                                         <div className="quantity-block bg-surface md:p-3 p-2 flex items-center justify-between rounded-lg border border-line md:w-[100px] flex-shrink-0 w-20">
@@ -168,7 +168,7 @@ const Cart = () => {
                                                         </div>
                                                     </div>
                                                     <div className="w-1/6 flex total-price items-center justify-center">
-                                                        <div className="text-title text-center">৳{(product.quantity * product.discountPrice).toLocaleString()}</div>
+                                                        <div className="text-title text-center"><span className="currency-symbol">৳</span>{(product.quantity * product.discountPrice).toLocaleString()}</div>
                                                     </div>
                                                     <div className="w-1/12 flex items-center justify-center">
                                                         <Icon.XCircle
@@ -258,11 +258,11 @@ const Cart = () => {
                                 <div className="heading5">Order Summary</div>
                                 <div className="total-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Subtotal</div>
-                                    <div className="text-title">৳{totalCart.toLocaleString()}</div>
+                                    <div className="text-title"><span className="currency-symbol">৳</span>{totalCart.toLocaleString()}</div>
                                 </div>
                                 {/* <div className="discount-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Discounts</div>
-                                    <div className="text-title">-৳{discountCart.toLocaleString()}</div>
+                                    <div className="text-title">-<span className="currency-symbol">৳</span>{discountCart.toLocaleString()}</div>
                                 </div>
                                 <div className="ship-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Shipping</div>
@@ -312,15 +312,15 @@ const Cart = () => {
                                             </div>
                                         </div>
                                         <div className="right">
-                                            <div className="ship">৳0</div>
-                                            <div className="local text-on-surface-variant1 mt-1">৳30</div>
-                                            <div className="flat text-on-surface-variant1 mt-1">৳40</div>
+                                            <div className="ship"><span className="currency-symbol">৳</span>0</div>
+                                            <div className="local text-on-surface-variant1 mt-1"><span className="currency-symbol">৳</span>30</div>
+                                            <div className="flat text-on-surface-variant1 mt-1"><span className="currency-symbol">৳</span>40</div>
                                         </div>
                                     </div>
                                 </div> */}
                                 <div className="total-cart-block pt-4 pb-4 flex justify-between">
                                     <div className="heading5">Total</div>
-                                    <div className="heading5">৳{(totalCart - discountCart + shipCart).toLocaleString()}</div>
+                                    <div className="heading5"><span className="currency-symbol">৳</span>{(totalCart - discountCart + shipCart).toLocaleString()}</div>
                                 </div>
                                 <div className="block-button flex flex-col items-center gap-y-4 mt-5">
                                     <div className="checkout-btn button-main text-center w-full" onClick={redirectToCheckout}>Process To Checkout</div>
