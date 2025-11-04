@@ -19,7 +19,9 @@ import { compareActions } from '@/redux/slices/compareSlice';
 import { useModalCartContext } from '@/context/ModalCartContext'
 import { useModalWishlistContext } from '@/context/ModalWishlistContext'
 import { useModalCompareContext } from '@/context/ModalCompareContext'
+import { useModalEMIContext } from '@/context/ModalEMIContext'
 import ModalSizeguide from '@/components/Modal/ModalSizeguide'
+import ModalEMI from '@/components/Modal/ModalEMI'
 
 SwiperCore.use([Navigation, Thumbs]);
 
@@ -44,6 +46,7 @@ const Default: React.FC<any> = ({ product, productId }) => {
     const { openModalCart } = useModalCartContext()
     const { openModalWishlist } = useModalWishlistContext()
     const { openModalCompare } = useModalCompareContext()
+    const { openModalEMI, closeModalEMI, isModalOpen } = useModalEMIContext()
     
     const addToCart = (item: any) => {
         dispatch(cartActions.addToCart(item));
@@ -386,6 +389,21 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                 </div>
                                 <div className="button-block mt-5">
                                     <div className="button-main w-full text-center">Buy It Now</div>
+                                </div>
+                                <div className="emi-section mt-5 p-4 rounded-lg transition-all duration-300">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-title">EMIs from:</span>
+                                            <span className="text-lg font-semibold">৳999.97/month</span>
+                                        </div>
+                                        <button
+                                            onClick={openModalEMI}
+                                            className="emi-know-more flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                                        >
+                                            Know More
+                                            <Icon.CaretRight size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                                 {/* <div className="flex items-center lg:gap-20 gap-8 mt-5 pb-6 border-b border-line">
                                     <div className="compare flex items-center gap-3 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleAddToCompare() }}>
@@ -982,6 +1000,13 @@ const Default: React.FC<any> = ({ product, productId }) => {
                     </div>
                 </div> */}
             </div>
+            
+            {/* EMI Modal */}
+            <ModalEMI 
+                isOpen={isModalOpen} 
+                onClose={closeModalEMI} 
+                productPrice={productMain.discountPrice || productMain.actualPrice || 0}
+            />
         </>
     )
 }

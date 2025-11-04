@@ -4,6 +4,7 @@ import { ModalWishlistProvider } from '@/context/ModalWishlistContext'
 import { ModalCompareProvider } from '@/context/ModalCompareContext'
 import { ModalSearchProvider } from '@/context/ModalSearchContext'
 import { ModalQuickviewProvider } from '@/context/ModalQuickviewContext'
+import { ModalEMIProvider } from '@/context/ModalEMIContext'
 
 const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
@@ -12,7 +13,9 @@ const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
                 <ModalCompareProvider>
                     <ModalSearchProvider>
                         <ModalQuickviewProvider>
-                            {children}
+                            <ModalEMIProvider>
+                                {children}
+                            </ModalEMIProvider>
                         </ModalQuickviewProvider>
                     </ModalSearchProvider>
                 </ModalCompareProvider>

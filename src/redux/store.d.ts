@@ -20,5 +20,12 @@ export interface RootState {
   compare: {
     compareArray: any[];
   };
+  emi: {
+    emiBanks: any[];
+    selectedBank: any | null;
+    selectedEMI: any | null;
+    isLoading: boolean;
+    error: string | null;
+  };
 }
 
