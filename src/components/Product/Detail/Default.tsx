@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ProductType } from '@/type/ProductType'
 import Product from '../Product'
 import Rate from '@/components/Other/Rate'
@@ -25,6 +26,122 @@ import ModalEMI from '@/components/Modal/ModalEMI'
 
 SwiperCore.use([Navigation, Thumbs]);
 
+// Function to format product description into HTML
+const formatProductDescription = (description: string): string => {
+    if (!description) return '';
+    
+    // If already properly formatted HTML, return as is
+    if (description.includes('<h3>') || description.includes('<h4>') || description.includes('<div class="flex')) {
+        return description;
+    }
+    
+    let html = description;
+    
+    // Remove existing <p> tags if any and clean up
+    html = html.replace(/<p>/g, '').replace(/<\/p>/g, '\n');
+    
+    // Convert **text** to <strong>text</strong>
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Split into lines for processing
+    const lines = html.split('\n');
+    const processedLines: string[] = [];
+    let currentSection = '';
+    let inList = false;
+    let listItems: string[] = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        // Skip empty lines
+        if (!line) {
+            // Close any open list
+            if (inList && listItems.length > 0) {
+                processedLines.push(`<ul class="list-disc list-inside space-y-1 my-3 ml-4">${listItems.join('')}</ul>`);
+                listItems = [];
+                inList = false;
+            }
+            continue;
+        }
+        
+        // Check for main section headers
+        const sectionHeaders = [
+            'Key Features:',
+            'General Information:',
+            'Panel:',
+            'Video:',
+            'Audio:',
+            'System & Performance:',
+            'System and Performance:',
+            'Smart Features & Applications:',
+            'Smart Features and Applications:',
+            'Connectivity & Convenience:',
+            'Connectivity and Convenience:'
+        ];
+        
+        let isSectionHeader = false;
+        for (const header of sectionHeaders) {
+            if (line.includes(`<strong>${header}</strong>`) || line === header || line.startsWith(header)) {
+                const headerText = header.replace(':', '');
+                processedLines.push(`<h3 class="font-bold text-xl mt-6 mb-4 text-gray-900">${headerText}</h3>`);
+                currentSection = headerText;
+                isSectionHeader = true;
+                break;
+            }
+        }
+        
+        if (isSectionHeader) continue;
+        
+        // Check for list items
+        if (line.startsWith('- ') || line.startsWith('* ') || line.startsWith('• ')) {
+            const listContent = line.substring(2).trim();
+            listItems.push(`<li class="mb-1">${listContent}</li>`);
+            inList = true;
+            continue;
+        }
+        
+        // Close list if we encounter a non-list item
+        if (inList && listItems.length > 0) {
+            processedLines.push(`<ul class="list-disc list-inside space-y-1 my-3 ml-4">${listItems.join('')}</ul>`);
+            listItems = [];
+            inList = false;
+        }
+        
+        // Check for specification format: "Name: Value"
+        if (line.includes(': ') && !line.endsWith(':')) {
+            const colonIndex = line.indexOf(': ');
+            const name = line.substring(0, colonIndex).trim();
+            const value = line.substring(colonIndex + 2).trim();
+            
+            // Clean up HTML tags from name
+            const cleanName = name.replace(/<strong>/g, '').replace(/<\/strong>/g, '');
+            
+            processedLines.push(
+                `<div class="flex flex-wrap py-2 border-b border-gray-100">
+                    <span class="font-semibold text-gray-900 min-w-[220px] sm:w-auto">${cleanName}:</span>
+                    <span class="text-gray-700 ml-2 flex-1">${value}</span>
+                </div>`
+            );
+            continue;
+        }
+        
+        // Regular paragraph
+        if (!line.startsWith('<')) {
+            processedLines.push(`<p class="mb-3 leading-relaxed">${line}</p>`);
+        } else {
+            processedLines.push(line);
+        }
+    }
+    
+    // Close any remaining list
+    if (inList && listItems.length > 0) {
+        processedLines.push(`<ul class="list-disc list-inside space-y-1 my-3 ml-4">${listItems.join('')}</ul>`);
+    }
+    
+    // Wrap in container
+    return `<div class="product-description space-y-2">${processedLines.join('\n')}</div>`;
+};
+
 interface Props {
     product: any
     productId: string | number | null
@@ -40,6 +157,7 @@ const Default: React.FC<any> = ({ product, productId }) => {
     const [activeColor, setActiveColor] = useState<string>('')
     const [activeSize, setActiveSize] = useState<string>('')
     const [activeTab, setActiveTab] = useState<string | undefined>('description')
+    const router = useRouter();
     const dispatch = useDispatch();
     const cartArray = useSelector((state: RootState) => state.cart.cartArray);
     const wishlistArray = useSelector((state: RootState) => state.wishlist.wishlistArray);
@@ -137,6 +255,17 @@ const Default: React.FC<any> = ({ product, productId }) => {
         openModalCart()
     };
 
+    const handleBuyItNow = () => {
+        // Add product to cart if not already there
+        if (!cartArray.find(item => item._id === productMain._id)) {
+            addToCart({ ...productMain });
+        }
+        // Update cart with current quantity, size, and color
+        updateCart(productMain._id, quantity, activeSize, activeColor);
+        // Navigate to checkout page
+        router.push('/checkout');
+    };
+
     const handleAddToWishlist = () => {
         // if product existed in wishlit, remove from wishlist and set state to false
         if (wishlistArray.some(item => item._id === productMain._id)) {
@@ -201,23 +330,23 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                             {selectedImageIndex === index && (
                                                 <>
                                                     {/* Price Overlay - Top Left */}
-                                                    <div className="absolute top-1 left-1 bg-white/90 px-2 py-0.5 rounded text-xs font-semibold">
+                                                    {/* <div className="absolute top-1 left-1 bg-white/90 px-2 py-0.5 rounded text-xs font-semibold">
                                                         <div className="line-through text-gray-500">৳{productMain.actualPrice?.toLocaleString() || '0'}</div>
                                                         <div className="text-black font-bold">৳{productMain.discountPrice?.toLocaleString() || '0'}</div>
-                                                    </div>
+                                                    </div> */}
                                                     {/* Guarantee Badge - Bottom Left */}
-                                                    <div className="absolute bottom-1 left-1">
+                                                    {/* <div className="absolute bottom-1 left-1">
                                                         <div className="w-6 h-6 bg-white rounded-full border-2 border-yellow-400 flex items-center justify-center">
                                                             <Icon.ShieldCheck size={14} weight="fill" className="text-yellow-600" />
                                                         </div>
-                                                    </div>
+                                                    </div> */}
                                                     {/* Discount Badge - Bottom Right */}
-                                                    {percentSale > 0 && (
+                                                    {/* {percentSale > 0 && (
                                                         <div className="absolute bottom-1 right-1 bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-semibold">
                                                             <div>{percentSale}%</div>
                                                             <div>OFF</div>
                                                         </div>
-                                                    )}
+                                                    )} */}
                                                 </>
                                             )}
                                         </div>
@@ -459,7 +588,12 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                     <div onClick={handleAddToCart} className="button-main w-full text-center bg-white text-black border border-black">Add To Cart</div>
                                 </div>
                                 <div className="button-block mt-5">
-                                    <div className="button-main w-full text-center">Buy It Now</div>
+                                    <div 
+                                        className="button-main w-full text-center cursor-pointer" 
+                                        onClick={handleBuyItNow}
+                                    >
+                                        Buy It Now
+                                    </div>
                                 </div>
                                 <div className="emi-section mt-5 p-4 rounded-lg transition-all duration-300">
                                     <div className="flex items-center justify-between">
@@ -630,7 +764,10 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                 <div className='grid md:grid-cols-2 gap-8 gap-y-5'>
                                     <div className="left">
                                         <div className="heading6">Description</div>
-                                        <div className="text-secondary mt-2">{productMain?.detail}</div>
+                                        <div 
+                                            className="product-description-wrapper mt-2"
+                                            dangerouslySetInnerHTML={{ __html: formatProductDescription(productMain?.detail || '') }}
+                                        />
                                         {/* <div className="text-secondary mt-2">Keep your home organized, yet elegant with storage cabinets by Onita Patio Furniture. These cabinets not only make a great storage units, but also bring a great decorative accent to your decor. Traditionally designed, they are perfect to be used in the hallway, living room, bedroom, office or any place where you need to store or display things. Made of high quality materials, they are sturdy and durable for years. Bring one-of-a-kind look to your interior with furniture from Onita Furniture!</div> */}
                                     </div>
                                     {/* <div className="right">
@@ -686,13 +823,24 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                 {productMain.specifications && productMain.specifications.length > 0 ? (
                                     <div className='grid md:grid-cols-2 gap-6'>
                                         {productMain.specifications.map((specGroup: any, index: number) => (
-                                            <div key={index} className="spec-group">
-                                                <div className="heading6 mb-4">{specGroup.name}</div>
-                                                <div className="space-y-2">
+                                            <div key={index} className="spec-group bg-white rounded-lg overflow-hidden shadow-sm">
+                                                {/* Section Header with Light Blue Background - Rounded Top Corners */}
+                                                <div className="bg-blue-400 text-white py-3 px-4 font-bold text-base rounded-t-lg">
+                                                    {specGroup.name}
+                                                </div>
+                                                {/* Key-Value Pairs */}
+                                                <div className="spec-details bg-white">
                                                     {specGroup.detail && specGroup.detail.map((detailItem: any, detailIndex: number) => (
-                                                        <div key={detailIndex} className={`item flex items-center gap-4 py-3 px-4 rounded-lg ${index % 2 === 0 ? 'bg-surface' : 'bg-white'}`}>
-                                                            <div className="text-title font-semibold sm:w-1/3 w-1/2">{detailItem.name}</div>
-                                                            <p className="text-secondary flex-1">{detailItem.value}</p>
+                                                        <div 
+                                                            key={detailIndex} 
+                                                            className="spec-item flex justify-between items-center py-3 px-4 border-b border-gray-200 last:border-b-0"
+                                                        >
+                                                            <span className="spec-key text-gray-900 font-semibold text-sm flex-shrink-0">
+                                                                {detailItem.name}
+                                                            </span>
+                                                            <span className="spec-value text-gray-600 text-sm text-right ml-4 break-words">
+                                                                {detailItem.value}
+                                                            </span>
                                                         </div>
                                                     ))}
                                                 </div>

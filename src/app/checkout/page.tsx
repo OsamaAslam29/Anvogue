@@ -181,8 +181,8 @@ const Checkout = () => {
       </div>
       <div className="cart-block md:py-20 py-10">
         <div className="container">
-          <div className="content-main flex justify-between">
-            <div className="left w-1/2">
+          <div className="content-main flex flex-col lg:flex-row lg:justify-between gap-8 lg:gap-6">
+            <div className="left w-full lg:w-1/2">
               <div className="login bg-surface py-3 px-4 flex justify-between rounded-lg">
                 {/* <div className="left flex items-center">
                   <span className="text-on-surface-variant1 pr-4">
@@ -226,7 +226,7 @@ const Checkout = () => {
                 </form>
               </div> */}
               <div className="information mt-5">
-                <div className="heading5">Information</div>
+                <div className="heading5 text-base sm:text-lg">Information</div>
                 <div className="form-checkout mt-5">
                   <form onSubmit={handlePlaceOrder}>
                     {error && (
@@ -234,7 +234,7 @@ const Checkout = () => {
                         {error}
                       </div>
                     )}
-                    <div className="grid sm:grid-cols-2 gap-4 gap-y-5 flex-wrap">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 gap-y-5">
                       <div className="">
                         <input
                           className="border-line px-4 py-3 w-full rounded-lg"
@@ -259,7 +259,7 @@ const Checkout = () => {
                           required
                         />
                       </div>
-                      <div className="">
+                      <div className="sm:col-span-2">
                         <input
                           className="border-line px-4 py-3 w-full rounded-lg"
                           id="email"
@@ -271,7 +271,7 @@ const Checkout = () => {
                           required
                         />
                       </div>
-                      <div className="">
+                      <div className="sm:col-span-2">
                         <input
                           className="border-line px-4 py-3 w-full rounded-lg"
                           id="phoneNumber"
@@ -321,7 +321,7 @@ const Checkout = () => {
                           required
                         />
                       </div>
-                      <div className="">
+                      <div className="sm:col-span-2">
                         <input
                           className="border-line px-4 py-3 w-full rounded-lg"
                           id="postalCode"
@@ -345,25 +345,27 @@ const Checkout = () => {
                       </div>
                     </div>
                     <div className="payment-block md:mt-10 mt-6">
-                      <div className="heading5">Payment Method</div>
+                      <div className="heading5 text-base sm:text-lg">Payment Method</div>
                       <div className="list-payment mt-5">
-                        <div className="type bg-surface p-5 border border-line rounded-lg open">
-                          <input
-                            className="cursor-pointer"
-                            type="radio"
-                            id="delivery"
-                            name="payment"
-                            checked={true}
-                            readOnly
-                          />
-                          <label
-                            className="text-button pl-2 cursor-pointer"
-                            htmlFor="delivery"
-                          >
-                            Cash on Delivery (COD)
-                          </label>
+                        <div className="type bg-surface p-4 sm:p-5 border border-line rounded-lg open">
+                          <div className="flex items-center">
+                            <input
+                              className="cursor-pointer"
+                              type="radio"
+                              id="delivery"
+                              name="payment"
+                              checked={true}
+                              readOnly
+                            />
+                            <label
+                              className="text-button pl-2 cursor-pointer text-sm sm:text-base"
+                              htmlFor="delivery"
+                            >
+                              Cash on Delivery (COD)
+                            </label>
+                          </div>
                           <div className="infor">
-                            <div className="text-on-surface-variant1 pt-4">
+                            <div className="text-on-surface-variant1 pt-3 sm:pt-4 text-xs sm:text-sm">
                               Pay with cash when your order is delivered. Your order will be processed and shipped after confirmation.
                             </div>
                           </div>
@@ -404,16 +406,16 @@ const Checkout = () => {
                 </div>
               </div>
             </div>
-            <div className="right w-5/12">
+            <div className="right w-full lg:w-5/12 lg:sticky lg:top-24 h-fit">
               <div className="checkout-block">
                 <div className="heading5 pb-3">Your Order</div>
                 <div className="list-product-checkout">
                   {cartArray.map((product) => (
                     <div
                       key={product._id}
-                      className="item flex items-center justify-between w-full pb-5 border-b border-line gap-6 mt-5"
+                      className="item flex items-center justify-between w-full pb-5 border-b border-line gap-3 sm:gap-6 mt-5"
                     >
-                      <div className="bg-img w-[100px] aspect-square flex-shrink-0 rounded-lg overflow-hidden">
+                      <div className="bg-img w-16 sm:w-20 md:w-[100px] aspect-square flex-shrink-0 rounded-lg overflow-hidden">
                         <Image
                           src={
                             product.images[0]?.Location ||
@@ -422,12 +424,12 @@ const Checkout = () => {
                           width={500}
                           height={500}
                           alt={product.title || "product"}
-                          className="w-full h-full"
+                          className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="flex items-center justify-between w-full">
-                        <div>
-                          <div className="name text-title">{product.title}</div>
+                      <div className="flex items-center justify-between w-full min-w-0">
+                        <div className="min-w-0 flex-1 pr-2">
+                          <div className="name text-title text-sm sm:text-base truncate">{product.title}</div>
                           <div className="caption1 text-secondary mt-2">
                             <span className="size capitalize">
                               {product.selectedSize ||
@@ -444,7 +446,7 @@ const Checkout = () => {
                             </span>
                           </div>
                         </div>
-                        <div className="text-title">
+                        <div className="text-title text-sm sm:text-base whitespace-nowrap flex-shrink-0">
                           <span className="quantity">{product.quantity}</span>
                           <span className="px-1">x</span>
                           <span>
@@ -455,35 +457,35 @@ const Checkout = () => {
                     </div>
                   ))}
                 </div>
-                <div className="subtotal-block py-5 flex justify-between border-b border-line">
-                  <div className="text-title">Subtotal</div>
-                  <div className="text-title">
+                <div className="subtotal-block py-4 sm:py-5 flex justify-between border-b border-line">
+                  <div className="text-title text-sm sm:text-base">Subtotal</div>
+                  <div className="text-title text-sm sm:text-base">
                     ৳{subtotal.toLocaleString()}
                   </div>
                 </div>
-                <div className="discount-block py-5 flex justify-between border-b border-line">
-                  <div className="text-title">Discount</div>
-                  <div className="text-title">
+                <div className="discount-block py-4 sm:py-5 flex justify-between border-b border-line">
+                  <div className="text-title text-sm sm:text-base">Discount</div>
+                  <div className="text-title text-sm sm:text-base">
                     -৳<span className="discount">{Number(discount || 0).toLocaleString()}</span>
                   </div>
                 </div>
-                <div className="tax-block py-5 flex justify-between border-b border-line">
-                  <div className="text-title">Tax</div>
-                  <div className="text-title">
+                <div className="tax-block py-4 sm:py-5 flex justify-between border-b border-line">
+                  <div className="text-title text-sm sm:text-base">Tax</div>
+                  <div className="text-title text-sm sm:text-base">
                     ৳{tax.toLocaleString()}
                   </div>
                 </div>
-                <div className="ship-block py-5 flex justify-between border-b border-line">
-                  <div className="text-title">Shipping</div>
-                  <div className="text-title">
+                <div className="ship-block py-4 sm:py-5 flex justify-between border-b border-line">
+                  <div className="text-title text-sm sm:text-base">Shipping</div>
+                  <div className="text-title text-sm sm:text-base">
                     {Number(ship) === 0
                       ? "Free"
                       : `৳${Number(ship)?.toLocaleString()}`}
                   </div>
                 </div>
-                <div className="total-cart-block pt-5 flex justify-between">
-                  <div className="heading5">Total</div>
-                  <div className="heading5 total-cart">
+                <div className="total-cart-block pt-4 sm:pt-5 flex justify-between">
+                  <div className="heading5 text-base sm:text-lg">Total</div>
+                  <div className="heading5 total-cart text-base sm:text-lg">
                     ৳{totalPrice.toLocaleString()}
                   </div>
                 </div>
