@@ -18,7 +18,6 @@ const TopBar = () => {
   const { categories } = useSelector((state: any) => state.categories);
 
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const { handleMenuMobile, openMenuMobile } = useMenuMobile();
   const { openModalCart } = useModalCartContext();
   const { openModalWishlist } = useModalWishlistContext();
@@ -84,16 +83,6 @@ const TopBar = () => {
               </div>
             </div>
 
-            {/* Mobile Search Icon */}
-            <div className="lg:hidden flex items-center gap-4">
-              <div
-                className="search-icon cursor-pointer"
-                onClick={() => setShowMobileSearch(!showMobileSearch)}
-              >
-                <Icon.MagnifyingGlass weight="bold" size={24} color="white" />
-              </div>
-            </div>
-
             <div className="right flex gap-12">
               <div className="list-action flex items-center gap-4">
                 <div className="user-icon flex items-center justify-center cursor-pointer">
@@ -152,33 +141,31 @@ const TopBar = () => {
       </div>
 
       {/* Mobile Search Bar */}
-      {showMobileSearch && (
-        <div className="lg:hidden bg-[#263587] px-4 py-3">
-          <div className="flex items-center gap-2">
+      <div className="lg:hidden bg-[#263587] px-4 pb-4 pt-3">
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+            <Icon.MagnifyingGlass
+              size={20}
+              weight="bold"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7c8bbd]"
+              onClick={() => handleSearch(searchKeyword)}
+            />
             <input
-              className="flex-1 h-10 px-3 rounded-lg border border-line"
-              placeholder="What are you looking for?"
+              className="w-full h-12 rounded-full pl-12 pr-4 border border-white/40 bg-white text-sm text-gray-900 placeholder:text-gray-500 shadow-[0_8px_20px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-[#8aa2ff]"
+              placeholder="Search for products, brands and more"
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" && handleSearch(searchKeyword)
-              }
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchKeyword)}
             />
-            <button
-              className="button-main bg-red text-white h-10 px-4 rounded-lg"
-              onClick={() => handleSearch(searchKeyword)}
-            >
-              Search
-            </button>
-            <button
-              className="text-white p-2"
-              onClick={() => setShowMobileSearch(false)}
-            >
-              <Icon.X size={20} />
-            </button>
           </div>
+          <button
+            className="h-12 px-5 rounded-full bg-[#ff6b00] text-white text-sm font-semibold flex-shrink-0 shadow-[0_10px_15px_rgba(255,107,0,0.35)]"
+            onClick={() => handleSearch(searchKeyword)}
+          >
+            Search
+          </button>
         </div>
-      )}
+      </div>
 
       {/* Mobile Menu */}
       <div id="menu-mobile" className={`${openMenuMobile ? 'open' : ''}`}>

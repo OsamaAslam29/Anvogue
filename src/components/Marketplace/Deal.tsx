@@ -96,7 +96,7 @@ const Deal = ({ categories, products }: DealProps) => {
 
     return (
         <ErrorBoundary>
-            <div className="md:pt-[60px] pt-10">
+            <div className="marketplace-product-section bg-[#f5f7fb] md:py-[60px] py-10">
                 <div className="container">
                     {/* New Arrival Section */}
                     {(() => {

@@ -352,7 +352,7 @@ const Default: React.FC<any> = ({ product, productId }) => {
                 <div className="featured-product underwear md:py-20 py-10">
                     <div className="container flex justify-between gap-y-6 flex-wrap">
                         <div className="list-img md:w-1/2 md:pr-[45px] w-full">
-                            <div className="flex gap-4">
+                            <div className="flex gap-4 max-md:flex-col">
                                 {/* Thumbnails Column - Left Side */}
                                 <div className="flex flex-col gap-3 flex-shrink-0 max-md:hidden">
                                     {productMain.images.map((item: any, index: number) => (
@@ -372,7 +372,7 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                                 width={100}
                                                 height={120}
                                                 alt={`thumbnail-${index}`}
-                                                className='w-full h-full object-cover'
+                                                className='w-full h-full object-contain'
                                             />
                                             {/* Overlays for active thumbnail */}
                                             {selectedImageIndex === index && (
@@ -417,7 +417,7 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                     
                                     {/* Main Image */}
                                     <div 
-                                        className="w-full aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer"
+                                        className="main-product-media w-full max-md:min-h-[320px] aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer bg-white flex items-center justify-center shadow-sm"
                                         onClick={() => {
                                             swiperRef.current?.slideTo(selectedImageIndex);
                                             setOpenPopupImg(true);
@@ -428,7 +428,9 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                             width={1000}
                                             height={1333}
                                             alt='main-product-img'
-                                            className='w-full h-full object-cover'
+                                            sizes="(max-width: 768px) 100vw, 50vw"
+                                            priority
+                                            className='w-full h-full object-contain'
                                         />
                                     </div>
                                 </div>
@@ -454,7 +456,7 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                                 width={80}
                                                 height={96}
                                                 alt={`thumbnail-${index}`}
-                                                className='w-full h-full object-cover'
+                                                className='w-full h-full object-contain'
                                             />
                                             {selectedImageIndex === index && percentSale > 0 && (
                                                 <div className="absolute bottom-1 right-1 bg-blue-600 text-white px-1.5 py-0.5 rounded text-xs font-semibold">
@@ -505,7 +507,7 @@ const Default: React.FC<any> = ({ product, productId }) => {
                                                 width={1000}
                                                 height={1000}
                                                 alt='prd-img'
-                                                className='w-full aspect-[3/4] object-cover rounded-xl'
+                                                className='w-full aspect-[3/4] object-contain md:object-cover rounded-xl bg-white'
                                                 onClick={(e) => {
                                                     e.stopPropagation(); // prevent
                                                 }}

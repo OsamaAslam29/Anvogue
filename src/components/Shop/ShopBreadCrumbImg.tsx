@@ -482,7 +482,7 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, ca
     };
 
     return (
-        <>
+        <div className="bg-[#f5f7fb] min-h-screen">
             <div className="breadcrumb-block style-img">
                 <div className="breadcrumb-main bg-linear overflow-hidden">
                     <div className="container lg:pt-[50px] pt-24 pb-10 relative">
@@ -894,7 +894,7 @@ const ShopBreadCrumbImg: React.FC<Props> = ({ data, productPerPage, dataType, ca
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 

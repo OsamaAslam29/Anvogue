@@ -53,7 +53,7 @@ const Compare = () => {
                         </div>
                     </div>
                 </div>
-                <Footer />
+                {/* <Footer /> */}
             </>
         )
     }
@@ -189,7 +189,7 @@ const Compare = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
+            {/* <Footer /> */}
         </>
     )
 }

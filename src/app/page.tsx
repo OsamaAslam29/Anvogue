@@ -47,7 +47,9 @@ export default function Home() {
         <MenuMarketplace />
         <SliderMarketplace />
       </div>
-      <Deal categories={categories} products={products} />
+      <section className="w-full bg-[#f5f7fb] border-t border-[#e4e9f2]">
+        <Deal categories={categories} products={products} />
+      </section>
       {/* <BannerAbove /> */}
       {/* <Collection /> */}
       {/* <BestSeller data={productData} start={0} limit={5} /> */}

@@ -684,7 +684,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style }) => {
             }
 
             {type === 'marketplace' ? (
-                <div className="product-item style-marketplace p-4 border border-line rounded-2xl" onClick={() => handleDetailProduct(data._id)}>
+                <div className="product-item style-marketplace p-4 border border-line rounded-2xl bg-white shadow-[0_12px_30px_rgba(30,64,175,0.08)] hover:shadow-[0_16px_34px_rgba(30,64,175,0.12)] transition-shadow duration-200" onClick={() => handleDetailProduct(data._id)}>
                     <div className="bg-img relative w-full">
                         <Image className='w-full aspect-square' width={5000} height={5000} src={data.images[0]?.Location} alt="img" />
                         <div className="list-action flex flex-col gap-1 absolute top-0 right-0">
