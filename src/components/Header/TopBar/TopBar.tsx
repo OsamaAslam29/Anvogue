@@ -30,7 +30,6 @@ const TopBar = () => {
   const handleSearch = (value: string) => {
     router.push(`/search-result?query=${value}`);
     setSearchKeyword("");
-    setShowMobileSearch(false);
   };
 
   const handleCategoryClick = (category: string) => {
